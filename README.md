@@ -8,7 +8,8 @@ A collection of scripts and dockerfiles to generate Docker images meant to host
 correctly.
 2. Run `./build.sh` to kick off the build of the container and generate
 a rootfs image using the default settings.
-3. Run ./launcher.sh to launch the vm.
+3. Configure iptables on your host using either or `./scripts/configure-host-network.sh` wizard or `./scripts/configure-iptables.sh` directly.
+4. Run ./launcher.sh to launch the vm.
 
 ## How to customize
 Edit files in `default-config/` to change the default settings for the images 

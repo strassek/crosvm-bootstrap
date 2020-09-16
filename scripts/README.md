@@ -21,6 +21,9 @@ Helper python script that generates the image files. Configured with [image.json
 Helper python script that can be deployed inside rootfs to create users specified
 in the json file. Configured with [users.json](../default-config/users.json)
 
+### `configure-host-network.sh`
+Wizard for configuring iptables on the VM host machine.
+
 ## Support scripts
 
 ### `configure-iptables.sh`
