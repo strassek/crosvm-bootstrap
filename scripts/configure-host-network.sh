@@ -2,8 +2,10 @@
 
 NICS=()
 for n in /sys/class/net/* ; do
+	# Collect all the NICs on the host machine
 	NICS+=(`basename $n`)
 done
+# Capture the first NIC with a default route
 DEFAULT_DEV=`cat /proc/net/route | cut -f 1,2 | grep "00000000" | head -1 | cut -f 1`
 
 echo "Found devices:"
@@ -14,6 +16,7 @@ for n in ${NICS[@]} ; do
 	IP=`ip -4 a show dev $n | grep inet | cut -d'/' -f 1 | tr -dc '0-9.'`
 	case $n in
 	$DEFAULT_DEV)
+		# Specially mark the device we captured before
 		echo -e "$NUM)*\t$n ($IP)"
 		let "DEF_IDX=NUM"
 		;;
