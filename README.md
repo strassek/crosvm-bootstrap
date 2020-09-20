@@ -6,7 +6,7 @@ A collection of scripts and dockerfiles to generate Docker images meant to host
 ## Quickstart
 1. Run `./check-environment.sh` to make sure your system has docker set up
 correctly.
-2. Run `./clean-build.sh` to kick off the build of the container and generate
+2. Run `./build.sh` to kick off the build of the container and generate
 a rootfs image using the default settings.
 3. Run ./launcher.sh to launch the vm.
 
