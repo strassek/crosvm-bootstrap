@@ -472,11 +472,11 @@ build_demos --release $LOCAL_BUILD_TYPE --stable --64bit
 #----------------------------stable Channel ends-----------------
 
 if [ $COMPONENT_ONLY_BUILDS == "--all" ] || [ $COMPONENT_ONLY_BUILDS == "--kernel" ]; then
-  if [ $LOCAL_BUILD_CHANNEL == "dev" ] || [ $LOCAL_BUILD_CHANNEL == "all" ]; then
+  if [ $LOCAL_BUILD_CHANNEL == "--dev" ] || [ $LOCAL_BUILD_CHANNEL == "--all" ]; then
     chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/build_kernel.sh --release $LOCAL_BUILD_TYPE --dev
   fi
 
-  if [ $LOCAL_BUILD_CHANNEL == "stable" ] || [ $LOCAL_BUILD_CHANNEL == "all" ]; then
+  if [ $LOCAL_BUILD_CHANNEL == "--stable" ] || [ $LOCAL_BUILD_CHANNEL == "--all" ]; then
     chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/build_kernel.sh --release $LOCAL_BUILD_TYPE --stable
   fi
 fi
