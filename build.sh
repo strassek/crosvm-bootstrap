@@ -27,7 +27,6 @@ LOCAL_BUILD_TYPE=$BUILD_TYPE
 LOCAL_COMPONENT_ONLY_BUILDS=$COMPONENT_ONLY_BUILDS
 LOCAL_INITIAL_BUILD_SETUP=$INITIAL_BUILD_SETUP
 LOCAL_SYNC_SOURCE=$SYNC_SOURCE
-LOG_BUILD_DIR=""
 
 if [ ! -e $LOCAL_PWD ]; then
   mkdir -p $LOCAL_PWD/output/scripts
@@ -72,9 +71,10 @@ if [ $LOCAL_INITIAL_BUILD_SETUP == "--recreate-source-image-only" ]; then
 fi
 
 rm -rf build/docker/
-mkdir -p build/docker/
-cp dockerfiles/builder.dockerfile build/docker/Dockerfile
-cd $LOCAL_PWD/docker/
+mkdir -p build/docker/rootfs
+mkdir -p build/docker/component
+cp dockerfiles/rootfs.dockerfile build/docker/rootfs/Dockerfile
+cp dockerfiles/component.dockerfile build/docker/component/Dockerfile
 
 SHA=`git rev-parse --short HEAD`
 TAG=`git describe --always`
@@ -84,39 +84,79 @@ else
     echo "COMMIT-$SHA" > VERSION
 fi
 
+# Handle rootfs builds
+cd $LOCAL_PWD/docker/rootfs
+
 if [ $BUILD_TYPE == "--clean" ]; then
   docker image rm package-builder -f
 fi
 
-echo “building docker...”
 docker build -t package-builder:latest .
-LOG_BUILD_DIR=`date "+%y%m%d-%H%M"`
-mkdir -p $LOCAL_PWD/output/$LOG_BUILD_DIR
+building_rootfs() {
+component="${1}"
+docker run -it --privileged -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker $component $MOUNT_POINT
+}
 
 if [ ! -e $LOCAL_PWD/output/rootfs.ext4 ]; then
-  docker run -it --privileged -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker --create-rootfs-image-only $LOCAL_BUILD_TYPE $LOCAL_COMPONENT_ONLY_BUILDS $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM $LOG_BUILD_DIR $MOUNT_POINT > >(tee -a $LOCAL_PWD/output/$LOG_BUILD_DIR/rootfs.log) 2> >(tee -a $LOCAL_PWD/output/$LOGDIR/rootfs.err) >&2
+  building_rootfs "--create-rootfs-image-only"
   LOCAL_INITIAL_BUILD_SETUP="--bootstrap"
 fi
 
 if [ $LOCAL_INITIAL_BUILD_SETUP == "--bootstrap" ]; then
-echo "Bootstrap Debian...."
-docker run -it --privileged -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker $LOCAL_INITIAL_BUILD_SETUP $LOCAL_BUILD_TYPE $LOCAL_COMPONENT_ONLY_BUILDS $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM $LOG_BUILD_DIR $MOUNT_POINT > >(tee -a $LOCAL_PWD/output/$LOG_BUILD_DIR/bootstrap.log) 2> >(tee -a $LOCAL_PWD/output/$LOGDIR/bootstrap.err) >&2
-LOCAL_INITIAL_BUILD_SETUP="--setup-initial-environment"
+  echo "Bootstrap Debian...."
+  building_rootfs "--bootstrap"
+  LOCAL_INITIAL_BUILD_SETUP="--setup-initial-environment"
 fi
 
 if [ $LOCAL_INITIAL_BUILD_SETUP == "--setup-initial-environment" ]; then
-echo "Setting up initial environment."
-docker run -it --privileged -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker $LOCAL_INITIAL_BUILD_SETUP $LOCAL_BUILD_TYPE $LOCAL_COMPONENT_ONLY_BUILDS $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM $LOG_BUILD_DIR $MOUNT_POINT > >(tee -a $LOCAL_PWD/output/$LOG_BUILD_DIR/initial_env_setup.log) 2> >(tee -a $LOCAL_PWD/output/$LOGDIR/initial_env_setup.err) >&2
-LOCAL_BUILD_TYPE="--really-clean"
-LOCAL_SYNC_SOURCE="--true"
+  echo "Setting up initial environment."
+  building_rootfs "--setup-initial-environment"
+  LOCAL_BUILD_TYPE="--really-clean"
 fi
 
 if [ ! -e $SOURCE_PWD/source/source.ext4 ]; then
-docker run -it --privileged -v $SOURCE_PWD/source:/app/source -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker --create-source-image-only $LOCAL_BUILD_TYPE $LOCAL_COMPONENT_ONLY_BUILDS $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM $LOG_BUILD_DIR $MOUNT_POINT > >(tee -a $LOCAL_PWD/output/$LOG_BUILD_DIR/source_image.log) 2> >(tee -a $LOCAL_PWD/output/$LOGDIR/source_image.err) >&2
-LOCAL_BUILD_TYPE="--really-clean"
-LOCAL_SYNC_SOURCE="--false"
+  echo "Setting up initial source image."
+  docker run -it --privileged -v $SOURCE_PWD/source:/app/source -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker --create-source-image-only $MOUNT_POINT
+  LOCAL_BUILD_TYPE="--really-clean"
+  LOCAL_SYNC_SOURCE="--false"
 fi
 
-LOCAL_INITIAL_BUILD_SETUP="--none"
+if [ $LOCAL_BUILD_TYPE == "--really-clean" ]; then
+  LOCAL_COMPONENT_ONLY_BUILDS="--all"
+fi
 
-docker run -it --privileged -v $SOURCE_PWD/source:/app/source -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker $LOCAL_INITIAL_BUILD_SETUP $LOCAL_BUILD_TYPE $LOCAL_COMPONENT_ONLY_BUILDS $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM $LOG_BUILD_DIR $MOUNT_POINT
+# Handle component builds
+cd $LOCAL_PWD/docker/component
+docker build -t package-builder:latest .
+
+echo "Building components."
+building_component() {
+component="${1}"
+docker run -it --privileged -v $SOURCE_PWD/source:/app/source -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker $LOCAL_BUILD_TYPE $component $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM $MOUNT_POINT
+
+LOCAL_SYNC_SOURCE="--false"
+UPDATE_SYSTEM="--false"
+}
+
+if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ]; then
+  building_component "--x11"
+  building_component "--wayland"
+fi
+
+if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--drivers" ]; then
+  building_component "--drivers"
+  building_component "--vm"
+  building_component "--demos"
+fi
+
+if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--kernel" ]; then
+  building_component "--kernel"
+fi
+
+if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--vm" ]; then
+  building_component "--vm"
+fi
+
+if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--demos" ]; then
+  building_component "--demos"
+fi

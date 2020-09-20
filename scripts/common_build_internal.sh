@@ -17,23 +17,23 @@ BUILD_CHANNEL=${3}
 BUILD_ARCH=${4}
 
 if [ $BUILD_ARCH != "--64bit" ] && [ $BUILD_ARCH != "--32bit" ]; then
-  echo "Invalid Build Arch. Valid Values:--64bit, --32bit"
-  exit
+  echo "Invalid Build Arch. Valid Values:--64bit, --32bit Recieved:" $BUILD_ARCH
+  exit 1
 fi
 
 if [ $CLEAN_BUILD != "--clean" ] && [ $CLEAN_BUILD != "--incremental" ]; then
-  echo "Invalid Build Type. Valid Values:--clean, --incremental"
-  exit
+  echo "Invalid Build Type. Valid Values:--clean, --incremental Recieved:" $CLEAN_BUILD
+  exit 1
 fi
 
 if [ $BUILD_CHANNEL != "--dev" ] && [ $BUILD_CHANNEL != "--stable" ]; then
- echo "Invalid Build Channel. Valid Values: --dev, --stable, --all"
- exit
+ echo "Invalid Build Channel. Valid Values: --dev, --stable, --all Recieved:" $BUILD_CHANNEL
+ exit 1
 fi
 
 if [ $BUILD_TYPE != "--release" ] && [ $BUILD_TYPE != "--debug" ] ]; then
- echo "Invalid Build Channel. Valid Values: --release, --debug, --all"
- exit
+ echo "Invalid Build Channel. Valid Values: --release, --debug, --all. Recieved:" $BUILD_TYPE
+ exit 1
 fi
 
 echo "Passed parameters:----------------"

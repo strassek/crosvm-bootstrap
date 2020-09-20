@@ -43,4 +43,4 @@ if [ -z "$TAP_DEV" ]; then
 fi
 
 #echo "{\"host\":\"$DEV\",\"tap\":\"$TAP_DEV\"}" > default-config/network.json
-./scripts/configure-iptables.sh $DEV $TAP_DEV
+./scripts/configure_iptables.sh $DEV $TAP_DEV
