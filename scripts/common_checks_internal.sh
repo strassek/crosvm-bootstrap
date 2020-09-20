@@ -30,7 +30,7 @@ if [ ! -e $PWD/build/output/rootfs.ext4 ]; then
   fi
 fi
 
-if [ ! -e $PWD/source/source.ext4 ]; then
+if [ ! -e $PWD/source/source/source.ext4 ]; then
   if [ $BUILD_ENVIRONMENT == "--docker" ]; then
     mkdir -p $PWD/source
   else

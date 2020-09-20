@@ -27,6 +27,7 @@ LOCAL_BUILD_TYPE=$BUILD_TYPE
 LOCAL_COMPONENT_ONLY_BUILDS=$COMPONENT_ONLY_BUILDS
 LOCAL_INITIAL_BUILD_SETUP=$INITIAL_BUILD_SETUP
 LOCAL_SYNC_SOURCE=$SYNC_SOURCE
+LOG_BUILD_DIR=""
 
 if [ ! -e $LOCAL_PWD ]; then
   mkdir -p $LOCAL_PWD/output/scripts
@@ -89,31 +90,33 @@ fi
 
 echo “building docker...”
 docker build -t package-builder:latest .
+LOG_BUILD_DIR=`date "+%y%m%d-%H%M"`
+mkdir -p $LOCAL_PWD/output/$LOG_BUILD_DIR
 
 if [ ! -e $LOCAL_PWD/output/rootfs.ext4 ]; then
-  docker run -it --privileged -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker --create-rootfs-image-only $LOCAL_BUILD_TYPE $LOCAL_COMPONENT_ONLY_BUILDS $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM $MOUNT_POINT
+  docker run -it --privileged -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker --create-rootfs-image-only $LOCAL_BUILD_TYPE $LOCAL_COMPONENT_ONLY_BUILDS $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM $LOG_BUILD_DIR $MOUNT_POINT > >(tee -a $LOCAL_PWD/output/$LOG_BUILD_DIR/rootfs.log) 2> >(tee -a $LOCAL_PWD/output/$LOGDIR/rootfs.err) >&2
   LOCAL_INITIAL_BUILD_SETUP="--bootstrap"
 fi
 
 if [ $LOCAL_INITIAL_BUILD_SETUP == "--bootstrap" ]; then
 echo "Bootstrap Debian...."
-docker run -it --privileged -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker $LOCAL_INITIAL_BUILD_SETUP $LOCAL_BUILD_TYPE $LOCAL_COMPONENT_ONLY_BUILDS $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM $MOUNT_POINT
+docker run -it --privileged -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker $LOCAL_INITIAL_BUILD_SETUP $LOCAL_BUILD_TYPE $LOCAL_COMPONENT_ONLY_BUILDS $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM $LOG_BUILD_DIR $MOUNT_POINT > >(tee -a $LOCAL_PWD/output/$LOG_BUILD_DIR/bootstrap.log) 2> >(tee -a $LOCAL_PWD/output/$LOGDIR/bootstrap.err) >&2
 LOCAL_INITIAL_BUILD_SETUP="--setup-initial-environment"
 fi
 
 if [ $LOCAL_INITIAL_BUILD_SETUP == "--setup-initial-environment" ]; then
 echo "Setting up initial environment."
-docker run -it --privileged -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker $LOCAL_INITIAL_BUILD_SETUP $LOCAL_BUILD_TYPE $LOCAL_COMPONENT_ONLY_BUILDS $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM $MOUNT_POINT
+docker run -it --privileged -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker $LOCAL_INITIAL_BUILD_SETUP $LOCAL_BUILD_TYPE $LOCAL_COMPONENT_ONLY_BUILDS $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM $LOG_BUILD_DIR $MOUNT_POINT > >(tee -a $LOCAL_PWD/output/$LOG_BUILD_DIR/initial_env_setup.log) 2> >(tee -a $LOCAL_PWD/output/$LOGDIR/initial_env_setup.err) >&2
 LOCAL_BUILD_TYPE="--really-clean"
 LOCAL_SYNC_SOURCE="--true"
 fi
 
 if [ ! -e $SOURCE_PWD/source/source.ext4 ]; then
-docker run -it --privileged -v $SOURCE_PWD/source:/app/source -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker --create-source-image-only $LOCAL_BUILD_TYPE $LOCAL_COMPONENT_ONLY_BUILDS $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM $MOUNT_POINT
+docker run -it --privileged -v $SOURCE_PWD/source:/app/source -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker --create-source-image-only $LOCAL_BUILD_TYPE $LOCAL_COMPONENT_ONLY_BUILDS $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM $LOG_BUILD_DIR $MOUNT_POINT > >(tee -a $LOCAL_PWD/output/$LOG_BUILD_DIR/source_image.log) 2> >(tee -a $LOCAL_PWD/output/$LOGDIR/source_image.err) >&2
 LOCAL_BUILD_TYPE="--really-clean"
 LOCAL_SYNC_SOURCE="--false"
 fi
 
 LOCAL_INITIAL_BUILD_SETUP="--none"
 
-docker run -it --privileged -v $SOURCE_PWD/source:/app/source -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker $LOCAL_INITIAL_BUILD_SETUP $LOCAL_BUILD_TYPE $LOCAL_COMPONENT_ONLY_BUILDS $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM $MOUNT_POINT
+docker run -it --privileged -v $SOURCE_PWD/source:/app/source -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker $LOCAL_INITIAL_BUILD_SETUP $LOCAL_BUILD_TYPE $LOCAL_COMPONENT_ONLY_BUILDS $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM $LOG_BUILD_DIR $MOUNT_POINT

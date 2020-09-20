@@ -20,8 +20,9 @@ SYNC_SOURCE=$6
 BUILD_CHANNEL=$7
 BUILD_TARGET=$8
 UPDATE_SYSTEM=$9
-MOUNT_POINT=${10}
-CONFIG_FILE=${11:-"image.json"}
+LOGDIR=$10
+MOUNT_POINT=${11}
+CONFIG_FILE=${12:-"image.json"}
 
 
 echo "Recieved Arguments...."
@@ -297,13 +298,13 @@ fi
 # Install all needed system packages.
 if [ $UPDATE_SYSTEM == "--true" ]; then
   echo "Installing system packages...."
-  chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/system_packages_internal.sh
+  chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/system_packages_internal.sh > >(tee -a $LOCAL_DIRECTORY_PREFIX/output/$LOGDIR/system_package_update.log) 2> >(tee -a $LOCAL_DIRECTORY_PREFIX/output/$LOGDIR/system_package_update.err) >&2
 fi
 
 # Update sources as needed.
 if [ $SYNC_SOURCE == "--true" ]; then
   echo "Installing system packages...."
-  chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/sync_code_internal.sh
+  chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/sync_code_internal.sh > >(tee -a $LOCAL_DIRECTORY_PREFIX/output/$LOGDIR/sync_code.log) 2> >(tee -a $LOCAL_DIRECTORY_PREFIX/output/$LOGDIR/sync_code.err) >&2
 fi
 
 build_x11() {
@@ -323,8 +324,9 @@ if [ $COMPONENT_ONLY_BUILDS == "--x11" ] || [ $COMPONENT_ONLY_BUILDS == "--all" 
   if [ $LOCAL_BUILD_TARGET != $build_target ] && [ $LOCAL_BUILD_TARGET != "--all" ]; then
   return 0;
   fi
+  LOG_FILE_NAME=x11+"_"+$build_target+"_"+$build_type"_"+$channel+"_"+$arch
 
-  chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/build_x11_packages.sh $build_target $build_type $channel $arch
+  chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/build_x11_packages.sh $build_target $build_type $channel $arch > >(tee -a $LOCAL_DIRECTORY_PREFIX/output/$LOGDIR/$LOG_FILE_NAME.log) 2> >(tee -a $LOCAL_DIRECTORY_PREFIX/output/$LOGDIR/$LOG_FILE_NAME.err) >&2
 fi
 }
 
@@ -346,8 +348,9 @@ if [ $COMPONENT_ONLY_BUILDS == "--wayland" ] || [ $COMPONENT_ONLY_BUILDS == "--a
   if [ $LOCAL_BUILD_TARGET != $build_target ] && [ $LOCAL_BUILD_TARGET != "--all" ]; then
   return 0;
   fi
-
-  chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/build_wayland_packages.sh $build_target $build_type $channel $arch
+  
+    LOG_FILE_NAME=wayland+"_"+$build_target+"_"+$build_type"_"+$channel+"_"+$arch
+  chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/build_wayland_packages.sh $build_target $build_type $channel $arch > >(tee -a $LOCAL_DIRECTORY_PREFIX/output/$LOGDIR/$LOG_FILE_NAME.log) 2> >(tee -a $LOCAL_DIRECTORY_PREFIX/output/$LOGDIR/$LOG_FILE_NAME.err) >&2
 fi
 }
 
@@ -369,8 +372,9 @@ if [ $COMPONENT_ONLY_BUILDS == "--drivers" ] || [ $COMPONENT_ONLY_BUILDS == "--a
   if [ $LOCAL_BUILD_TARGET != $build_target ] && [ $LOCAL_BUILD_TARGET != "--all" ]; then
   return 0;
   fi
-
-  chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/build_driver_packages.sh $build_target $build_type $channel $arch
+  
+  LOG_FILE_NAME=driver+"_"+$build_target+"_"+$build_type"_"+$channel+"_"+$arch
+  chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/build_driver_packages.sh $build_target $build_type $channel $arch > >(tee -a $LOCAL_DIRECTORY_PREFIX/output/$LOGDIR/$LOG_FILE_NAME.log) 2> >(tee -a $LOCAL_DIRECTORY_PREFIX/output/$LOGDIR/$LOG_FILE_NAME.err) >&2
 fi
 }
 
@@ -392,8 +396,9 @@ if [ $COMPONENT_ONLY_BUILDS == "--vm" ] || [ $COMPONENT_ONLY_BUILDS == "--all" ]
   if [ $LOCAL_BUILD_TARGET != $build_target ] && [ $LOCAL_BUILD_TARGET != "--all" ]; then
   return 0;
   fi
-
-  chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/build_vm_packages.sh $build_target $build_type $channel $arch
+  
+  LOG_FILE_NAME=vm+"_"+$build_target+"_"+$build_type"_"+$channel+"_"+$arch
+  chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/build_vm_packages.sh $build_target $build_type $channel $arch > >(tee -a $LOCAL_DIRECTORY_PREFIX/output/$LOGDIR/$LOG_FILE_NAME.log) 2> >(tee -a $LOCAL_DIRECTORY_PREFIX/output/$LOGDIR/$LOG_FILE_NAME.err) >&2
 fi
 }
 
@@ -414,8 +419,9 @@ if [ $COMPONENT_ONLY_BUILDS == "--demos" ] || [ $COMPONENT_ONLY_BUILDS == "--all
   if [ $LOCAL_BUILD_TARGET != $build_target ] && [ $LOCAL_BUILD_TARGET != "--all" ]; then
   return 0;
   fi
-
-  chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/build_demos.sh $build_target $build_type $channel $arch
+  
+  LOG_FILE_NAME=demos+"_"+$build_target+"_"+$build_type"_"+$channel+"_"+$arch
+  chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/build_demos.sh $build_target $build_type $channel $arch > >(tee -a $LOCAL_DIRECTORY_PREFIX/output/$LOGDIR/$LOG_FILE_NAME.log) 2> >(tee -a $LOCAL_DIRECTORY_PREFIX/output/$LOGDIR/$LOG_FILE_NAME.err) >&2
 fi
 }
 
@@ -473,11 +479,11 @@ build_demos --release $LOCAL_BUILD_TYPE --stable --64bit
 
 if [ $COMPONENT_ONLY_BUILDS == "--all" ] || [ $COMPONENT_ONLY_BUILDS == "--kernel" ]; then
   if [ $LOCAL_BUILD_CHANNEL == "--dev" ] || [ $LOCAL_BUILD_CHANNEL == "--all" ]; then
-    chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/build_kernel.sh --release $LOCAL_BUILD_TYPE --dev
+    chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/build_kernel.sh --release $LOCAL_BUILD_TYPE --dev > >(tee -a $LOCAL_DIRECTORY_PREFIX/output/$LOGDIR/kernel_$LOCAL_BUILD_CHANNEL.log) 2> >(tee -a $LOCAL_DIRECTORY_PREFIX/output/$LOGDIR/kernel_$LOCAL_BUILD_CHANNEL.err) >&2
   fi
 
   if [ $LOCAL_BUILD_CHANNEL == "--stable" ] || [ $LOCAL_BUILD_CHANNEL == "--all" ]; then
-    chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/build_kernel.sh --release $LOCAL_BUILD_TYPE --stable
+    chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/build_kernel.sh --release $LOCAL_BUILD_TYPE --stable > >(tee -a $LOCAL_DIRECTORY_PREFIX/output/$LOGDIR/kernel_$LOCAL_BUILD_CHANNEL.log) 2> >(tee -a $LOCAL_DIRECTORY_PREFIX/output/$LOGDIR/kernel_$LOCAL_BUILD_CHANNEL.err) >&2
   fi
 fi
 

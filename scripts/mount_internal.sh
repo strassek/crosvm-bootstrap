@@ -26,9 +26,11 @@ echo "MOUNT_POINT:" $MOUNT_POINT
 echo "--------------------------"
 
 LOCAL_DIRECTORY_PREFIX=$PWD/build
+LOCAL_SOURCE=$PWD/source
 
 if [ $BUILD_ENVIRONMENT == "--docker" ]; then
 LOCAL_DIRECTORY_PREFIX=/app
+LOCAL_SOURCE=/app
 fi
 
 echo "Parameters used for Mount...."
@@ -48,7 +50,7 @@ mount $LOCAL_DIRECTORY_PREFIX/output/rootfs.ext4 $LOCAL_DIRECTORY_PREFIX/$MOUNT_
 
 if [ $MOUNT_SOURCE_IMAGE == "--true" ]; then
   mkdir -p $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT/build
-  mount $LOCAL_DIRECTORY_PREFIX/source/source.ext4 $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT/build
+  mount $LOCAL_SOURCE/source/source.ext4 $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT/build
 fi
 
 if [ $MOUNT_SYSTEM_DIRS == "--true" ]; then
