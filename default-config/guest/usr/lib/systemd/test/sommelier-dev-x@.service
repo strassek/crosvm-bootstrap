@@ -25,14 +25,14 @@ ExecStartPre=/bin/sh -c \
                           SOMMELIER_DRM_DEVICE=/dev/dri/renderD128 \
                           SOMMELIER_GLAMOR=1; \
                   /bin/true"
-ExecStart=/opt/stable/release/x86_64/bin/sommelier \
+ExecStart=/opt/dev/release/x86_64/bin/sommelier \
               -X \
-              --master \
+              --dev \
               --x-display=%i \
               --sd-notify="READY=1" \
               --no-exit-with-child \
               --x-auth=${HOME}/.Xauthority \
-              --xwayland-path=/bin/Xwayland \
+              --xwayland-path=/opt/dev/release/x86_64/bin/Xwayland \
               /bin/sh -c \
                   "systemctl --user set-environment ${DISPLAY_VAR}=$${DISPLAY}; \
                    systemctl --user set-environment ${XCURSOR_SIZE_VAR}=$${XCURSOR_SIZE}; \

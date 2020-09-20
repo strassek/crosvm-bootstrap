@@ -1,8 +1,9 @@
 {
-    "path": "output/",
-    "name": "rootfs.ext4",
+    "path": "source/",
+    "name": "source.ext4",
     "fstype": "ext4",
     "isSparse": true,
     "doMount": true,
+    "mountPoint": "mount/build",
     "sizeInMB": 30720
 }

@@ -1,0 +1,26 @@
+INITIAL_BUILD_SETUP:
+--rebuild-rootfs: Regenerate rootfs image. One needs to do a clean build to have this rootfs be any useful.
+--recreate-source-image-only: Regenerates's source.ext4. It will generate rootfs image if it doesn't exist.
+
+#used by main.sh internal
+--create-rootfs-image-only - Creates rootfs.ext4 image based on default_config/image.json settings. N
+                             Note that one needs to call --bootstrap to install Debian.
+--create-source-image-only - Creates source.ext4 image based on default_config/source.json settings.
+--bootstap - Installs Debian in the rootfs.ext4 image created by --create-rootfs-image-only
+--setup-initial-environment: Set's up user accounts based on default_config/users.json.
+                             Enables needed services and installs needed system dependencies to
+                             build x11, wayland, vm and graphics drivers.
+
+COMPONENT_ONLY_BUILDS:
+--x11 - Builds X11 libraries only.
+--wayland: Build Wayland Libraries Only.
+--drivers: Build's drivers only.
+--vm: Build's VM and related dependencies.
+--demos: Builds Demos Only.
+--kernel: Builds Kernel Only
+--all: Builds all components.
+
+TARGET_ARCH:
+--x86_64 - Builds components with x86_64 support.
+--i386: Builds components with i386 Arch support.
+--all: Support for both Architecture will be built.

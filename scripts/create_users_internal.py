@@ -68,6 +68,8 @@ class User:
         print ("Configuring git with user {0} <{1}>".format(self.username, self.email))
         #print (gitConfig_cmd)
         os.system(gitConfig_cmd)
+        gitConfig_cmd = "git config --global color.ui false"
+        os.system(gitConfig_cmd)
 
     def setPassword(self):
         chpasswd_cmd = "echo \"{0}:{1}\" | chpasswd".format(self.username, self.password)
@@ -75,6 +77,11 @@ class User:
         print ("Setting password for user {0}".format(self.username))
         #print (chpasswd_cmd)
         os.system(chpasswd_cmd)
+
+    def enableServicesForUser(self):
+        enable_service_cmd = "/build/output/scripts/services_internal.sh \"{0}\"".format(self.username)
+        print ("Enabling needed services for ("+ self.username +")...")
+        os.system(enable_service_cmd)
 
 class UsersDefinition:
     def __init__(self, jsonFile=None):
@@ -110,16 +117,28 @@ class UsersDefinition:
         print ("Setting password for root user")
         os.system(chpasswd_cmd)
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--spec", help="Specify user spec json file.", 
-                        metavar="FILE", nargs=1, default=["config/users.json"])
+                        metavar="FILE", nargs=2, default=["config/users.json" "false"])
     args = vars(parser.parse_args())
+    print ("Enabling needed services for ("+ args["spec"][0] +")...")
+    print ("Enabling needed services for ("+ args["spec"][1] +")...")
 
     users = UsersDefinition(args["spec"][0])
-    users.setRootPassword()
-    if users.users is not None:
+    if args["spec"][1] == "false":
+      print ("write arg false")
+      users.setRootPassword()
+      if users.users is not None:
+          for user in users.users:
+              user.createUser()
+              user.configureGit()
+              user.setPassword()
+
+    if args["spec"][1] == "true":
+      print ("write arg")
+      if users.users is not None:
+        print ("user found")
         for user in users.users:
-            user.createUser()
-            user.configureGit()
-            user.setPassword()
+          user.enableServicesForUser()

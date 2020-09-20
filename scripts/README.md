@@ -23,18 +23,11 @@ in the json file. Configured with [users.json](../default-config/users.json)
 
 ## Support scripts
 
-### `apply_patches.sh`
-Apply patches in [patches](../patches) directory onto 3rd party sources
-
 ### `configure-iptables.sh`
 Generate and apply iptables config to be used in VM guest.
 
-### `package-builder.sh`
-Sets up Rust and repotool in rootfs then builds crosvm and all the needed drivers
-
-### `setup-build-directories.sh`
-Check and configure directory structure for package builds. Used in rootfs to
-build extra packages.
+### `build-setup.sh.sh`
+Sets up Rust, repotool in rootfs and clones all needed sources in build/.
 
 ### `services.sh`
 Enables the Sommelier services in rootfs

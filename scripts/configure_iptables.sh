@@ -1,5 +1,12 @@
 #! /bin/bash
 
+# exit on any script line that fails
+set -o errexit
+# bail on any unitialized variable reads
+set -o nounset
+# bail on failing commands before last pipe
+set -o pipefail
+
 FORCE=0
 if [[ $# -lt 2 ]]; then
 	echo "Usage: configure-iptables.sh [--force] HOST_DEV VM_DEV" 1>&2
