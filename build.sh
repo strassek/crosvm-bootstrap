@@ -145,8 +145,6 @@ fi
 
 if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--drivers" ]; then
   building_component "--drivers"
-  building_component "--vm"
-  building_component "--demos"
 fi
 
 if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--kernel" ]; then

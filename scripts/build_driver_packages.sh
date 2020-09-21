@@ -153,15 +153,10 @@ echo "Building xserver............"
 cd $WORKING_DIR/xserver
 mesonclean_asneeded
 meson setup $LOCAL_MESON_BUILD_DIR -Dprefix=$LOCAL_CURRENT_WLD_PATH -Dxwayland=true -Dglx=true -Dglamor=true -Dhal=false -Dlinux_acpi=false -Dxnest=false -Dxorg=false -Dxquartz=false -Dxvfb=false -Dxwin=false --buildtype $LOCAL_BUILD_TYPE $LOCAL_MESON_COMPILER_OPTIONS && ninja -C $LOCAL_MESON_BUILD_DIR install
-fi
 
-
-# Build minigbm
-echo "Building Minigbm............"
-cd $WORKING_DIR/minigbm
-make clean || true
-if [ $BUILD_ARCH == "--64bit" ]; then
-  make CPPFLAGS="-DDRV_I915" DRV_I915=1 install DESTDIR=$LOCAL_CURRENT_WLD_PATH LIBDIR=$LOCAL_LIBDIR
-else
-  make CPPFLAGS="-DDRV_I915" DRV_I915=1 "CFLAGS=-m32 -msse2 -mstackrealign" "CXXFLAGS=-m32" "LDFLAGS=-m32" install DESTDIR=$LOCAL_CURRENT_WLD_PATH LIBDIR=$LOCAL_LIBDIR
+echo "Building sommelier..."
+cd /build/$LOCAL_CHANNEL/vm/cros_vm/src/platform2/vm_tools/sommelier
+# Build Sommelier
+mesonclean_asneeded
+meson setup $LOCAL_MESON_BUILD_DIR -Dxwayland_path=$LOCAL_CURRENT_WLD_PATH/bin/XWayland -Dxwayland_gl_driver_path=$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu/dri -Dprefix=$LOCAL_CURRENT_WLD_PATH && ninja -C $LOCAL_MESON_BUILD_DIR install
 fi

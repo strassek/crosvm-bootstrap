@@ -27,7 +27,7 @@ ExecStartPre=/bin/sh -c \
                   /bin/true"
 ExecStart=/opt/dev/release/x86_64/bin/sommelier \
               -X \
-              --dev \
+              --master \
               --x-display=%i \
               --sd-notify="READY=1" \
               --no-exit-with-child \
