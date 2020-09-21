@@ -106,7 +106,8 @@ echo "Building Minigbm............"
 cd $WORKING_DIR/minigbm
 make clean || true
 make CPPFLAGS="-DDRV_I915" DRV_I915=1 install DESTDIR=$LOCAL_CURRENT_WLD_PATH/vm LIBDIR=$LOCAL_LIBDIR
-mv $LOCAL_MINI_GBM_PC $LOCAL_CURRENT_WLD_PATH/vm/lib/x86_64-linux-gnu/pkgconfig/
+mkdir -p $LOCAL_CURRENT_WLD_PATH/vm/lib/x86_64-linux-gnu/pkgconfig/
+install -D -m 0644 $LOCAL_MINI_GBM_PC $LOCAL_CURRENT_WLD_PATH/vm/lib/x86_64-linux-gnu/pkgconfig/gbm.pc
 
 # Build virglrenderer
 echo "Building 64 bit VirglRenderer............"
