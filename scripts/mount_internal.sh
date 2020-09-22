@@ -25,7 +25,7 @@ echo "BUILD_ENVIRONMENT:" $BUILD_ENVIRONMENT
 echo "MOUNT_POINT:" $MOUNT_POINT
 echo "--------------------------"
 
-LOCAL_DIRECTORY_PREFIX=$PWD/build
+LOCAL_DIRECTORY_PREFIX=$PWD
 LOCAL_SOURCE=$PWD/source
 
 if [ $BUILD_ENVIRONMENT == "--docker" ]; then

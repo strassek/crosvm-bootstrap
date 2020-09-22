@@ -70,31 +70,12 @@ if [ $LOCAL_INITIAL_BUILD_SETUP == "--recreate-source-image-only" ]; then
   fi
 fi
 
-rm -rf build/docker/
-mkdir -p build/docker/rootfs
-mkdir -p build/docker/component
-cp dockerfiles/rootfs.dockerfile build/docker/rootfs/Dockerfile
-cp dockerfiles/component.dockerfile build/docker/component/Dockerfile
+cd $LOCAL_PWD
+echo $PWD
 
-SHA=`git rev-parse --short HEAD`
-TAG=`git describe --always`
-if [ -z $? ]; then
-    echo "$TAG" > VERSION
-else
-    echo "COMMIT-$SHA" > VERSION
-fi
-
-# Handle rootfs builds
-cd $LOCAL_PWD/docker/rootfs
-
-if [ $BUILD_TYPE == "--clean" ]; then
-  docker image rm package-builder -f
-fi
-
-docker build -t package-builder:latest .
 building_rootfs() {
 component="${1}"
-docker run -it --privileged -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker $component $MOUNT_POINT
+output/scripts/main_rootfs.sh --chroot $component $MOUNT_POINT
 }
 
 if [ ! -e $LOCAL_PWD/output/rootfs.ext4 ]; then
@@ -126,13 +107,10 @@ if [ $LOCAL_BUILD_TYPE == "--really-clean" ]; then
 fi
 
 # Handle component builds
-cd $LOCAL_PWD/docker/component
-docker build -t package-builder:latest .
-
 echo "Building components."
 building_component() {
 component="${1}"
-docker run -it --privileged -v $SOURCE_PWD/source:/app/source -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker $LOCAL_BUILD_TYPE $component $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM $MOUNT_POINT
+output/scripts/main.sh --chroot $LOCAL_BUILD_TYPE $component $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM $MOUNT_POINT
 
 LOCAL_SYNC_SOURCE="--false"
 UPDATE_SYSTEM="--false"
