@@ -36,7 +36,7 @@ if [ ! -e $LOCAL_PWD ]; then
   cp default-config/*.json build/config
   cp -rf default-config/guest build/config/guest
 else
-  if bash scripts/common_checks_internal.sh --docker; then
+  if bash scripts/common_checks_internal.sh $LOCAL_PWD $SOURCE_PWD --true; then
     echo “Preparing docker...”
   else
     echo “Failed to find needed dependencies, exit status: $?”
@@ -75,7 +75,7 @@ echo $PWD
 
 building_rootfs() {
 component="${1}"
-output/scripts/main_rootfs.sh --chroot $component $MOUNT_POINT
+output/scripts/main_rootfs.sh $component $LOCAL_PWD $SOURCE_PWD $MOUNT_POINT
 }
 
 if [ ! -e $LOCAL_PWD/output/rootfs.ext4 ]; then
@@ -110,7 +110,7 @@ fi
 echo "Building components."
 building_component() {
 component="${1}"
-output/scripts/main.sh --chroot $LOCAL_BUILD_TYPE $component $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM $MOUNT_POINT
+output/scripts/main.sh $LOCAL_BUILD_TYPE $component $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM $LOCAL_PWD $SOURCE_PWD $MOUNT_POINT
 
 LOCAL_SYNC_SOURCE="--false"
 UPDATE_SYSTEM="--false"

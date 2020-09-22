@@ -11,19 +11,19 @@ set -o nounset
 # bail on failing commands before last pipe
 set -o pipefail
 
-BUILD_ENVIRONMENT=$1
-BUILD_TYPE=$2
-COMPONENT_ONLY_BUILDS=$3
-TARGET_ARCH=$4
-SYNC_SOURCE=$5
-BUILD_CHANNEL=$6
-BUILD_TARGET=$7
-UPDATE_SYSTEM=$8
-MOUNT_POINT=${9}
+BUILD_TYPE=$1
+COMPONENT_ONLY_BUILDS=$2
+TARGET_ARCH=$3
+SYNC_SOURCE=$4
+BUILD_CHANNEL=$5
+BUILD_TARGET=$6
+UPDATE_SYSTEM=$7
+LOCAL_PWD=${8}
+LOCAL_SOURCE_PWD=${9}
+MOUNT_POINT=${10}
 
 
 echo "Recieved Arguments...."
-echo "BUILD_ENVIRONMENT:" $BUILD_ENVIRONMENT
 echo "BUILD_TYPE:" $BUILD_TYPE
 echo "COMPONENT_ONLY_BUILDS:" $COMPONENT_ONLY_BUILDS
 echo "TARGET_ARCH:" $TARGET_ARCH
@@ -34,16 +34,11 @@ echo "UPDATE_SYSTEM:" $UPDATE_SYSTEM
 echo "MOUNT_POINT:" $MOUNT_POINT
 echo "--------------------------"
 
-LOCAL_DIRECTORY_PREFIX=$PWD
+LOCAL_DIRECTORY_PREFIX=$LOCAL_PWD
 LOCAL_BUILD_CHANNEL="--dev"
 LOCAL_BUILD_TARGET="--release"
 LOCAL_BUILD_TYPE=$BUILD_TYPE
 LOCAL_TARGET_ARCH="--64bit"
-
-if [ $BUILD_ENVIRONMENT != "--chroot" ] && [ $BUILD_ENVIRONMENT != "--docker" ]; then
-  echo "Invalid Build Environment. Valid Values:--chroot, --docker"
-  exit 1
-fi
 
 if [ $BUILD_TYPE != "--clean" ] && [ $BUILD_TYPE != "--incremental" ] && [ $BUILD_TYPE != "--really-clean" ]; then
   echo "Invalid Build Type. Valid Values:--clean, --incremental, --create-source-image-only --setup-initial-enviroment --really-clean"
@@ -80,10 +75,6 @@ if [ $TARGET_ARCH != "--all" ] && [ $TARGET_ARCH != "--x86_64" ] && [ $TARGET_AR
   exit 1
 fi
 
-if [ $BUILD_ENVIRONMENT == "--docker" ]; then
-  LOCAL_DIRECTORY_PREFIX=/app
-fi
-
 if [ $BUILD_CHANNEL == "--stable" ]; then
   LOCAL_BUILD_CHANNEL="--stable"
 else
@@ -102,8 +93,8 @@ fi
 
 echo "Directory Prefix being used:" $LOCAL_DIRECTORY_PREFIX
 
-if [ ! -e $LOCAL_DIRECTORY_PREFIX/source/source.ext4 ]; then
-  echo "Failed to find Source image." $PWD
+if [ ! -e $LOCAL_SOURCE_PWD/source/source.ext4 ]; then
+  echo "Failed to find Source image." $LOCAL_SOURCE_PWD
   exit 1;
 fi
 
@@ -164,7 +155,7 @@ if [ $TARGET_ARCH == "--x86_64" ]; then
   echo "Target Arch: x86_64."
 fi
 
-if bash $LOCAL_DIRECTORY_PREFIX/output/scripts/mount_internal.sh --true --true --true $BUILD_ENVIRONMENT $MOUNT_POINT
+if bash $LOCAL_DIRECTORY_PREFIX/output/scripts/mount_internal.sh --true --true --true  $LOCAL_PWD $LOCAL_SOURCE_PWD $MOUNT_POINT
   then
   echo "Mount succeeded...."
 else
@@ -362,7 +353,7 @@ if [ $COMPONENT_ONLY_BUILDS == "--all" ] || [ $COMPONENT_ONLY_BUILDS == "--kerne
 fi
 
 
-if bash $LOCAL_DIRECTORY_PREFIX/output/scripts/unmount_internal.sh --true --true --true $BUILD_ENVIRONMENT $MOUNT_POINT
+if bash $LOCAL_DIRECTORY_PREFIX/output/scripts/unmount_internal.sh --true --true --true $LOCAL_PWD $MOUNT_POINT
 then
   echo "unmounted all directories...."
 else

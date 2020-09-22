@@ -11,32 +11,25 @@ set -o nounset
 # bail on failing commands before last pipe
 set -o pipefail
 
-BUILD_ENVIRONMENT=$1
-INITIAL_BUILD_SETUP=$2
-MOUNT_POINT=${3}
+INITIAL_BUILD_SETUP=$1
+LOCAL_PWD=${2}
+LOCAL_SOURCE_PWD=${3}
+MOUNT_POINT=${4}
 
 echo "Recieved Arguments...."
-echo "BUILD_ENVIRONMENT:" $BUILD_ENVIRONMENT
 echo "INITIAL_BUILD_SETUP:" $INITIAL_BUILD_SETUP
+echo "LOCAL_PWD:" $LOCAL_PWD
+echo "LOCAL_SOURCE_PWD:" $LOCAL_SOURCE_PWD
 echo "MOUNT_POINT:" $MOUNT_POINT
 echo "--------------------------"
 
-LOCAL_DIRECTORY_PREFIX=$PWD
+LOCAL_DIRECTORY_PREFIX=$LOCAL_PWD
 LOCAL_SRC_CONFIG_FILE="source.json"
 LOCAL_CONFIG_FILE="image.json"
-
-if [ $BUILD_ENVIRONMENT != "--chroot" ] && [ $BUILD_ENVIRONMENT != "--docker" ]; then
-  echo "Invalid Build Environment. Valid Values:--chroot, --docker"
-  exit 1
-fi
 
 if [ $INITIAL_BUILD_SETUP != "--none" ]  && [ $INITIAL_BUILD_SETUP != "--create-rootfs-image-only" ] && [ $INITIAL_BUILD_SETUP != "--create-source-image-only" ] && [ $INITIAL_BUILD_SETUP != "--setup-initial-environment" ] && [ $INITIAL_BUILD_SETUP != "--bootstrap" ]; then
   echo "Invalid INITIAL_BUILD_SETUP. Please check build_options.txt file for supported combinations."
   exit 1
-fi
-
-if [ $BUILD_ENVIRONMENT == "--docker" ]; then
-  LOCAL_DIRECTORY_PREFIX=/app
 fi
 
 echo "Directory Prefix being used:" $LOCAL_DIRECTORY_PREFIX
@@ -45,7 +38,7 @@ mount() {
 mount_system_dir="${1}"
 mount_source="${2}"
 mount_output="${3}"
-if bash $LOCAL_DIRECTORY_PREFIX/output/scripts/mount_internal.sh $mount_system_dir $mount_source $mount_output $BUILD_ENVIRONMENT $MOUNT_POINT
+if bash $LOCAL_DIRECTORY_PREFIX/output/scripts/mount_internal.sh $mount_system_dir $mount_source $mount_output $LOCAL_PWD $LOCAL_SOURCE_PWD $MOUNT_POINT
   then
   echo "Mount succeeded...."
 else
@@ -60,7 +53,7 @@ unmount() {
 unmount_system_dir="${1}"
 unmount_source="${2}"
 unmount_output="${3}"
-if bash $LOCAL_DIRECTORY_PREFIX/output/scripts/unmount_internal.sh $unmount_system_dir $unmount_source $unmount_output $BUILD_ENVIRONMENT $MOUNT_POINT
+if bash $LOCAL_DIRECTORY_PREFIX/output/scripts/unmount_internal.sh $unmount_system_dir $unmount_source $unmount_output $LOCAL_PWD $MOUNT_POINT
 then
   echo "unmounted all directories...."
 else
@@ -137,7 +130,7 @@ fi
 
 if [ $INITIAL_BUILD_SETUP == "--create-source-image-only" ]; then
   echo "Generating source image"
-  if [ -e $LOCAL_DIRECTORY_PREFIX/source/source.ext4 ]; then
+  if [ -e $LOCAL_SOURCE_PWD/source/source.ext4 ]; then
     echo "Source image already exists. Please check." $PWD
     exit 1;
   fi
@@ -149,7 +142,7 @@ if [ $INITIAL_BUILD_SETUP == "--create-source-image-only" ]; then
   
   python3 $LOCAL_DIRECTORY_PREFIX/output/scripts/create_image_internal.py --spec $LOCAL_DIRECTORY_PREFIX/config/$LOCAL_SRC_CONFIG_FILE --create
 
-  if [ ! -e $LOCAL_DIRECTORY_PREFIX/source/source.ext4 ]; then
+  if [ ! -e $LOCAL_SOURCE_PWD/source/source.ext4 ]; then
     echo "Failed to create Source image." $PWD
     exit 1;
   fi

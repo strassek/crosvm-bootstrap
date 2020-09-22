@@ -36,7 +36,7 @@ if [ ! -e $LOCAL_PWD ]; then
   cp default-config/*.json build/config
   cp -rf default-config/guest build/config/guest
 else
-  if bash scripts/common_checks_internal.sh --docker; then
+  if bash scripts/common_checks_internal.sh $LOCAL_PWD $SOURCE_PWD --true; then
     echo “Preparing docker...”
   else
     echo “Failed to find needed dependencies, exit status: $?”
@@ -94,7 +94,7 @@ fi
 docker build -t package-builder:latest .
 building_rootfs() {
 component="${1}"
-docker run -it --privileged -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker $component $MOUNT_POINT
+docker run -it --privileged -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest $component /app /app $MOUNT_POINT
 }
 
 if [ ! -e $LOCAL_PWD/output/rootfs.ext4 ]; then
@@ -132,7 +132,7 @@ docker build -t package-builder:latest .
 echo "Building components."
 building_component() {
 component="${1}"
-docker run -it --privileged -v $SOURCE_PWD/source:/app/source -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest --docker $LOCAL_BUILD_TYPE $component $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM $MOUNT_POINT
+docker run -it --privileged -v $SOURCE_PWD/source:/app/source -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest $LOCAL_BUILD_TYPE $component $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM /app /app $MOUNT_POINT
 
 LOCAL_SYNC_SOURCE="--false"
 UPDATE_SYSTEM="--false"
