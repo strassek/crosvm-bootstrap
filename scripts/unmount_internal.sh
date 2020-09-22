@@ -36,17 +36,37 @@ echo "LOCAL_DIRECTORY_PREFIX:" $LOCAL_DIRECTORY_PREFIX
 echo "--------------------------"
 
 if [ $UNMOUNT_OUTPUT_DIR == "--true" ]; then
-  umount $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/build/output
+  if mount | grep $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/build/output > /dev/null; then
+    echo "unmounting" $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/build/output
+    umount $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/build/output
+  fi
 fi
 
 if [ $UNMOUNT_SYSTEM_DIRS == "--true" ]; then
-  umount $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/proc
-  umount $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/dev/shm
-  umount $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/dev/pts
+  if mount | grep $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/proc > /dev/null; then
+    echo "unmounting" $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/proc
+    umount $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/proc
+  fi
+  
+  if mount | grep $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/dev/shm > /dev/null; then
+    echo "unmounting" $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/dev/shm
+    umount $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/dev/shm
+  fi
+  
+    if mount | grep $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/dev/pts > /dev/null; then
+    echo "unmounting" $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/dev/pts
+    umount $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/dev/pts
+  fi
 fi
 
 if [ $UNMOUNT_SOURCE_IMAGE == "--true" ]; then
-  umount $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/build
+  if mount | grep $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/build > /dev/null; then
+    echo "unmounting" $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/build
+    umount $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/build
+  fi
 fi
 
-umount $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT
+if mount | grep $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT > /dev/null; then
+  echo "unmounting" $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT
+  umount $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT
+fi
