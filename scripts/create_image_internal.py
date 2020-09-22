@@ -43,8 +43,6 @@ class ImageDefinition:
         self.name = "rootfs.img"
         self.fstype = FilesystemType.EXT4
         self.isSparse = True
-        self.doMount = True
-        self.mountPoint = "mount/"
         self.sizeInMB = 2048
         if jsonFile is None:
             return
@@ -64,10 +62,6 @@ class ImageDefinition:
                                 image_config["fstype"])
                         if image_config.get("isSparse") is not None:
                             self.isSparse = image_config["isSparse"]
-                        if image_config.get("doMount") is not None:
-                            self.doMount = image_config["doMount"]
-                        if image_config.get("mountPoint") is not None:
-                            self.mountPoint = image_config["mountPoint"]
                         if image_config.get("sizeInMB") is not None:
                             self.sizeInMB = image_config["sizeInMB"]
             except ValueError:
@@ -83,10 +77,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--spec", help="Specify image spec json file.", 
                         metavar="FILE", nargs=1, default=["config/image.json"])
-    parser.add_argument("--unmount", action="store_true",
-                        help="Unmount specified image. (ignores other options except spec)")
-    parser.add_argument("--mount", action="store_true",
-                        help="Mount specified image")
     parser.add_argument("--create", action="store_true",
                         help="Create the specified image")
     args = vars(parser.parse_args())
@@ -94,15 +84,6 @@ if __name__ == "__main__":
     #print (args)
     targetImage = ImageDefinition(args["spec"][0])
     targetImagePath = targetImage.path + "/" + targetImage.name
-
-    if not args["unmount"] and not args["mount"] and not args["create"]:
-        print("Must specify at least one function")
-        parser.print_usage()
-        exit(1)
-
-    if args["unmount"]:
-        os.system("umount -l " + targetImage.mountPoint)
-        exit(0)
 
     if args["create"]:
         dd_count = targetImage.sizeInMB if not targetImage.isSparse else 0
@@ -114,9 +95,3 @@ if __name__ == "__main__":
         mkfs_cmd = targetImage.fstype.toCommand() + " " + targetImagePath
         #print (mkfs_cmd)
         os.system(mkfs_cmd)
-    
-    if args["mount"] or targetImage.doMount:
-        mount_cmd = ("mount -o loop -t {0} {1} {2}").format(
-            targetImage.fstype.value, targetImagePath, targetImage.mountPoint)
-        #print (mount_cmd)
-        os.system(mount_cmd)

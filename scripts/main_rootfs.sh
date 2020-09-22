@@ -129,7 +129,7 @@ if [ $INITIAL_BUILD_SETUP == "--setup-initial-environment" ]; then
 fi
 
 if [ $INITIAL_BUILD_SETUP == "--create-source-image-only" ]; then
-  echo "Generating source image"
+  echo "Generating source image" $PWD
   if [ -e $LOCAL_SOURCE_PWD/source/source.ext4 ]; then
     echo "Source image already exists. Please check." $PWD
     exit 1;
