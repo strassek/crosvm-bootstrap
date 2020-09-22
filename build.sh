@@ -22,7 +22,7 @@ UPDATE_SYSTEM=${8:-"--false"} # Possible values: --true, --false
 MOUNT_POINT=${9:-"mount"}
 
 LOCAL_PWD=$PWD/build
-SOURCE_PWD=$PWD/source
+SOURCE_PWD=$PWD
 LOCAL_BUILD_TYPE=$BUILD_TYPE
 LOCAL_COMPONENT_ONLY_BUILDS=$COMPONENT_ONLY_BUILDS
 LOCAL_INITIAL_BUILD_SETUP=$INITIAL_BUILD_SETUP
@@ -94,7 +94,12 @@ fi
 docker build -t package-builder:latest .
 building_rootfs() {
 component="${1}"
-docker run -it --privileged -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest $component /app /app $MOUNT_POINT
+source_mount=""
+if [ $component == "--create-source-image-only" ]; then
+  source_mount="-v $SOURCE_PWD/source:/app/source"
+fi
+
+docker run -it --privileged $source_mount -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest $component /app /app $MOUNT_POINT
 }
 
 if [ ! -e $LOCAL_PWD/output/rootfs.ext4 ]; then
