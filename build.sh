@@ -151,10 +151,10 @@ if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS
   building_component "--kernel"
 fi
 
-if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--vm" ]; then
+if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--vm" ]; then
   building_component "--vm"
 fi
 
-if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--demos" ]; then
+if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--demos" ]; then
   building_component "--demos"
 fi
