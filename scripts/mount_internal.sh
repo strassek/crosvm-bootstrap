@@ -39,6 +39,20 @@ echo "LOCAL_SOURCE:" $LOCAL_SOURCE
 echo "MOUNT_POINT:" $MOUNT_POINT
 echo "--------------------------"
 
+# check we don't have invalid mount points.
+if [ -e $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT/build ]; then
+  if mount | grep $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT/build > /dev/null; then
+    echo "unmounting" $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT/build
+    umount $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT/build
+  fi
+fi
+
+if [ -e $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT ]; then
+  if mount | grep $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT > /dev/null; then
+    umount $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT
+  fi
+fi
+
 # Create all needed directories.
 mkdir -p $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT
 

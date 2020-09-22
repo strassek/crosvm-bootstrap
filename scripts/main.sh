@@ -162,8 +162,8 @@ if bash $LOCAL_DIRECTORY_PREFIX/output/scripts/mount_internal.sh --true --true -
   echo "Mount succeeded...."
 else
   echo "Failed to Mount..."
-  echo "Removing rootfs image. Please run ./build.sh with same build options again."
-  rm -rf $LOCAL_DIRECTORY_PREFIX/output/rootfs.ext4
+  echo "Trying to unmount all directories. Please run ./build.sh with same build options again."
+  $LOCAL_DIRECTORY_PREFIX/output/scripts/unmount_internal.sh --true --true --true $LOCAL_PWD $MOUNT_POINT
   exit 1
 fi
 
