@@ -75,7 +75,13 @@ echo $PWD
 
 building_rootfs() {
 component="${1}"
-output/scripts/main_rootfs.sh $component $LOCAL_PWD $SOURCE_PWD $MOUNT_POINT
+if [ $component == "--create-source-image-only" ]; then
+  cd $SOURCE_PWD
+fi
+$LOCAL_PWD/output/scripts/main_rootfs.sh $component $LOCAL_PWD $SOURCE_PWD $MOUNT_POINT
+if [ $component == "--create-source-image-only" ]; then
+  cd S$LOCAL_PWD
+fi
 }
 
 if [ ! -e $LOCAL_PWD/output/rootfs.ext4 ]; then
