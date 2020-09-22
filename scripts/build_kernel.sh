@@ -53,13 +53,13 @@ echo "---------------------------------"
 
 cd /build
 
-cd $WORKING_DIR/drm-intel
+cd $WORKING_DIR/kernel
 KERNEL_OUTPUT_DIR=output
 if [[ ($CLEAN_BUILD == "--clean" && -d $KERNEL_OUTPUT_DIR) ]]; then
   make clean || true
   rm -rf $KERNEL_OUTPUT_DIR
 fi
-
+  
 mkdir -p $KERNEL_OUTPUT_DIR
 make x86_64_defconfig
 make
