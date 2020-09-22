@@ -3,12 +3,11 @@
 # package-builder.sh
 # Builds all needed drivers, cros_vm and other needed packages.
 
-# exit on any script line that fails
-set -o errexit
-# bail on any unitialized variable reads
-set -o nounset
-# bail on failing commands before last pipe
-set -o pipefail
+
+set -o pipefail  # trace ERR through pipes
+set -o errtrace  # trace ERR through 'time command' and other functions
+set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
+set -o errexit   ## set -e : exit the script if any statement returns a non-true return value
 
 BUILD_TYPE=${1:-"--release"}
 CLEAN_BUILD=${2:-"--incremental"}

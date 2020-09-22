@@ -80,7 +80,7 @@ if [ $component == "--create-source-image-only" ]; then
 fi
 $LOCAL_PWD/output/scripts/main_rootfs.sh $component $LOCAL_PWD $SOURCE_PWD $MOUNT_POINT
 if [ $component == "--create-source-image-only" ]; then
-  cd S$LOCAL_PWD
+  cd SLOCAL_PWD
 fi
 }
 

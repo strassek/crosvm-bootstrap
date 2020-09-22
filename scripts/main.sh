@@ -4,13 +4,6 @@
 # Generate debian rootfs image using specified config file and mounted in the
 # container at the specified path (should match mountPoint specified in json file)
 
-# exit on any script line that fails
-set -o errexit
-# bail on any unitialized variable reads
-set -o nounset
-# bail on failing commands before last pipe
-set -o pipefail
-
 BUILD_TYPE=$1
 COMPONENT_ONLY_BUILDS=$2
 TARGET_ARCH=$3
@@ -18,10 +11,9 @@ SYNC_SOURCE=$4
 BUILD_CHANNEL=$5
 BUILD_TARGET=$6
 UPDATE_SYSTEM=$7
-LOCAL_PWD=${8}
+DIRECTORY_PREFIX=${8}
 LOCAL_SOURCE_PWD=${9}
 MOUNT_POINT=${10}
-
 
 echo "Recieved Arguments...."
 echo "BUILD_TYPE:" $BUILD_TYPE
@@ -31,16 +23,19 @@ echo "SYNC_SOURCE:" $SYNC_SOURCE
 echo "BUILD_CHANNEL:" $BUILD_CHANNEL
 echo "BUILD_TARGET:" $BUILD_TARGET
 echo "UPDATE_SYSTEM:" $UPDATE_SYSTEM
-echo "LOCAL_PWD:" $LOCAL_PWD
+echo "DIRECTORY_PREFIX:" $DIRECTORY_PREFIX
 echo "LOCAL_SOURCE_PWD:" $LOCAL_SOURCE_PWD
 echo "MOUNT_POINT:" $MOUNT_POINT
 echo "--------------------------"
 
-LOCAL_DIRECTORY_PREFIX=$LOCAL_PWD
+LOCAL_DIRECTORY_PREFIX=$DIRECTORY_PREFIX
 LOCAL_BUILD_CHANNEL="--dev"
 LOCAL_BUILD_TARGET="--release"
 LOCAL_BUILD_TYPE=$BUILD_TYPE
 LOCAL_TARGET_ARCH="--64bit"
+LOG_DIR=$LOCAL_DIRECTORY_PREFIX/output/component_log
+
+source $LOCAL_DIRECTORY_PREFIX/output/scripts/error_handler_internal.sh $LOG_DIR $LOCAL_DIRECTORY_PREFIX main_err.log $MOUNT_POINT
 
 if [ $BUILD_TYPE != "--clean" ] && [ $BUILD_TYPE != "--incremental" ] && [ $BUILD_TYPE != "--really-clean" ]; then
   echo "Invalid Build Type. Valid Values:--clean, --incremental, --create-source-image-only --setup-initial-enviroment --really-clean"
@@ -157,13 +152,13 @@ if [ $TARGET_ARCH == "--x86_64" ]; then
   echo "Target Arch: x86_64."
 fi
 
-if bash $LOCAL_DIRECTORY_PREFIX/output/scripts/mount_internal.sh --true --true --true  $LOCAL_PWD $LOCAL_SOURCE_PWD $MOUNT_POINT
+if bash $LOCAL_DIRECTORY_PREFIX/output/scripts/mount_internal.sh --true --true --true  $LOCAL_DIRECTORY_PREFIX $LOCAL_SOURCE_PWD $MOUNT_POINT
   then
   echo "Mount succeeded...."
 else
   echo "Failed to Mount..."
   echo "Trying to unmount all directories. Please run ./build.sh with same build options again."
-  $LOCAL_DIRECTORY_PREFIX/output/scripts/unmount_internal.sh --true --true --true $LOCAL_PWD $MOUNT_POINT
+  $LOCAL_DIRECTORY_PREFIX/output/scripts/unmount_internal.sh --true --true --true $LOCAL_DIRECTORY_PREFIX $MOUNT_POINT
   exit 1
 fi
 
@@ -355,7 +350,7 @@ if [ $COMPONENT_ONLY_BUILDS == "--all" ] || [ $COMPONENT_ONLY_BUILDS == "--kerne
 fi
 
 
-if bash $LOCAL_DIRECTORY_PREFIX/output/scripts/unmount_internal.sh --true --true --true $LOCAL_PWD $MOUNT_POINT
+if bash $LOCAL_DIRECTORY_PREFIX/output/scripts/unmount_internal.sh --true --true --true $LOCAL_DIRECTORY_PREFIX $MOUNT_POINT
 then
   echo "unmounted all directories...."
 else

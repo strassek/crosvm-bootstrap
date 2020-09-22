@@ -4,31 +4,29 @@
 # Set up build environment for docker container that generates Debian rootfs
 # then calls docker build.
 
-# exit on any script line that fails
-set -o errexit
-# bail on any unitialized variable reads
-set -o nounset
-# bail on failing commands before last pipe
-set -o pipefail
+set -o pipefail  # trace ERR through pipes
+set -o errtrace  # trace ERR through 'time command' and other functions
+set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
+set -o errexit   ## set -e : exit the script if any statement returns a non-true return value
 
 MOUNT_SYSTEM_DIRS=${1:-"--false"}
 MOUNT_SOURCE_IMAGE=${2:-"--true"}
 MOUNT_OUTPUT_DIR=${3:-"--true"}
-LOCAL_PWD=${4}
-LOCAL_SOURCE_PWD=${5}
-MOUNT_POINT=${6:-"mount"}
+DIRECTORY_PREFIX=${4}
+DIRECTORY_SOURCE_PREFIX=${5}
+MOUNT_POINT=${6}
 
 echo "Recieved Arguments...."
 echo "MOUNT_SYSTEM_DIRS:" $MOUNT_SYSTEM_DIRS
 echo "MOUNT_SOURCE_IMAGE:" $MOUNT_SOURCE_IMAGE
 echo "MOUNT_OUTPUT_DIR:" $MOUNT_OUTPUT_DIR
-echo "LOCAL_PWD:" $LOCAL_PWD
-echo "LOCAL_SOURCE_PWD:" $LOCAL_SOURCE_PWD
+echo "DIRECTORY_PREFIX:" $DIRECTORY_PREFIX
+echo "DIRECTORY_SOURCE_PREFIX:" $DIRECTORY_SOURCE_PREFIX
 echo "MOUNT_POINT:" $MOUNT_POINT
 echo "--------------------------"
 
-LOCAL_DIRECTORY_PREFIX=$LOCAL_PWD
-LOCAL_SOURCE=$LOCAL_SOURCE_PWD
+LOCAL_DIRECTORY_PREFIX=$DIRECTORY_PREFIX
+LOCAL_SOURCE=$DIRECTORY_SOURCE_PREFIX
 
 echo "Parameters used for Mount...."
 echo "MOUNT_SYSTEM_DIRS:" $MOUNT_SYSTEM_DIRS
