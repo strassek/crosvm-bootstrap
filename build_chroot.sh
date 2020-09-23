@@ -32,7 +32,7 @@ mkdir -p $PWD/source
 mkdir -p $LOCAL_PWD
 
 if bash scripts/common_checks_internal.sh $LOCAL_PWD $SOURCE_PWD --true --false $INITIAL_BUILD_SETUP $BUILD_TYPE $COMPONENT_ONLY_BUILDS $TARGET_ARCH $SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM; then
-  echo “Preparing docker...”
+  echo “Preparing buld environment...”
 else
   echo “Failed to find needed dependencies, exit status: $?”
   exit 1
@@ -116,8 +116,11 @@ LOCAL_SYNC_SOURCE="--false"
 UPDATE_SYSTEM="--false"
 }
 
-if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ]; then
+if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--x11" ]; then
   building_component "--x11"
+fi
+
+if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--wayland" ]; then
   building_component "--wayland"
 fi
 

@@ -134,8 +134,11 @@ LOCAL_SYNC_SOURCE="--false"
 UPDATE_SYSTEM="--false"
 }
 
-if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ]; then
+if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--x11" ]; then
   building_component "--x11"
+fi
+
+if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--wayland" ]; then
   building_component "--wayland"
 fi
 
