@@ -27,25 +27,12 @@ LOCAL_BUILD_TYPE=$BUILD_TYPE
 LOCAL_COMPONENT_ONLY_BUILDS=$COMPONENT_ONLY_BUILDS
 LOCAL_INITIAL_BUILD_SETUP=$INITIAL_BUILD_SETUP
 LOCAL_SYNC_SOURCE=$SYNC_SOURCE
-
-if [ ! -e $LOCAL_PWD/config ]; then
-  mkdir -p $LOCAL_PWD/config
-  cp default-config/*.json build/config
-  cp -rf default-config/guest build/config/guest
-fi
-
-if [ ! -e $LOCAL_PWD/output ]; then
-  mkdir -p $LOCAL_PWD/output/scripts
-  cp -rf scripts/*.* $LOCAL_PWD/output/scripts/
-fi
  
-if [ $INITIAL_BUILD_SETUP == "--none" ]; then
-  if bash scripts/common_checks_internal.sh $LOCAL_PWD $SOURCE_PWD --true; then
-    echo “Preparing docker...”
-  else
-    echo “Failed to find needed dependencies, exit status: $?”
-    exit 1
-  fi
+if bash scripts/common_checks_internal.sh $LOCAL_PWD $SOURCE_PWD --true --false $INITIAL_BUILD_SETUP $BUILD_TYPE $COMPONENT_ONLY_BUILDS $TARGET_ARCH $SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM; then
+  echo “Preparing docker...”
+else
+  echo “Failed to find needed dependencies, exit status: $?”
+  exit 1
 fi
 
 if [ $LOCAL_INITIAL_BUILD_SETUP == "--rebuild-rootfs" ]; then

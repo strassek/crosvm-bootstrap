@@ -12,21 +12,8 @@ BUILD_CHANNEL=$5
 BUILD_TARGET=$6
 UPDATE_SYSTEM=$7
 DIRECTORY_PREFIX=${8}
-LOCAL_SOURCE_PWD=${9}
+SOURCE_PWD=${9}
 MOUNT_POINT=${10}
-
-echo "Recieved Arguments...."
-echo "BUILD_TYPE:" $BUILD_TYPE
-echo "COMPONENT_ONLY_BUILDS:" $COMPONENT_ONLY_BUILDS
-echo "TARGET_ARCH:" $TARGET_ARCH
-echo "SYNC_SOURCE:" $SYNC_SOURCE
-echo "BUILD_CHANNEL:" $BUILD_CHANNEL
-echo "BUILD_TARGET:" $BUILD_TARGET
-echo "UPDATE_SYSTEM:" $UPDATE_SYSTEM
-echo "DIRECTORY_PREFIX:" $DIRECTORY_PREFIX
-echo "LOCAL_SOURCE_PWD:" $LOCAL_SOURCE_PWD
-echo "MOUNT_POINT:" $MOUNT_POINT
-echo "--------------------------"
 
 LOCAL_DIRECTORY_PREFIX=$DIRECTORY_PREFIX
 LOCAL_BUILD_CHANNEL="--dev"
@@ -34,6 +21,20 @@ LOCAL_BUILD_TARGET="--release"
 LOCAL_BUILD_TYPE=$BUILD_TYPE
 LOCAL_TARGET_ARCH="--64bit"
 LOG_DIR=$LOCAL_DIRECTORY_PREFIX/output/component_log
+
+source $LOCAL_DIRECTORY_PREFIX/output/scripts/error_handler_internal.sh $LOG_DIR $LOCAL_DIRECTORY_PREFIX main_err.log --false --false $SOURCE_PWD $MOUNT_POINT
+
+echo “Compiling build options...”
+if bash $LOCAL_DIRECTORY_PREFIX/output/scripts/common_checks_internal.sh $LOCAL_DIRECTORY_PREFIX $SOURCE_PWD --true --true --none $BUILD_TYPE $COMPONENT_ONLY_BUILDS $TARGET_ARCH $SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM; then
+  echo “Preparing for build...”
+else
+  echo “Invalid build options, exit status: $?”
+  exit 1
+fi
+
+echo "main: Recieved Arguments...."
+echo "MOUNT_POINT:" $MOUNT_POINT
+echo "--------------------------"
 
 echo "main: Using Arguments...."
 echo "LOCAL_DIRECTORY_PREFIX:" $LOCAL_DIRECTORY_PREFIX
@@ -43,43 +44,6 @@ echo "LOCAL_BUILD_TYPE:" $LOCAL_BUILD_TYPE
 echo "LOCAL_TARGET_ARCH:" $LOCAL_TARGET_ARCH
 echo "LOG_DIR:" $LOG_DIR
 echo "--------------------------"
-
-source $LOCAL_DIRECTORY_PREFIX/output/scripts/error_handler_internal.sh $LOG_DIR $LOCAL_DIRECTORY_PREFIX main_err.log --false --false $LOCAL_SOURCE_PWD $MOUNT_POINT
-
-if [ $BUILD_TYPE != "--clean" ] && [ $BUILD_TYPE != "--incremental" ] && [ $BUILD_TYPE != "--really-clean" ]; then
-  echo "Invalid Build Type. Valid Values:--clean, --incremental, --create-source-image-only --setup-initial-enviroment --really-clean"
-  exit 1
-fi
-
-if [ $COMPONENT_ONLY_BUILDS != "--x11" ] && [ $COMPONENT_ONLY_BUILDS != "--wayland" ]  && [ $COMPONENT_ONLY_BUILDS != "--drivers" ] && [ $COMPONENT_ONLY_BUILDS != "--kernel" ] && [ $COMPONENT_ONLY_BUILDS != "--demos" ] && [ $COMPONENT_ONLY_BUILDS != "--all" ] && [ $COMPONENT_ONLY_BUILDS != "--vm" ]; then
-  echo "Invalid value for COMPONENT_ONLY_BUILDS. Please check build_options.txt file for supported combinations."
-  exit 1
-fi
-
-if [ $SYNC_SOURCE != "--true" ] && [ $SYNC_SOURCE != "--false" ]; then
-  echo "Invalid request for updating channel. Valid Values: --true, --false"
-  exit 1
-fi
-
-if [ $BUILD_CHANNEL != "--dev" ] && [ $BUILD_CHANNEL != "--stable" ] && [ $BUILD_CHANNEL != "--all" ]; then
- echo "Invalid Build Channel. Valid Values: --dev, --stable, --all"
- exit 1
-fi
-
-if [ $BUILD_TARGET != "--release" ] && [ $BUILD_TARGET != "--debug" ] && [ $BUILD_TARGET != "--all" ]; then
- echo "Invalid Build Channel. Valid Values: --release, --debug, --all"
- exit 1
-fi
-
-if [ $UPDATE_SYSTEM != "--true" ] && [ $UPDATE_SYSTEM != "--false" ]; then
-  echo "Invalid request for updating system. Valid Values: --true, --false"
-  exit 1
-fi
-
-if [ $TARGET_ARCH != "--all" ] && [ $TARGET_ARCH != "--x86_64" ] && [ $TARGET_ARCH != "--i386" ]; then
-  echo "Invalid value for TARGET_ARCH2. Please check build_options.txt file for supported options."
-  exit 1
-fi
 
 if [ $BUILD_CHANNEL == "--stable" ]; then
   LOCAL_BUILD_CHANNEL="--stable"
@@ -99,8 +63,8 @@ fi
 
 echo "Directory Prefix being used:" $LOCAL_DIRECTORY_PREFIX
 
-if [ ! -e $LOCAL_SOURCE_PWD/source/source.ext4 ]; then
-  echo "Failed to find Source image." $LOCAL_SOURCE_PWD
+if [ ! -e $SOURCE_PWD/source/source.ext4 ]; then
+  echo "Failed to find Source image." $SOURCE_PWD
   exit 1;
 fi
 
@@ -161,7 +125,7 @@ if [ $TARGET_ARCH == "--x86_64" ]; then
   echo "Target Arch: x86_64."
 fi
 
-if bash $LOCAL_DIRECTORY_PREFIX/output/scripts/mount_internal.sh --true --true --true  $LOCAL_DIRECTORY_PREFIX $LOCAL_SOURCE_PWD $MOUNT_POINT
+if bash $LOCAL_DIRECTORY_PREFIX/output/scripts/mount_internal.sh --true --true --true  $LOCAL_DIRECTORY_PREFIX $SOURCE_PWD $MOUNT_POINT
   then
   echo "Mount succeeded...."
 else
