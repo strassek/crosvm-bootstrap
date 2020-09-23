@@ -16,22 +16,6 @@ LOG_DIR=$LOCAL_DIRECTORY_PREFIX/output/component_log
 LOCAL_FORCE_SOURCE_IMAGE_DELETION=--false
 LOCAL_FORCE_ROOTFS_DELETION=--true
 
-source $LOCAL_DIRECTORY_PREFIX/output/scripts/error_handler_internal.sh $LOG_DIR $LOCAL_DIRECTORY_PREFIX main_rootfs_err.log $LOCAL_FORCE_ROOTFS_DELETION $LOCAL_FORCE_SOURCE_IMAGE_DELETION $SOURCE_PWD $MOUNT_POINT
-
-echo “Compiling build options...”
-if bash $LOCAL_DIRECTORY_PREFIX/output/scripts/common_checks_internal.sh $LOCAL_DIRECTORY_PREFIX $SOURCE_PWD --true --true $INITIAL_BUILD_SETUP; then
-  echo “Preparing for build...”
-else
-  echo “Invalid build options, exit status: $?”
-  exit 1
-fi
-
-echo "main_rootfs: Recieved Arguments...."
-echo "LOCAL_PWD:" $LOCAL_PWD
-echo "SOURCE_PWD:" $SOURCE_PWD
-echo "MOUNT_POINT:" $MOUNT_POINT
-echo "--------------------------"
-
 if [ $INITIAL_BUILD_SETUP == "--create-source-image-only" ]; then
   LOCAL_FORCE_ROOTFS_DELETION="--false"
 fi
@@ -48,6 +32,22 @@ if [ $INITIAL_BUILD_SETUP == "--create-source-image-only" ]; then
     exit 1;
   fi
 fi
+
+source $LOCAL_DIRECTORY_PREFIX/output/scripts/error_handler_internal.sh $LOG_DIR $LOCAL_DIRECTORY_PREFIX main_rootfs_err.log $LOCAL_FORCE_ROOTFS_DELETION $LOCAL_FORCE_SOURCE_IMAGE_DELETION $SOURCE_PWD $MOUNT_POINT
+
+echo “Compiling build options...”
+if bash $LOCAL_DIRECTORY_PREFIX/output/scripts/common_checks_internal.sh $LOCAL_DIRECTORY_PREFIX $SOURCE_PWD --true --true $INITIAL_BUILD_SETUP; then
+  echo “Preparing for build...”
+else
+  echo “Invalid build options, exit status: $?”
+  exit 1
+fi
+
+echo "main_rootfs: Recieved Arguments...."
+echo "LOCAL_PWD:" $LOCAL_PWD
+echo "SOURCE_PWD:" $SOURCE_PWD
+echo "MOUNT_POINT:" $MOUNT_POINT
+echo "--------------------------"
 
 echo "main_rootfs: Using Arguments...."
 echo "LOCAL_DIRECTORY_PREFIX:" $LOCAL_DIRECTORY_PREFIX
