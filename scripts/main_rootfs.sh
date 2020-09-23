@@ -4,19 +4,12 @@
 # Generate debian rootfs image using specified config file and mounted in the
 # container at the specified path (should match mountPoint specified in json file)
 
-# exit on any script line that fails
-set -o errexit
-# bail on any unitialized variable reads
-set -o nounset
-# bail on failing commands before last pipe
-set -o pipefail
-
 INITIAL_BUILD_SETUP=$1
 LOCAL_PWD=${2}
 LOCAL_SOURCE_PWD=${3}
 MOUNT_POINT=${4}
 
-echo "Recieved Arguments...."
+echo "main_rootfs: Recieved Arguments...."
 echo "INITIAL_BUILD_SETUP:" $INITIAL_BUILD_SETUP
 echo "LOCAL_PWD:" $LOCAL_PWD
 echo "LOCAL_SOURCE_PWD:" $LOCAL_SOURCE_PWD
@@ -26,6 +19,36 @@ echo "--------------------------"
 LOCAL_DIRECTORY_PREFIX=$LOCAL_PWD
 LOCAL_SRC_CONFIG_FILE="source.json"
 LOCAL_CONFIG_FILE="image.json"
+LOG_DIR=$LOCAL_DIRECTORY_PREFIX/output/component_log
+LOCAL_FORCE_SOURCE_IMAGE_DELETION=--false
+LOCAL_FORCE_ROOTFS_DELETION=--true
+
+if [ $INITIAL_BUILD_SETUP == "--create-source-image-only" ]; then
+  LOCAL_FORCE_ROOTFS_DELETION="--false"
+fi
+
+if [ $INITIAL_BUILD_SETUP == "--create-source-image-only" ]; then
+  LOCAL_FORCE_SOURCE_DELETION="--true"
+  if [ -e $LOCAL_SOURCE_PWD/source/source.ext4 ]; then
+    echo "Source image already exists. Please check." $PWD
+    exit 1;
+  fi
+  
+  if [ -e $LOCAL_DIRECTORY_PREFIX/output/rootfs.ext4 ]; then
+    echo "Source image already exists. Please check." $PWD
+    exit 1;
+  fi
+fi
+
+echo "main_rootfs: Using Arguments...."
+echo "LOCAL_DIRECTORY_PREFIX:" $LOCAL_DIRECTORY_PREFIX
+echo "LOCAL_SRC_CONFIG_FILE:" $LOCAL_SRC_CONFIG_FILE
+echo "LOCAL_CONFIG_FILE:" $LOCAL_CONFIG_FILE
+echo "LOG_DIR:" $LOG_DIR
+echo "LOCAL_FORCE_SOURCE_IMAGE_DELETION:" $LOCAL_FORCE_SOURCE_IMAGE_DELETION
+echo "--------------------------"
+
+source $LOCAL_DIRECTORY_PREFIX/output/scripts/error_handler_internal.sh $LOG_DIR $LOCAL_DIRECTORY_PREFIX main_rootfs_err.log $LOCAL_FORCE_ROOTFS_DELETION $LOCAL_FORCE_SOURCE_IMAGE_DELETION $LOCAL_SOURCE_PWD $MOUNT_POINT
 
 if [ $INITIAL_BUILD_SETUP != "--none" ]  && [ $INITIAL_BUILD_SETUP != "--create-rootfs-image-only" ] && [ $INITIAL_BUILD_SETUP != "--create-source-image-only" ] && [ $INITIAL_BUILD_SETUP != "--setup-initial-environment" ] && [ $INITIAL_BUILD_SETUP != "--bootstrap" ]; then
   echo "Invalid INITIAL_BUILD_SETUP. Please check build_options.txt file for supported combinations."

@@ -28,14 +28,18 @@ LOCAL_COMPONENT_ONLY_BUILDS=$COMPONENT_ONLY_BUILDS
 LOCAL_INITIAL_BUILD_SETUP=$INITIAL_BUILD_SETUP
 LOCAL_SYNC_SOURCE=$SYNC_SOURCE
 
-if [ ! -e $LOCAL_PWD ]; then
-  mkdir -p $LOCAL_PWD/output/scripts
+if [ ! -e $LOCAL_PWD/config ]; then
   mkdir -p $LOCAL_PWD/config
-  mkdir -p $PWD/source
-  cp -rf scripts/*.* build/output/scripts/
   cp default-config/*.json build/config
   cp -rf default-config/guest build/config/guest
-else
+fi
+
+if [ ! -e $LOCAL_PWD/output ]; then
+  mkdir -p $LOCAL_PWD/output/scripts
+  cp -rf scripts/*.* $LOCAL_PWD/output/scripts/
+fi
+ 
+if [ $INITIAL_BUILD_SETUP == "--none" ]; then
   if bash scripts/common_checks_internal.sh $LOCAL_PWD $SOURCE_PWD --true; then
     echo “Preparing docker...”
   else

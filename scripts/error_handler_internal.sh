@@ -1,33 +1,40 @@
 #Original source https://stackoverflow.com/questions/64786/error-handling-in-bash and modified for our use.
 
+set -o pipefail  # trace ERR through pipes
+set -o errtrace  # trace ERR through 'time command' and other functions
+set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
+set -o errexit   ## set -e : exit the script if any statement returns a non-true return value
+
 lib_name='error_handler_internal'
 LOG_DIR=${1}
 DIRECTORY_PREFIX=${2}
 ERR_LOG_NAME=${3}
-UNMOUNT_POINT=${4}
+FORCE_ROOTFS_DELETION=${4}
+FORCE_SOURCE_IMAGE_DELETION=${5}
+SOURCE_DIRECTORY_PREFIX=${6}
+UNMOUNT_POINT=${5}
 
-echo "Recieved Arguments...."
+echo "error_handler_internal: Recieved Arguments...."
 echo "LOG_DIR:" $LOG_DIR
 echo "DIRECTORY_PREFIX:" $DIRECTORY_PREFIX
 echo "ERR_LOG_NAME:" $ERR_LOG_NAME
+echo "FORCE_ROOTFS_DELETION:" $FORCE_ROOTFS_DELETION
+echo "FORCE_SOURCE_IMAGE_DELETION:" $FORCE_SOURCE_IMAGE_DELETION
 echo "UNMOUNT_POINT:" $UNMOUNT_POINT
 echo "--------------------------"
 
 mkdir -p $LOG_DIR
 stderr_log=$LOG_DIR/$ERR_LOG_NAME
 
-echo "Using Arguments...."
+echo "error_handler_internal: Using Arguments...."
 echo "LOG_DIR:" $LOG_DIR
 echo "DIRECTORY_PREFIX:" $DIRECTORY_PREFIX
 echo "ERR_LOG_NAME:" $ERR_LOG_NAME
 echo "stderr_log:" $stderr_log
+echo "FORCE_ROOTFS_DELETION:" $FORCE_ROOTFS_DELETION
+echo "FORCE_SOURCE_IMAGE_DELETION:" $FORCE_SOURCE_IMAGE_DELETION
 echo "UNMOUNT_POINT:" $UNMOUNT_POINT
 echo "--------------------------"
-
-set -o pipefail  # trace ERR through pipes
-set -o errtrace  # trace ERR through 'time command' and other functions
-set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
-set -o errexit   ## set -e : exit the script if any statement returns a non-true return value
 
 exec 2>"$stderr_log"
 
@@ -39,11 +46,25 @@ exec 2>"$stderr_log"
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
 
 function exit_handler ()
-{
-    $DIRECTORY_PREFIX/output/scripts/unmount_internal.sh "--true" "--true" "--true" $DIRECTORY_PREFIX $UNMOUNT_POINT
+{   
     local error_code="$?"
 
     test $error_code == 0 && return;
+
+    $DIRECTORY_PREFIX/output/scripts/unmount_internal.sh "--true" "--true" "--true" $DIRECTORY_PREFIX $UNMOUNT_POINT
+    if [ $FORCE_ROOTFS_DELETION == "--true" ]; then
+      if [ -e $LOCAL_DIRECTORY_PREFIX/output/rootfs.ext4 ]; then
+        echo "Failed to succesfully create rootfs image. Cleaning up..."
+        rm $LOCAL_DIRECTORY_PREFIX/output/rootfs.ext4
+      fi
+    fi
+    
+    if [ $FORCE_SOURCE_IMAGE_DELETION == "--true" ]; then
+      if [ -e $SOURCE_DIRECTORY_PREFIX/source.ext4 ]; then
+        echo "Failed to succesfully create source image. Cleaning up..."
+        rm $SOURCE_DIRECTORY_PREFIX/source.ext4
+      fi
+    fi
 
     #
     # LOCAL VARIABLES:

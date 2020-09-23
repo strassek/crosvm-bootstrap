@@ -15,7 +15,7 @@ UNMOUNT_OUTPUT_DIR=${3:-"--true"}
 DIRECTORY_PREFIX=${4}
 UNMOUNT_POINT=${5}
 
-echo "Recieved Arguments for UnMount...."
+echo "unmount_internal: Recieved Arguments for UnMount...."
 echo "UNMOUNT_SYSTEM_DIRS:" $UNMOUNT_SYSTEM_DIRS
 echo "UNMOUNT_SOURCE_IMAGE: $UNMOUNT_SOURCE_IMAGE"
 echo "UNMOUNT_OUTPUT_DIR: $UNMOUNT_OUTPUT_DIR"
@@ -25,7 +25,7 @@ echo "--------------------------"
 
 LOCAL_DIRECTORY_PREFIX=$DIRECTORY_PREFIX
 
-echo "Parameters used...."
+echo "unmount_internal: Parameters used...."
 echo "UNMOUNT_SYSTEM_DIRS:" $UNMOUNT_SYSTEM_DIRS
 echo "UNMOUNT_SOURCE_IMAGE: $UNMOUNT_SOURCE_IMAGE"
 echo "UNMOUNT_OUTPUT_DIR: $UNMOUNT_OUTPUT_DIR"

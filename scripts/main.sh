@@ -35,7 +35,16 @@ LOCAL_BUILD_TYPE=$BUILD_TYPE
 LOCAL_TARGET_ARCH="--64bit"
 LOG_DIR=$LOCAL_DIRECTORY_PREFIX/output/component_log
 
-source $LOCAL_DIRECTORY_PREFIX/output/scripts/error_handler_internal.sh $LOG_DIR $LOCAL_DIRECTORY_PREFIX main_err.log $MOUNT_POINT
+echo "main: Using Arguments...."
+echo "LOCAL_DIRECTORY_PREFIX:" $LOCAL_DIRECTORY_PREFIX
+echo "LOCAL_BUILD_CHANNEL:" $LOCAL_BUILD_CHANNEL
+echo "LOCAL_BUILD_TARGET:" $LOCAL_BUILD_TARGET
+echo "LOCAL_BUILD_TYPE:" $LOCAL_BUILD_TYPE
+echo "LOCAL_TARGET_ARCH:" $LOCAL_TARGET_ARCH
+echo "LOG_DIR:" $LOG_DIR
+echo "--------------------------"
+
+source $LOCAL_DIRECTORY_PREFIX/output/scripts/error_handler_internal.sh $LOG_DIR $LOCAL_DIRECTORY_PREFIX main_err.log --false --false $LOCAL_SOURCE_PWD $MOUNT_POINT
 
 if [ $BUILD_TYPE != "--clean" ] && [ $BUILD_TYPE != "--incremental" ] && [ $BUILD_TYPE != "--really-clean" ]; then
   echo "Invalid Build Type. Valid Values:--clean, --incremental, --create-source-image-only --setup-initial-enviroment --really-clean"
