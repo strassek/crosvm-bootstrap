@@ -56,7 +56,7 @@ if [ $PARAM_CHECKS_ONLY != "--true" ]; then
 fi
 
 if [ $BUILD_CHECK == "--true" ]; then
-  if [ $INITIAL_BUILD_SETUP != "--none" ]  && [ $INITIAL_BUILD_SETUP != "--create-rootfs-image-only" ] && [ $INITIAL_BUILD_SETUP != "--create-source-image-only" ] && [ $INITIAL_BUILD_SETUP != "--setup-initial-environment" ] && [ $INITIAL_BUILD_SETUP != "--bootstrap" ]; then
+  if [ $INITIAL_BUILD_SETUP != "--none" ]  && [ $INITIAL_BUILD_SETUP != "--create-rootfs-image-only" ] && [ $INITIAL_BUILD_SETUP != "--create-source-image-only" ] && [ $INITIAL_BUILD_SETUP != "--setup-initial-environment" ] && [ $INITIAL_BUILD_SETUP != "--bootstrap" ] && [ $INITIAL_BUILD_SETUP != "--rebuild-rootfs" ]; then
     echo "Invalid INITIAL_BUILD_SETUP. Please check build_options.txt file for supported combinations."
     exit 1
   fi
@@ -102,7 +102,12 @@ else
   fi
 
   if [ ! -e $SOURCE_PWD/source/source.ext4 ]; then
-    echo "Unable to find source.ext4. Please run build.sh with --rebuild-rootfs  to generate rootfs image first."
+    echo "Unable to find source.ext4. Please run build.sh with --rebuild-rootfs  to generate source image first."
+    exit 1
+  fi
+
+  if [ ! -e $DIRECTORY_PREFIX/output/host.ext4 ]; then
+    echo "Unable to find host.ext4. Please run build.sh with --rebuild-rootfs  to generate host image first."
     exit 1
   fi
 fi

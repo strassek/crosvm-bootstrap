@@ -30,43 +30,43 @@ fi
 
 if [ $BUILD_CHANNEL == "--dev" ]; then
   if [ $BUILD_TYPE == "--debug" ]; then
-    export RUSTFLAGS='--cfg hermetic -L /opt/dev/debug/x86_64/vm/lib/x86_64-linux-gnu -L /opt/dev/debug/x86_64/lib/x86_64-linux-gnu -L /opt/dev/debug/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
+    export RUSTFLAGS='--cfg hermetic -L /host/dev/debug/lib -L /opt/dev/debug/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
   else
-    export RUSTFLAGS='--cfg hermetic -L /opt/dev/release/x86_64/vm/lib/x86_64-linux-gnu -L /opt/dev/release/x86_64/lib/x86_64-linux-gnu -L /opt/dev/release/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
+    export RUSTFLAGS='--cfg hermetic -L /host/dev/release/lib -L /opt/dev/release/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
   fi
 else
   if [ $BUILD_TYPE == "--debug" ]; then
-    export RUSTFLAGS='--cfg hermetic -L /opt/stable/debug/x86_64/vm/lib/x86_64-linux-gnu -L /opt/stable/debug/x86_64/lib/x86_64-linux-gnu -L /opt/stable/debug/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
+    export RUSTFLAGS='--cfg hermetic -L /host/stable/debug/lib -L /opt/stable/debug/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
   else
-    export RUSTFLAGS='--cfg hermetic -L /opt/stable/release/x86_64/vm/lib/x86_64-linux-gnu  -L /opt/stable/release/x86_64/lib/x86_64-linux-gnu -L /opt/stable/release/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
+    export RUSTFLAGS='--cfg hermetic -L /host/stable/release/lib -L /opt/stable/release/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
   fi
 fi
 
 if [ $BUILD_TYPE == "--debug" ]; then
-LOCAL_BUILD_TYPE=debug
+  LOCAL_BUILD_TYPE=debug
 fi
 
-LOCAL_CURRENT_WLD_PATH=/opt/$LOCAL_CHANNEL/$LOCAL_BUILD_TYPE/x86_64
+LOCAL_CURRENT_WLD_PATH=/host/$LOCAL_CHANNEL/$LOCAL_BUILD_TYPE
 LOCAL_MESON_COMPILER_OPTIONS=""
-LOCAL_LIBDIR=lib/x86_64-linux-gnu
+LOCAL_LIBDIR=lib
 LOCAL_COMPILER_OPTIONS=""
 LOCAL_MESON_BUILD_DIR=build.$LOCAL_BUILD_TYPE.x86_64
 
 echo "64 bit build"
 
 # Export environment variables
-export C_INCLUDE_PATH=$LOCAL_CURRENT_WLD_PATH/vm/include:$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm
-export CPLUS_INCLUDE_PATH=$LOCAL_CURRENT_WLD_PATH/vm/include:$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm
+export C_INCLUDE_PATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm
+export CPLUS_INCLUDE_PATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm
 export CPATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm
 export PATH="$PATH:$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm:$LOCAL_CURRENT_WLD_PATH/bin:$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu"
 export ACLOCAL_PATH=$LOCAL_CURRENT_WLD_PATH/share/aclocal
 export ACLOCAL="aclocal -I $ACLOCAL_PATH"
-export PKG_CONFIG_PATH=$LOCAL_CURRENT_WLD_PATH/vm/lib/x86_64-linux-gnu/pkgconfig:$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu/pkgconfig:$LOCAL_CURRENT_WLD_PATH/lib/pkgconfig:$LOCAL_CURRENT_WLD_PATH/share/pkgconfig:/lib/x86_64-linux-gnu/pkgconfig
+export PKG_CONFIG_PATH=$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu/pkgconfig:$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu/pkgconfig:$LOCAL_CURRENT_WLD_PATH/lib/pkgconfig:$LOCAL_CURRENT_WLD_PATH/share/pkgconfig:/lib/x86_64-linux-gnu/pkgconfig
 export WAYLAND_PROTOCOLS_PATH=$LOCAL_CURRENT_WLD_PATH/share/wayland-protocols
 export RUSTUP_HOME=/usr/local/rustup
 export RUST_VERSION=1.45.2
 export CARGO_HOME=/usr/local/cargo
-export LD_LIBRARY_PATH=$LOCAL_CURRENT_WLD_PATH/vm/lib/x86_64-linux-gnu:$LOCAL_CURRENT_WLD_PATH/vm/lib:$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu:$LOCAL_CURRENT_WLD_PATH/lib
+export LD_LIBRARY_PATH=$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu:$LOCAL_CURRENT_WLD_PATH/lib:$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu:$LOCAL_CURRENT_WLD_PATH/lib
 export PATH=$CARGO_HOME:$PATH
 
 # Set Working Build directory based on the channel.
@@ -89,25 +89,25 @@ fi
 }
 
 cat > $LOCAL_MINI_GBM_PC <<EOF
-prefix=$LOCAL_CURRENT_WLD_PATH/vm
-exec_prefix=$LOCAL_CURRENT_WLD_PATH/vm
-includedir=$LOCAL_CURRENT_WLD_PATH/vm/include
-libdir=$LOCAL_CURRENT_WLD_PATH/vm/lib/x86_64-linux-gnu
+prefix=$LOCAL_CURRENT_WLD_PATH/host
+exec_prefix=$LOCAL_CURRENT_WLD_PATH
+includedir=$LOCAL_CURRENT_WLD_PATH/include
+libdir=$LOCAL_CURRENT_WLD_PATH/lib
 
 Name: libgbm
 Description: A small gbm implementation
 Version: 18.0.0
-Cflags: -I$LOCAL_CURRENT_WLD_PATH/vm/include
-Libs: -L$LOCAL_CURRENT_WLD_PATH/vm/lib/x86_64-linux-gnu -lgbm
+Cflags: -I$LOCAL_CURRENT_WLD_PATH/include
+Libs: -L$LOCAL_CURRENT_WLD_PATH/lib -lgbm
 EOF
 
 # Build minigbm
 echo "Building Minigbm............"
 cd $WORKING_DIR/minigbm
-make clean || true
-make CPPFLAGS="-DDRV_I915" DRV_I915=1 install DESTDIR=$LOCAL_CURRENT_WLD_PATH/vm LIBDIR=$LOCAL_LIBDIR
-mkdir -p $LOCAL_CURRENT_WLD_PATH/vm/lib/x86_64-linux-gnu/pkgconfig/
-install -D -m 0644 $LOCAL_MINI_GBM_PC $LOCAL_CURRENT_WLD_PATH/vm/lib/x86_64-linux-gnu/pkgconfig/gbm.pc
+make -j0  clean || true
+make -j0  CPPFLAGS="-DDRV_I915" DRV_I915=1 install DESTDIR=$LOCAL_CURRENT_WLD_PATH LIBDIR=$LOCAL_LIBDIR
+mkdir -p $LOCAL_CURRENT_WLD_PATH/lib/pkgconfig/
+install -D -m 0644 $LOCAL_MINI_GBM_PC $LOCAL_CURRENT_WLD_PATH/lib/pkgconfig/gbm.pc
 
 # Build virglrenderer
 echo "Building 64 bit VirglRenderer............"
@@ -129,8 +129,7 @@ fi
 
 if [ -f $LOCAL_MESON_BUILD_DIR/$LOCAL_BUILD_TYPE/crosvm ]; then
   if [ -e /build/output ]; then
-    echo "Copying CrosVM to Output Directory:" build/output/$LOCAL_CHANNEL/$LOCAL_BUILD_TYPE/
-    mv $LOCAL_MESON_BUILD_DIR/$LOCAL_BUILD_TYPE/crosvm /build/output/$LOCAL_CHANNEL/$LOCAL_BUILD_TYPE/
-    mv /opt/$LOCAL_CHANNEL/$LOCAL_BUILD_TYPE/x86_64/vm/lib/x86_64-linux-gnu/*.* /build/output/$LOCAL_CHANNEL/$LOCAL_BUILD_TYPE/
+    mkdir -p $LOCAL_CURRENT_WLD_PATH/vm/bin
+    echo "Copying CrosVM to Output Directory:" $LOCAL_CURRENT_WLD_PATH/bin
   fi
 fi

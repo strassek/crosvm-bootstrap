@@ -41,6 +41,10 @@ echo "--------------------------"
 mkdir -p $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT
 
 mount $LOCAL_DIRECTORY_PREFIX/output/rootfs.ext4 $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT
+if [ -e $LOCAL_DIRECTORY_PREFIX/output/host.ext4 ]; then
+  mkdir -p $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT/host
+  mount $LOCAL_DIRECTORY_PREFIX/output/host.ext4 $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT/host
+fi
 
 
 if [ $MOUNT_SOURCE_IMAGE == "--true" ]; then

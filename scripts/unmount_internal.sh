@@ -64,6 +64,13 @@ if [ $UNMOUNT_SOURCE_IMAGE == "--true" ]; then
   fi
 fi
 
+if [ -e $LOCAL_DIRECTORY_PREFIX/output/host.ext4 ]; then
+  if mount | grep $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/host > /dev/null; then
+    echo "unmounting" $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/host
+    umount -l $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT/host
+  fi
+fi
+
 if mount | grep $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT > /dev/null; then
   echo "unmounting" $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT
   umount -l $LOCAL_DIRECTORY_PREFIX/$UNMOUNT_POINT

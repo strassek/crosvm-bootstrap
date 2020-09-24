@@ -103,14 +103,14 @@ cd /build
 
 FORCE_CONFIGURE=0
 CUSTOM_APP_OPTIONS=""
-function makeclean_asneeded() {
+function make -j0 clean_asneeded() {
 if [ $CLEAN_BUILD == "--clean" ]; then
   if [ "$(find . | grep -i '.*[.]o' | wc -c)" == 0 ]; then
-    echo "make clean called"
-    make clean || true
+    echo "make -j0  clean called"
+    make -j0  clean || true
     FORCE_CONFIGURE=1
   else
-    echo "Skipped make clean as this is incremental build or project has not been configured."
+    echo "Skipped make -j0  clean as this is incremental build or project has not been configured."
   fi
 fi
 }
@@ -132,11 +132,11 @@ fi
 }
 
 function autogen_build() {
-#makeclean_asneeded
+#make -j0 clean_asneeded
 #configure_asneeded
-make clean || true
+make -j0  clean || true
 ./autogen.sh --prefix=$LOCAL_CURRENT_WLD_PATH $LOCAL_COMPILER_OPTIONS $CUSTOM_APP_OPTIONS
-make install
+make -j0  install
 CUSTOM_APP_OPTIONS=""
 }
 
@@ -152,8 +152,8 @@ fi
 echo "Building demos............"
 echo "Building glew............"
 cd $WORKING_DIR/glew
-make extensions
-make install GLEW_DEST=$LOCAL_CURRENT_WLD_PATH GLEW_PREFIX=$LOCAL_CURRENT_WLD_PATH
+make -j0  extensions
+make -j0  install GLEW_DEST=$LOCAL_CURRENT_WLD_PATH GLEW_PREFIX=$LOCAL_CURRENT_WLD_PATH
 
 echo "Building glu............"
 cd $WORKING_DIR/glu

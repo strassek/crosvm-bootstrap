@@ -12,16 +12,14 @@ MOUNT_POINT=${4}
 LOCAL_DIRECTORY_PREFIX=$LOCAL_PWD
 LOCAL_SRC_CONFIG_FILE="source.json"
 LOCAL_CONFIG_FILE="image.json"
+LOCAL_HOST_FILE="host.json"
 LOG_DIR=$LOCAL_DIRECTORY_PREFIX/output/component_log
 LOCAL_FORCE_SOURCE_IMAGE_DELETION=--false
 LOCAL_FORCE_ROOTFS_DELETION=--true
 
 if [ $INITIAL_BUILD_SETUP == "--create-source-image-only" ]; then
-  LOCAL_FORCE_ROOTFS_DELETION="--false"
-fi
-
-if [ $INITIAL_BUILD_SETUP == "--create-source-image-only" ]; then
   LOCAL_FORCE_SOURCE_DELETION="--true"
+  LOCAL_FORCE_ROOTFS_DELETION="--false"
   if [ -e $LOCAL_SOURCE_PWD/source/source.ext4 ]; then
     echo "Source image already exists. Please check." $PWD
     exit 1;
@@ -116,6 +114,26 @@ fi
 
 # We should have mounted $LOCAL_DIRECTORY_PREFIX/output/scripts to /build/output/scripts in mount_internal.sh
 if [ $INITIAL_BUILD_SETUP == "--setup-initial-environment" ]; then
+  echo "Checking for host image..."
+  if [ ! -e $LOCAL_DIRECTORY_PREFIX/config/host.json ]; then
+    echo "Host img configuration file not found."
+    ls -a $LOCAL_DIRECTORY_PREFIX/config/
+    rm -rf $LOCAL_DIRECTORY_PREFIX/output/rootfs.ext4
+    exit 1
+  fi
+
+  if [ -e $LOCAL_DIRECTORY_PREFIX/output/host.ext4 ]; then
+    rm $LOCAL_DIRECTORY_PREFIX/output/host.ext4
+  fi
+
+  python3 $LOCAL_DIRECTORY_PREFIX/output/scripts/create_image_internal.py --spec  $LOCAL_DIRECTORY_PREFIX/config/$LOCAL_HOST_FILE --create
+
+  if [ ! -e $LOCAL_DIRECTORY_PREFIX/output/host.ext4 ]; then
+     echo "Failed to create host image. Cleaning up...."
+    rm $LOCAL_DIRECTORY_PREFIX/output/rootfs.ext4
+    exit 1
+  fi
+
   mount "--true" "--false" "--true"
   echo "Copying user configuration script..."
   mkdir -p $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT/deploy/config
@@ -124,12 +142,14 @@ if [ $INITIAL_BUILD_SETUP == "--setup-initial-environment" ]; then
   if [ ! -e  $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT/deploy/config/users.json ]; then
     echo "User configuration file not found."
     unmount "--true" "--false" "--true"
+    rm -rf $LOCAL_DIRECTORY_PREFIX/output/rootfs.ext4
     exit 1
   fi
 
   if [ ! -e  $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT/deploy/create_users_internal.py ]; then
     echo "User configuration file not found."
     unmount "--true" "--false" "--true"
+    rm -rf $LOCAL_DIRECTORY_PREFIX/output/rootfs.ext4
     exit 1
   fi
 
@@ -149,6 +169,7 @@ if [ $INITIAL_BUILD_SETUP == "--setup-initial-environment" ]; then
   
   echo "Setup Rust and Cargo........."
   chroot $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT/ /bin/bash /build/output/scripts/setup_rust.sh
+
   unmount "--true" "--false" "--true"
   exit 0;
 fi

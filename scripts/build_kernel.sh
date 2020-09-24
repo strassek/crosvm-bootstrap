@@ -41,7 +41,7 @@ export PKG_CONFIG_PATH=$LOCAL_CURRENT_WLD_PATH/lib/pkgconfig:$LOCAL_CURRENT_WLD_
 export PATH="$PATH:$LOCAL_CURRENT_WLD_PATH/bin"
 
 # Set Working Build directory based on the channel.
-WORKING_DIR=/build/$LOCAL_CHANNEL/drivers
+WORKING_DIR=/build/$LOCAL_CHANNEL/drivers-
 
 echo "Working Directory:" $WORKING_DIR
 
@@ -53,19 +53,14 @@ echo "---------------------------------"
 cd /build
 
 cd $WORKING_DIR/kernel
-KERNEL_OUTPUT_DIR=output
 if [[ ($CLEAN_BUILD == "--clean" && -d $KERNEL_OUTPUT_DIR) ]]; then
-  make clean || true
-  rm -rf $KERNEL_OUTPUT_DIR
+  make -j0  clean || true
 fi
   
-mkdir -p $KERNEL_OUTPUT_DIR
-make x86_64_defconfig
-make
+make -j0  x86_64_defconfig
+make -j0
 if [ -f vmlinux ]; then
   if [ -e /build/output ]; then
-    cp vmlinux /build/output/$LOCAL_CHANNEL/
+    mv vmlinux /host/$LOCAL_CHANNEL/
   fi
-
-  mv vmlinux $KERNEL_OUTPUT_DIR/
 fi

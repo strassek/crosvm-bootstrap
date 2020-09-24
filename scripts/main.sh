@@ -73,6 +73,11 @@ if [ ! -e $LOCAL_DIRECTORY_PREFIX/output/rootfs.ext4 ]; then
   exit 1;
 fi
 
+if [ ! -e $LOCAL_DIRECTORY_PREFIX/output/host.ext4 ]; then
+  echo "Failed to find host image."
+  exit 1;
+fi
+
 if [ $LOCAL_BUILD_CHANNEL == "--all" ]; then
   echo "Build Tree: dev, Stable"
   if [ $BUILD_TYPE == "--really-clean" ]; then
@@ -141,10 +146,42 @@ if [ $UPDATE_SYSTEM == "--true" ]; then
   chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/system_packages_internal.sh
 fi
 
+if [ -e $SOURCE_PWD/source/source.ext4 ]; then
+  if [ $LOCAL_BUILD_CHANNEL != "--stable" ] && [ $LOCAL_BUILD_CHANNEL != "--all" ]; then
+    if [ ! -e $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT/build/stable/x11 ]; then
+      SYNC_SOURCE=--true
+    fi
+  fi
+
+  if [ $LOCAL_BUILD_CHANNEL != "--dev" ] && [ $LOCAL_BUILD_CHANNEL != "--all" ]; then
+    if [ ! -e $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT/build/dev/x11 ]; then
+      SYNC_SOURCE=--true
+    fi
+  fi
+fi
+
 # Update sources as needed.
 if [ $SYNC_SOURCE == "--true" ]; then
-  echo "Installing system packages...."
+  echo "Installing source code...."
   chroot $MOUNT_POINT/ /bin/bash /build/output/scripts/sync_code_internal.sh
+fi
+
+if [ -e $SOURCE_PWD/source/source.ext4 ]; then
+  if [ $LOCAL_BUILD_CHANNEL != "--stable" ] && [ $LOCAL_BUILD_CHANNEL != "--all" ]; then
+    if [ ! -e $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT/build/stable/x11 ]; then
+      echo "Failed to find Source image.Cleaning up... Please run build command with same options again."
+      rm $SOURCE_PWD/source/source.ext4
+      exit 1;
+    fi
+  fi
+
+  if [ $LOCAL_BUILD_CHANNEL != "--dev" ] && [ $LOCAL_BUILD_CHANNEL != "--all" ]; then
+    if [ ! -e $LOCAL_DIRECTORY_PREFIX/$MOUNT_POINT/build/dev/x11 ]; then
+      echo "Failed to find valid source image.Cleaning up... Please run build command with same options again."
+      rm $SOURCE_PWD/source/source.ext4
+      exit 1;
+    fi
+  fi
 fi
 
 build_x11() {

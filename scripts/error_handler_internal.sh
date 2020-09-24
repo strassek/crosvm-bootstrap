@@ -60,9 +60,9 @@ function exit_handler ()
     fi
     
     if [ $FORCE_SOURCE_IMAGE_DELETION == "--true" ]; then
-      if [ -e $SOURCE_DIRECTORY_PREFIX/source.ext4 ]; then
+      if [ -e $SOURCE_DIRECTORY_PREFIX/source/source.ext4 ]; then
         echo "Failed to succesfully create source image. Cleaning up..."
-        rm $SOURCE_DIRECTORY_PREFIX/source.ext4
+        rm $SOURCE_DIRECTORY_PREFIX/source/source.ext4
       fi
     fi
 

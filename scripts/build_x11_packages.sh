@@ -79,14 +79,14 @@ fi
 cd /build
 
 FORCE_CONFIGURE=0
-function makeclean_asneeded() {
+function make_clean_asneeded() {
 if [ $CLEAN_BUILD == "--clean" ]; then
   if [ "$(find . | grep -i '.*[.]o' | wc -c)" == 0 ]; then
-    echo "make clean called"
-    make clean || true
+    echo "make -j0  clean called"
+    make -j0  clean || true
     FORCE_CONFIGURE=1
   else
-    echo "Skipped make clean as this is incremental build or project has not been configured."
+    echo "Skipped make -j0  clean as this is incremental build or project has not been configured."
   fi
 fi
 }
@@ -108,11 +108,11 @@ fi
 }
 
 function autogen_build() {
-#makeclean_asneeded
+#make -j0 clean_asneeded
 #configure_asneeded
-make clean || true
+make -j0  clean || true
 ./autogen.sh --prefix=$LOCAL_CURRENT_WLD_PATH $LOCAL_COMPILER_OPTIONS
-make install
+make -j0  install
 }
 
 echo "checking " $LOCAL_CURRENT_WLD_PATH/share/aclocal

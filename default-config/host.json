@@ -1,8 +1,7 @@
 {
     "path": "output/",
-    "name": "rootfs.ext4",
+    "name": "host.ext4",
     "fstype": "ext4",
     "isSparse": true,
-    "doMount": true,
-    "sizeInMB": 20720
+    "sizeInMB": 1000
 }
