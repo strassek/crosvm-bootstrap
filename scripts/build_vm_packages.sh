@@ -30,25 +30,25 @@ fi
 
 if [ $BUILD_CHANNEL == "--dev" ]; then
   if [ $BUILD_TYPE == "--debug" ]; then
-    export RUSTFLAGS='--cfg hermetic -L /host/dev/debug/lib -L /opt/dev/debug/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
+    export RUSTFLAGS='--cfg hermetic -L /opt/dev/debug/x86_64/vm/lib/x86_64-linux-gnu -L /opt/dev/debug/x86_64/lib/x86_64-linux-gnu -L /opt/dev/debug/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
   else
-    export RUSTFLAGS='--cfg hermetic -L /host/dev/release/lib -L /opt/dev/release/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
+    export RUSTFLAGS='--cfg hermetic -L /opt/dev/release/x86_64/vm/lib/x86_64-linux-gnu -L /opt/dev/release/x86_64/lib/x86_64-linux-gnu -L /opt/dev/release/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
   fi
 else
   if [ $BUILD_TYPE == "--debug" ]; then
-    export RUSTFLAGS='--cfg hermetic -L /host/stable/debug/lib -L /opt/stable/debug/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
+    export RUSTFLAGS='--cfg hermetic -L /opt/stable/debug/x86_64/vm/lib/x86_64-linux-gnu -L /opt/stable/debug/x86_64/lib/x86_64-linux-gnu -L /opt/stable/debug/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
   else
-    export RUSTFLAGS='--cfg hermetic -L /host/stable/release/lib -L /opt/stable/release/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
+    export RUSTFLAGS='--cfg hermetic -L /opt/stable/release/x86_64/vm/lib/x86_64-linux-gnu  -L /opt/stable/release/x86_64/lib/x86_64-linux-gnu -L /opt/stable/release/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
   fi
 fi
 
 if [ $BUILD_TYPE == "--debug" ]; then
-  LOCAL_BUILD_TYPE=debug
+LOCAL_BUILD_TYPE=debug
 fi
 
-LOCAL_CURRENT_WLD_PATH=/host/$LOCAL_CHANNEL/$LOCAL_BUILD_TYPE
+LOCAL_CURRENT_WLD_PATH=/opt/$LOCAL_CHANNEL/$LOCAL_BUILD_TYPE/x86_64
 LOCAL_MESON_COMPILER_OPTIONS=""
-LOCAL_LIBDIR=lib
+LOCAL_LIBDIR=lib/x86_64-linux-gnu
 LOCAL_COMPILER_OPTIONS=""
 LOCAL_MESON_BUILD_DIR=build.$LOCAL_BUILD_TYPE.x86_64
 
@@ -89,31 +89,30 @@ fi
 }
 
 cat > $LOCAL_MINI_GBM_PC <<EOF
-prefix=$LOCAL_CURRENT_WLD_PATH/host
+prefix=$LOCAL_CURRENT_WLD_PATH
 exec_prefix=$LOCAL_CURRENT_WLD_PATH
 includedir=$LOCAL_CURRENT_WLD_PATH/include
-libdir=$LOCAL_CURRENT_WLD_PATH/lib
-
+libdir=$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu
 Name: libgbm
 Description: A small gbm implementation
 Version: 18.0.0
 Cflags: -I$LOCAL_CURRENT_WLD_PATH/include
-Libs: -L$LOCAL_CURRENT_WLD_PATH/lib -lgbm
+Libs: -L$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu -lgbm
 EOF
 
 # Build minigbm
 echo "Building Minigbm............"
 cd $WORKING_DIR/minigbm
-make -j0  clean || true
-make -j0  CPPFLAGS="-DDRV_I915" DRV_I915=1 install DESTDIR=$LOCAL_CURRENT_WLD_PATH LIBDIR=$LOCAL_LIBDIR
-mkdir -p $LOCAL_CURRENT_WLD_PATH/lib/pkgconfig/
-install -D -m 0644 $LOCAL_MINI_GBM_PC $LOCAL_CURRENT_WLD_PATH/lib/pkgconfig/gbm.pc
+make clean || true
+make CPPFLAGS="-DDRV_I915" DRV_I915=1 install DESTDIR=$LOCAL_CURRENT_WLD_PATH LIBDIR=$LOCAL_LIBDIR
+mkdir -p $LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu/pkgconfig/
+install -D -m 0644 $LOCAL_MINI_GBM_PC $LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu/pkgconfig/gbm.pc
 
 # Build virglrenderer
 echo "Building 64 bit VirglRenderer............"
 cd $WORKING_DIR/virglrenderer
 mesonclean_asneeded
-meson setup $LOCAL_MESON_BUILD_DIR -Dplatforms=auto -Dminigbm_allocation=true  --buildtype $LOCAL_BUILD_TYPE -Dprefix=$LOCAL_CURRENT_WLD_PATH/vm && ninja -C $LOCAL_MESON_BUILD_DIR install
+meson setup $LOCAL_MESON_BUILD_DIR -Dplatforms=auto -Dminigbm_allocation=true  --buildtype $LOCAL_BUILD_TYPE -Dprefix=$LOCAL_CURRENT_WLD_PATH && ninja -C $LOCAL_MESON_BUILD_DIR install
 
 echo "Building 64 bit CrosVM............"
 cd $WORKING_DIR/cros_vm/src/platform/crosvm
@@ -128,8 +127,5 @@ else
 fi
 
 if [ -f $LOCAL_MESON_BUILD_DIR/$LOCAL_BUILD_TYPE/crosvm ]; then
-  if [ -e /build/output ]; then
-    mkdir -p $LOCAL_CURRENT_WLD_PATH/vm/bin
-    echo "Copying CrosVM to Output Directory:" $LOCAL_CURRENT_WLD_PATH/bin
-  fi
+  install -D -m 0644 $LOCAL_MESON_BUILD_DIR/$LOCAL_BUILD_TYPE/crosvm $LOCAL_CURRENT_WLD_PATH/bin/
 fi
