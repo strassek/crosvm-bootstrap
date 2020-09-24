@@ -54,11 +54,11 @@ cd /build
 
 cd $WORKING_DIR/kernel
 if [[ ($CLEAN_BUILD == "--clean" && -d $KERNEL_OUTPUT_DIR) ]]; then
-  make -j0  clean || true
+  make clean || true
 fi
   
-make -j0  x86_64_defconfig
-make -j0
+make x86_64_defconfig
+make
 if [ -f vmlinux ]; then
   if [ -e /build/output ]; then
     mv vmlinux /host/$LOCAL_CHANNEL/

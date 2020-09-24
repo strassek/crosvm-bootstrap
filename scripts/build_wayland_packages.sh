@@ -83,14 +83,14 @@ fi
 cd /build
 
 FORCE_CONFIGURE=0
-function make -j0 clean_asneeded() {
+function make_clean_asneeded() {
 if [ $CLEAN_BUILD == "--clean" ]; then
   if [ "$(find . | grep -i '.*[.]o' | wc -c)" != 0 ]; then
-    echo "make -j0  clean called"
-    make -j0  clean || true
+    echo "make clean called"
+    make clean || true
     FORCE_CONFIGURE=1
   else
-    echo "Skipped make -j0  clean as this is incremental build or project has not been configured."
+    echo "Skipped make clean as this is incremental build or project has not been configured."
   fi
 fi
 }
@@ -115,11 +115,11 @@ fi
 }
 
 function autogen_build() {
-#make -j0 clean_asneeded
+#make_clean_asneeded
 #configure_asneeded
-make -j0  clean || true
+make clean || true
 ./autogen.sh --prefix=$LOCAL_CURRENT_WLD_PATH $LOCAL_COMPILER_OPTIONS $LOCAL_PER_COMPONENT_OPTIONS
-make -j0  install
+make install
 }
 
 function mesonclean_asneeded() {
@@ -177,13 +177,13 @@ else
   LOCAL_PER_COMPONENT_OPTIONS="--disable-documentation"
 fi
 autogen_build
-make -j0  install
+make install
 
 # Build wayland-protocols
 echo "Building wayland-protocols............"
 cd $WORKING_DIR/wayland-protocols
 autogen_build
-make -j0  install
+make install
 
 # Build libxkbcommon
 echo "Building libxkbcommon............"
