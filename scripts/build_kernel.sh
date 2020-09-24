@@ -41,7 +41,7 @@ export PKG_CONFIG_PATH=$LOCAL_CURRENT_WLD_PATH/lib/pkgconfig:$LOCAL_CURRENT_WLD_
 export PATH="$PATH:$LOCAL_CURRENT_WLD_PATH/bin"
 
 # Set Working Build directory based on the channel.
-WORKING_DIR=/build/$LOCAL_CHANNEL/drivers-
+WORKING_DIR=/build/$LOCAL_CHANNEL/drivers
 
 echo "Working Directory:" $WORKING_DIR
 
