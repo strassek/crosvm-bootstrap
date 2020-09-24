@@ -59,6 +59,7 @@ fi
   
 make x86_64_defconfig
 make
+mkdir -p /host/$LOCAL_CHANNEL/
 if [ -f vmlinux ]; then
   if [ -e /build/output ]; then
     mv vmlinux /host/$LOCAL_CHANNEL/
