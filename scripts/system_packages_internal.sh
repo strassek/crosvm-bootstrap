@@ -105,7 +105,6 @@ install_package libgpg-error-dev
 install_package libfreetype6
 install_package libfreetype6-dev
 install_package libfontenc-dev
-install_package libffi-dev
 install_package libexpat1-dev
 install_package xsltproc
 install_package libxml2-utils
@@ -120,7 +119,6 @@ install_package_i386  libelf-dev
 install_package_i386 libselinux1
 install_package_i386 libselinux1-dev
 install_package_i386 libudev-dev
-install_package_i386 libffi-dev
 install_package_i386 libfreetype6
 install_package_i386 libfreetype6-dev
 install_package_i386 libfontenc-dev

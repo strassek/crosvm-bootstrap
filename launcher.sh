@@ -1,44 +1,73 @@
 #! /bin/bash
 
-XDG_RUNTIME_DIR=$1
-WAYLAND_DISPLAY=$2
-X_DISPLAY=$3
-TARGET=${4:-"--release"}
-CHANNEL=${5:-"--stable"}
-STOP=${6:-"--run"}
-CUSTOM_PATH=${7:-""}
-LOCAL_CURRENT_CHANNEL=stable
-LOCAL_BUILD_TARGET=release
-KERNEL_CMD_OPTIONS="intel_iommu=on"
+set -o pipefail  # trace ERR through pipes
+set -o errtrace  # trace ERR through 'time command' and other functions
+set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
+set -o errexit   ## set -e : exit the script if any statement returns a non-true return value
 
-if [ $CHANNEL == "--stable" ]; then
-  LOCAL_CURRENT_CHANNEL=stable
-else
-  LOCAL_CURRENT_CHANNEL=dev
-fi
+set -ex
+
+BASE_DIRECTORY=${1} # Expected Directory Structure <basefolder>/rootfs.ext4, vmlinux, crosvm
+SOURCES_DIRECTORY=${2}
+XDG_RUNTIME_DIR=${3}
+WAYLAND_DISPLAY=${4}
+DISPLAY=${5}
+CHANNEL=${6:-"--stable"}
+TARGET=${7:-"--release"}
+ACTION=${8:-"--run"}
+SOURCE_DIRECTORY=${9:-""}
+LOCAL_PWD=$PWD
+
+LOCAL_KERNEL_CMD_OPTIONS=""
+LOCAL_BUILD_TARGET=release
+LOCAL_CHANNEL=stable
 
 if [ $TARGET == "--release" ]; then
-  LOCAL_BUILD_TARGET=release
-  KERNEL_CMD_OPTIONS="intel_iommu=on"
+  LOCAL_KERNEL_CMD_OPTIONS="intel_iommu=on"
 else
+  LOCAL_KERNEL_CMD_OPTIONS="intel_iommu=on drm.debug=255 debug loglevel=8 initcall_debug"
   LOCAL_BUILD_TARGET=debug
-  KERNEL_CMD_OPTIONS="intel_iommu=on drm.debug=255 debug loglevel=8 initcall_debug"
-fi
-FINAL_PATH=$PWD/build/output/$LOCAL_CURRENT_CHANNEL/$LOCAL_BUILD_TARGET
-if [ $CUSTOM_PATH != "" ]; then
-  FINAL_PATH=$CUSTOM_PATH
 fi
 
-export CURRENT_CHANNEL=$LOCAL_CURRENT_CHANNEL
+if [ $LOCAL_CHANNEL == "--dev" ]; then
+  LOCAL_CHANNEL=dev
+fi
 
-GPU="width=1024,height=768,backend=2d,glx=true --x-display=:0.0"
-echo "X Display:" $DISPLAY
-echo "Wayland Display:" $WAYLAND_DISPLAY
-echo "XDG_RUNTIME_DIR:" $XDG_RUNTIME_DIR
-echo "CrosVM Path" $PWD/build/output/$LOCAL_CURRENT_CHANNEL/$LOCAL_BUILD_TARGET/crosvm
+# Handle component builds
+mkdir -p $BASE_DIRECTORY/exec
+mkdir -p $BASE_DIRECTORY/exec/scripts
+mkdir -p $BASE_DIRECTORY/exec/start
+mkdir -p $BASE_DIRECTORY/exec/stop
+mkdir -p $BASE_DIRECTORY/exec/mount
+mkdir -p $BASE_DIRECTORY/exec/lock
+mkdir -p $BASE_DIRECTORY/exec/log
+cp $SOURCES_DIRECTORY/launch/*.sh $BASE_DIRECTORY/exec/scripts/
 
-if [ $STOP == "--stop" ]; then
-  sudo LD_LIBRARY_PATH=$FINAL_PATH $FINAL_PATH/crosvm stop $FINAL_PATH/crosvm.sock
+source $BASE_DIRECTORY/exec/scripts/error_handler_internal.sh $BASE_DIRECTORY
+
+docker image rm crosvm -f
+
+if [ $ACTION == "--run" ]; then
+if bash $BASE_DIRECTORY/exec/scripts/mount_internal.sh $BASE_DIRECTORY/rootfs.ext4 $BASE_DIRECTORY/mount; then
+  echo “Preparing to launch crosvm...”
 else
-    sudo LD_LIBRARY_PATH=$FINAL_PATH --preserve-env=$CURRENT_CHANNEL $FINAL_PATH/crosvm run --disable-sandbox --rwdisk $PWD/build/output/rootfs.ext4 -s $FINAL_PATH/crosvm.sock -m 10240 --cpus 4 -p "root=/dev/vda" -p "$KERNEL_CMD_OPTIONS" --host_ip 10.0.0.1 --netmask 255.255.255.0 --mac 9C:B6:D0:E3:96:4D --wayland-sock=$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY --gpu egl=true,glx=true,gles=true --x-display=$DISPLAY --wayland-dmabuf $PWD/build/output/$LOCAL_CURRENT_CHANNEL/vmlinux
+  echo “Failed to launch crosvm..., exit status: $?”
+  exit 1
 fi
+
+cp $SOURCES_DIRECTORY/launch/docker/start.dockerfile $BASE_DIRECTORY/exec/start/Dockerfile
+cd $BASE_DIRECTORY/exec/start
+docker build -t crosvm:latest .
+docker run -it --privileged -v /dev:/dev -v /proc:/proc -v /sys:/sys -v $BASE_DIRECTORY:/app/crosvm -v $BASE_DIRECTORY/mount:/app/intel crosvm:latest $XDG_RUNTIME_DIR $WAYLAND_DISPLAY $DISPLAY $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $LOCAL_KERNEL_CMD_OPTIONS
+else
+mkdir -p $BASE_DIRECTORY/exec/stop
+cp -v $SOURCES_DIRECTORY/launch/docker/stop.dockerfile $BASE_DIRECTORY/exec/stop/Dockerfile
+cd $BASE_DIRECTORY/exec/stop
+docker build -t crosvm:latest .
+docker run -it --net=host --privileged -v /dev:/dev -v /proc:/proc -v /sys:/sys -v $BASE_DIRECTORY:/app/crosvm crosvm:latest
+$BASE_DIRECTORY/exec/scripts/unmount_internal.sh $BASE_DIRECTORY/mount
+rm -rf $BASE_DIRECTORY/exec
+fi
+
+cd $LOCAL_PWD
+
