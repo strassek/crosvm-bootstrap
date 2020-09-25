@@ -52,7 +52,7 @@ if [ -e $BASE_DIRECTORY/scripts/exec/ ]; then
 fi
 
 mkdir $BASE_DIRECTORY/scripts/exec/
-cp launch/*.sh $BASE_DIRECTORY/scripts/exec/
+cp launch/scripts/*.sh $BASE_DIRECTORY/scripts/exec/
 
 if [ $ACTION=="--run" ]; then
 cd $BASE_DIRECTORY/docker/exec/
