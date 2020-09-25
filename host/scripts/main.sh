@@ -13,12 +13,12 @@ LOCAL_DIRECTORY_PREFIX=/build
 LOCAL_BUILD_CHANNEL="--dev"
 LOCAL_BUILD_TARGET="--release"
 LOCAL_BUILD_TYPE=$BUILD_TYPE
-LOG_DIR=/build/output/component_log
+LOG_DIR=/log/component_log_host
 SCRIPTS_DIR=/scripts/host
 
 echo $PWD
 ls -a /scripts/host
-source $SCRIPTS_DIR/error_handler_internal.sh $LOG_DIR main_err.log
+source $SCRIPTS_DIR/error_handler_internal.sh $LOG_DIR main_host_err.log
 
 echo "main: Recieved Arguments...."
 if bash $SCRIPTS_DIR/common_checks_internal.sh $LOCAL_DIRECTORY_PREFIX /build --true --true --none $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET --false; then

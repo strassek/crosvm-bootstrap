@@ -1,7 +1,0 @@
-{
-    "path": "output/",
-    "name": "host.ext4",
-    "fstype": "ext4",
-    "isSparse": true,
-    "sizeInMB": 1000
-}

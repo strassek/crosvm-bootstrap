@@ -1,6 +1,6 @@
-FROM debian:buster-slim
+FROM intel-vm-launch:latest
 
 WORKDIR /app/
 USER root
 RUN echo "PWD:" $PWD
-ENTRYPOINT [ "/bin/bash", "/app/crosvm/exec/scripts/stop.sh" ]
+ENTRYPOINT [ "/bin/bash", "/scripts/exec/stop.sh" ]

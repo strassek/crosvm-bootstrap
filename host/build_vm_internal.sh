@@ -11,7 +11,7 @@ set -o nounset
 # bail on failing commands before last pipe
 set -o pipefail
 
-SOURCE_PWD=${1}
+BASE_PWD=${1}
 INITIAL_BUILD_SETUP=${2:-"--none"}
 BUILD_TYPE=${3:-"--clean"} # Possible values: --clean, --incremental --really-clean
 COMPONENT_ONLY_BUILDS=${4:-"--all"}
@@ -19,13 +19,14 @@ BUILD_CHANNEL=${5:-"--stable"} # Possible values: --dev, --stable, --all
 BUILD_TARGET=${6:-"--release"} # Possible values: --release, --debug, --all
 CREATE_BASE_IMAGE_ONLY=${7:-"--false"} # Possible values: --false, --true
 
-LOCAL_PWD=$PWD/build
-SOURCE_PWD=$SOURCE_PWD
+LOCAL_PWD=$BASE_PWD/build
+SOURCE_PWD=$BASE_PWD/source
 LOCAL_BUILD_TYPE=$BUILD_TYPE
 LOCAL_COMPONENT_ONLY_BUILDS=$COMPONENT_ONLY_BUILDS
 LOCAL_INITIAL_BUILD_SETUP=$INITIAL_BUILD_SETUP
+mkdir -p $LOCAL_PWD/output
  
-if bash host/scripts/common_checks_internal.sh $LOCAL_PWD $SOURCE_PWD/source --true --false $INITIAL_BUILD_SETUP $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET  $CREATE_BASE_IMAGE_ONLY; then
+if bash host/scripts/common_checks_internal.sh $LOCAL_PWD $SOURCE_PWD --true --false $INITIAL_BUILD_SETUP $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET  $CREATE_BASE_IMAGE_ONLY; then
   echo “Preparing docker...”
 else
   echo “Failed to find needed dependencies, exit status: $?”
@@ -101,26 +102,10 @@ building_component() {
 component="${1}"
 docker_image="${2}"
 echo "running docker" $docker_image
-if docker run -it --privileged --mount type=bind,source=$SOURCE_PWD/source,target=/build --mount type=bind,source=$LOCAL_PWD/scripts,target=/scripts intel-temp:latest $LOCAL_BUILD_TYPE $component $BUILD_CHANNEL $BUILD_TARGET; then
-  echo "committing------------"
+if docker run -it --privileged --mount type=bind,source=$SOURCE_PWD,target=/build --mount type=bind,source=$LOCAL_PWD/scripts,target=/scripts --mount type=bind,source=$LOCAL_PWD/output,target=/log intel-temp:latest $LOCAL_BUILD_TYPE $component $BUILD_CHANNEL $BUILD_TARGET; then
+  echo "committing------------" $component
   export CONTAINER_ID=`docker ps -lq`
   docker commit $CONTAINER_ID $docker_image
-  if [ $docker_image == "--vm" ];
-    echo "Generating rootfs image..."
-    mkdir -p $LOCAL_PWD/images
-    cd $LOCAL_PWD/images
-    docker export -o rootfs.tar $CONTAINER_ID
-    if [ -e rootfs.ext4 ]; then
-      rm rootfs.ext4
-    fi
-    dd if=/dev/zero of=rootfs.ext4 bs=3000 count=1M
-    mkfs.ext4 rootfs.ext4
-    mkdir -p rootfs_dir/
-    mount rootfs.ext4 rootfs_dir/
-    tar -xvf rootfs.tar -C rootfs_dir/
-    umount rootfs
-    rm rootfs_dir
-  fi
   docker rmi -f intel-temp:latest
 else
   docker rmi -f intel-temp:latest

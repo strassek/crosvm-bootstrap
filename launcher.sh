@@ -30,7 +30,27 @@ if [ $LOCAL_CHANNEL == "--dev" ]; then
   LOCAL_CHANNEL=dev
 fi
 
-docker image rm intel-vm-launch -f
+if [ -e $BASE_DIRECTORY/docker/exec/ ]; then
+  rm -rf $BASE_DIRECTORY/docker/exec/
+fi
+
+mkdir -p $BASE_DIRECTORY/docker/exec/
+
+if [ -e $BASE_DIRECTORY/scripts/exec/ ]; then
+  rm -rf $BASE_DIRECTORY/scripts/exec/
+fi
+
+cp launch/docker/start.dockerfile $BASE_DIRECTORY/docker/exec/Dockerfile-start
+cp launch/docker/stop.dockerfile $BASE_DIRECTORY/docker/exec/Dockerfile-stop
+
+if [ -e $BASE_DIRECTORY/scripts/exec/ ]; then
+  rm -rf $BASE_DIRECTORY/scripts/exec/
+fi
+
+mkdir -p $BASE_DIRECTORY/scripts/exec/
+cp launch/scripts/*.sh $BASE_DIRECTORY/scripts/exec/
+
+if [ $ACTION == "--run" ]; then
 
 if [[ "$(docker images -q intel-vm:latest 2> /dev/null)" != "" ]]; then
   echo “Preparing to launch crosvm...”
@@ -39,22 +59,6 @@ else
   exit 1
 fi
 
-if [ -e $BASE_DIRECTORY/docker/exec/ ]; then
-  rm -rf $BASE_DIRECTORY/docker/exec/
-fi
-
-mkdir $BASE_DIRECTORY/docker/exec/
-
-cp launch/docker/start.dockerfile $BASE_DIRECTORY/docker/exec/Dockerfile-start
-
-if [ -e $BASE_DIRECTORY/scripts/exec/ ]; then
-  rm -rf $BASE_DIRECTORY/scripts/exec/
-fi
-
-mkdir $BASE_DIRECTORY/scripts/exec/
-cp launch/scripts/*.sh $BASE_DIRECTORY/scripts/exec/
-
-if [ $ACTION=="--run" ]; then
 cd $BASE_DIRECTORY/docker/exec/
 docker build -t intel-vm-launch:latest -f Dockerfile-start .
 exec docker run -it --privileged \
@@ -62,27 +66,28 @@ exec docker run -it --privileged \
     -e DISPLAY=$DISPLAY -e XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR -e WAYLAND_DISPLAY=$WAYLAND_DISPLAY \
     -v /dev/log:/dev/log \
     -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
-    -v /dev:/dev -v /proc:/proc -v /sys:/sys \
+    -v /proc:/proc -v /sys:/sys \
     --mount type=bind,source=$BASE_DIRECTORY/images,target=/images \
     --mount type=bind,source=$BASE_DIRECTORY/scripts,target=/scripts \
     intel-vm-launch:latest \
     $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $LOCAL_KERNEL_CMD_OPTIONS run
+    
+docker rmi -f intel-vm-launch:latest
 else
-cd $BASE_DIRECTORY/docker/exec/
-docker build -t intel-vm-stop:latest -f Dockerfile-start .
-exec docker run -it --privileged \
-    --ipc=host \
-    -e DISPLAY=$DISPLAY -e XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR -e WAYLAND_DISPLAY=$WAYLAND_DISPLAY \
-    -v /dev/log:/dev/log \
-    -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
-    -v /dev:/dev -v /proc:/proc -v /sys:/sys \
-    -f Dockerfile-start \
-    --volume "$pwd":/wd \
-    --workdir /wd \
-    --ipc=host
-    --mount type=bind,source=$BASE_DIRECTORY/images,target=/images \
-    --mount type=bind,source=$BASE_DIRECTORY/scripts,target=/scripts \
-    intel-vm-stop:latest \
-    $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $LOCAL_KERNEL_CMD_OPTIONS stop
+if [ $ACTION == "--stop" ]; then
+  cd $BASE_DIRECTORY/docker/exec/
+  docker build -t intel-vm-stop:latest -f Dockerfile-stop .
+  exec docker run -it --privileged \
+      --ipc=host \
+      -e DISPLAY=$DISPLAY -e XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR -e WAYLAND_DISPLAY=$WAYLAND_DISPLAY \
+      -v /dev/log:/dev/log \
+      -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+      -v /proc:/proc -v /sys:/sys \
+      --mount type=bind,source=$BASE_DIRECTORY/images,target=/images \
+      --mount type=bind,source=$BASE_DIRECTORY/scripts,target=/scripts \
+      intel-vm-stop:latest \
+      $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $LOCAL_KERNEL_CMD_OPTIONS stop
+    
+  docker rmi -f intel-vm-stop:latest
 fi
-
+fi

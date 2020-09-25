@@ -13,12 +13,12 @@ LOCAL_DIRECTORY_PREFIX=/build
 LOCAL_BUILD_CHANNEL="--dev"
 LOCAL_BUILD_TARGET="--release"
 LOCAL_BUILD_TYPE=$BUILD_TYPE
-LOG_DIR=/build/output/component_log
+LOG_DIR=/log/component_log_guest
 SCRIPTS_DIR=/scripts/guest
 
 echo $PWD
 ls -a /scripts/guest
-source $SCRIPTS_DIR/error_handler_internal.sh $LOG_DIR main_err.log
+source $SCRIPTS_DIR/error_handler_internal.sh $LOG_DIR main_guest_err.log
 
 echo "main: Recieved Arguments...."
 if bash $SCRIPTS_DIR/common_checks_internal.sh $LOCAL_DIRECTORY_PREFIX /build --true --true --none $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET --false; then
@@ -33,7 +33,7 @@ if [ $BUILD_CHANNEL == "--stable" ]; then
   LOCAL_BUILD_CHANNEL="--stable"
 else
   if [ $BUILD_CHANNEL == "--all" ]; then
-  LOCAL_BUILD_CHANNEL="--all"
+    LOCAL_BUILD_CHANNEL="--all"
   fi
 fi
 
@@ -41,7 +41,7 @@ if [ $BUILD_TARGET == "--debug" ]; then
   LOCAL_BUILD_TARGET="--debug"
 else
   if [ $BUILD_TARGET == "--all" ]; then
-  LOCAL_BUILD_TARGET="--all"
+    LOCAL_BUILD_TARGET="--all"
   fi
 fi
 
@@ -103,7 +103,7 @@ if [ $COMPONENT_ONLY_BUILDS == "--x11" ] || [ $COMPONENT_ONLY_BUILDS == "--all" 
   fi
 
   if [ $LOCAL_BUILD_TARGET != $build_target ] && [ $LOCAL_BUILD_TARGET != "--all" ]; then
-  return 0;
+    return 0;
   fi
 
   bash $SCRIPTS_DIR/build_x11_packages.sh $build_target $build_type $channel
@@ -121,7 +121,7 @@ if [ $COMPONENT_ONLY_BUILDS == "--wayland" ] || [ $COMPONENT_ONLY_BUILDS == "--a
   fi
 
   if [ $LOCAL_BUILD_TARGET != $build_target ] && [ $LOCAL_BUILD_TARGET != "--all" ]; then
-  return 0;
+    return 0;
   fi
 
   bash $SCRIPTS_DIR/build_wayland_packages.sh $build_target $build_type $channel
@@ -139,7 +139,7 @@ if [ $COMPONENT_ONLY_BUILDS == "--drivers" ] || [ $COMPONENT_ONLY_BUILDS == "--a
   fi
 
   if [ $LOCAL_BUILD_TARGET != $build_target ] && [ $LOCAL_BUILD_TARGET != "--all" ]; then
-  return 0;
+    return 0;
   fi
   
   bash $SCRIPTS_DIR/build_driver_packages.sh $build_target $build_type $channel
@@ -157,7 +157,7 @@ if [ $COMPONENT_ONLY_BUILDS == "--vm" ] || [ $COMPONENT_ONLY_BUILDS == "--all" ]
   fi
 
   if [ $LOCAL_BUILD_TARGET != $build_target ] && [ $LOCAL_BUILD_TARGET != "--all" ]; then
-  return 0;
+    return 0;
   fi
   
   bash $SCRIPTS_DIR/build_guest_packages.sh $build_target $build_type $channel

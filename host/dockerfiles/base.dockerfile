@@ -58,8 +58,7 @@ RUN apt-get update --no-install-recommends --no-install-suggests && apt-get inst
     libxml2-utils \
     libtool-bin \
     libxml2-dev \
-    libc6-dev \
-    systemd-sysv
+    libc6-dev
 
 # Export environment variables
 ENV RUSTUP_HOME=/usr/local/rustup \

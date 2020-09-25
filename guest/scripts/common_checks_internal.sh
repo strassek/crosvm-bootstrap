@@ -40,10 +40,19 @@ if [ $PARAM_CHECKS_ONLY == "--false" ]; then
 
   mkdir -p $DIRECTORY_PREFIX/scripts/guest
   cp -rf guest/scripts/*.* $DIRECTORY_PREFIX/scripts/guest/
+  cp guest/scripts/default_user.sh $DIRECTORY_PREFIX/scripts/guest/
+  cp launch/scripts/run_time_settings.sh $DIRECTORY_PREFIX/scripts/guest/
   
   if [ -e $DIRECTORY_PREFIX/docker/guest/ ]; then
     rm -rf $DIRECTORY_PREFIX/docker/guest/
   fi
+  
+  if [ -e $DIRECTORY_PREFIX/config ]; then
+    rm -rf $DIRECTORY_PREFIX/config
+  fi
+  
+  mkdir -p $DIRECTORY_PREFIX/config
+  cp -rf default-config $DIRECTORY_PREFIX/config/
 
   mkdir -p build/docker/guest
   cp guest/dockerfiles/base.dockerfile build/docker/guest/Dockerfile.base-guest
