@@ -11,149 +11,72 @@ set -o nounset
 # bail on failing commands before last pipe
 set -o pipefail
 
-INITIAL_BUILD_SETUP=${1:-"--none"}
-BUILD_TYPE=${2:-"--clean"} # Possible values: --clean, --incremental --really-clean
-COMPONENT_ONLY_BUILDS=${3:-"--all"}
-TARGET_ARCH=${4:-"--all"}
-SYNC_SOURCE=${5:-"--false"} # Possible values: --true, --false
-BUILD_CHANNEL=${6:-"--stable"} # Possible values: --dev, --stable, --all
-BUILD_TARGET=${7:-"--release"} # Possible values: --release, --debug, --all
-UPDATE_SYSTEM=${8:-"--false"} # Possible values: --true, --false
-MOUNT_POINT=${9:-"mount"}
+BASE_DIR=${1}
+INITIAL_BUILD_SETUP=${2:-"--none"}
+GUEST_ONLY=${3:-"--false"}
+HOST_ONLY=${4:-"--false"}
+BUILD_TYPE=${5:-"--clean"} # Possible values: --clean, --incremental --really-clean
+COMPONENT_ONLY_BUILDS=${6:-"--all"}
+BUILD_CHANNEL=${7:-"--stable"} # Possible values: --dev, --stable, --all
+BUILD_TARGET=${8:-"--release"} # Possible values: --release, --debug, --all
 
-LOCAL_PWD=$PWD/build
-SOURCE_PWD=$PWD
-LOCAL_BUILD_TYPE=$BUILD_TYPE
-LOCAL_COMPONENT_ONLY_BUILDS=$COMPONENT_ONLY_BUILDS
-LOCAL_INITIAL_BUILD_SETUP=$INITIAL_BUILD_SETUP
-LOCAL_SYNC_SOURCE=$SYNC_SOURCE
- 
-if bash scripts/common_checks_internal.sh $LOCAL_PWD $SOURCE_PWD --true --false $INITIAL_BUILD_SETUP $BUILD_TYPE $COMPONENT_ONLY_BUILDS $TARGET_ARCH $SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM; then
-  echo “Preparing docker...”
+if [ $GUEST_ONLY != "--true" ]; then
+  # Create Base image. This will be used for Host and cloning source code.
+  if bash host/build_vm_internal.sh $BASE_DIR/source $INITIAL_BUILD_SETUP $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET --true; then
+    echo “Cloning Source...”
+  else
+    echo “Failed to create base image, exit status: $? Please check Docker is setup correctly.”
+    exit 1
+  fi
+fi
+
+# FIXME: Clone Code
+
+if [ $GUEST_ONLY != "--true" ]; then
+  # Create Host image.
+  if [ $INITIAL_BUILD_SETUP == "--rebuild-all" ]; then
+    INITIAL_BUILD_SETUP="--rebuild-drivers"
+  fi
+
+  if bash host/build_vm_internal.sh $BASE_DIR/source $INITIAL_BUILD_SETUP $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET --false; then
+    echo “Cloning Source...”
+  else
+    echo “Failed to create host image, exit status: $?”
+    exit 1
+  fi
+fi
+
+if [ $HOST_ONLY == "--true" ]; then
+  exit 0
+fi
+
+# Create Base image. This will be used for guest.
+echo "Preparing to build Guest image...."
+if bash guest/build_guest_internal.sh $BASE_DIR/source $INITIAL_BUILD_SETUP $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET --false; then
+  echo “Cloning Source...”
 else
-  echo “Failed to find needed dependencies, exit status: $?”
+  echo “Failed to create host image, exit status: $?”
   exit 1
 fi
 
-if [ $LOCAL_INITIAL_BUILD_SETUP == "--rebuild-rootfs" ]; then
-# Remove any old rootfs images
-echo "Checking for existing rootfs images."
-  if [ -e $LOCAL_PWD/output/rootfs.ext4 ]; then
-    echo "Destroyed rootfs image."
-    rm $LOCAL_PWD/output/rootfs.ext4;
-  else
-    echo "No pre-existing rootfs image exist."
-  fi
-
-  if [ -e $LOCAL_PWD/output/dev ]; then
-    rm -rf $LOCAL_PWD/output/dev;
-  fi
-
-  if [ -e $LOCAL_PWD/output/stable ]; then
-    rm -rf $LOCAL_PWD/output/stable;
-  fi
+if [ $GUEST_ONLY == "--true" ]; then
+  exit 0
 fi
 
-if [ $LOCAL_INITIAL_BUILD_SETUP == "--recreate-source-image-only" ]; then
-# Remove any old rootfs images
-  if [ -e $SOURCE_PWD/source/source.ext4 ]; then
-    rm $SOURCE_PWD/source/source.ext4;
-  fi
-fi
-
-rm -rf build/docker/
-mkdir -p build/docker/rootfs
-mkdir -p build/docker/component
-cp dockerfiles/rootfs.dockerfile build/docker/rootfs/Dockerfile
-cp dockerfiles/component.dockerfile build/docker/component/Dockerfile
-
-SHA=`git rev-parse --short HEAD`
-TAG=`git describe --always`
-if [ -z $? ]; then
-    echo "$TAG" > VERSION
-else
-    echo "COMMIT-$SHA" > VERSION
-fi
-
-# Handle rootfs builds
-cd $LOCAL_PWD/docker/rootfs
-
+echo "Preparing to build Kernel...."
+cd $BASE_DIR/source/source/$BUILD_CHANNEL/drivers/kernel/
 if [ $BUILD_TYPE == "--clean" ]; then
-  docker image rm package-builder -f
+  make clean || true
 fi
 
-docker build -t package-builder:latest .
-building_rootfs() {
-component="${1}"
-source_mount=""
-if [ $component == "--create-source-image-only" ]; then
-  source_mount="-v $SOURCE_PWD/source:/app/source"
+make x86_64_defconfig
+make
+if [ -f vmlinux ]; then
+  mkdir -p $BASE_DIR/build/images/
+  if [ -e $BASE_DIR/build/images/vmlinux ]; then
+    rm $BASE_DIR/build/images/vmlinux
+  fi
+
+  mv vmlinux $BASE_DIR/build/images/
 fi
 
-docker run -it --privileged $source_mount -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest $component /app /app $MOUNT_POINT
-}
-
-if [ ! -e $LOCAL_PWD/output/rootfs.ext4 ]; then
-  building_rootfs "--create-rootfs-image-only"
-  LOCAL_INITIAL_BUILD_SETUP="--bootstrap"
-fi
-
-if [ $LOCAL_INITIAL_BUILD_SETUP == "--bootstrap" ]; then
-  echo "Bootstrap Debian...."
-  building_rootfs "--bootstrap"
-  LOCAL_INITIAL_BUILD_SETUP="--setup-initial-environment"
-fi
-
-if [ $LOCAL_INITIAL_BUILD_SETUP == "--setup-initial-environment" ]; then
-  echo "Setting up initial environment."
-  building_rootfs "--setup-initial-environment"
-  LOCAL_BUILD_TYPE="--really-clean"
-fi
-
-if [ ! -e $SOURCE_PWD/source/source.ext4 ]; then
-  echo "Setting up initial source image."
-  building_rootfs "--create-source-image-only"
-  LOCAL_BUILD_TYPE="--really-clean"
-  LOCAL_SYNC_SOURCE="--false"
-fi
-
-if [ $LOCAL_BUILD_TYPE == "--really-clean" ]; then
-  LOCAL_COMPONENT_ONLY_BUILDS="--all"
-fi
-
-# Handle component builds
-cd $LOCAL_PWD/docker/component
-docker build -t package-builder:latest .
-
-echo "Building components."
-building_component() {
-component="${1}"
-docker run -it --privileged -v $SOURCE_PWD/source:/app/source -v $LOCAL_PWD/output:/app/output -v $LOCAL_PWD/config:/app/config package-builder:latest $LOCAL_BUILD_TYPE $component $TARGET_ARCH $LOCAL_SYNC_SOURCE $BUILD_CHANNEL $BUILD_TARGET $UPDATE_SYSTEM /app /app $MOUNT_POINT
-
-LOCAL_SYNC_SOURCE="--false"
-UPDATE_SYSTEM="--false"
-}
-
-if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--x11" ]; then
-  building_component "--x11"
-fi
-
-if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--wayland" ]; then
-  building_component "--wayland"
-fi
-
-if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--drivers" ]; then
-  building_component "--drivers"
-fi
-
-if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--kernel" ]; then
-  building_component "--kernel"
-fi
-
-if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--vm" ]; then
-  building_component "--vm"
-fi
-
-if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--demos" ]; then
-  building_component "--demos"
-fi
