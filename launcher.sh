@@ -18,6 +18,7 @@ ACTION=${7:-"--run"}
 LOCAL_KERNEL_CMD_OPTIONS=""
 LOCAL_BUILD_TARGET=release
 LOCAL_CHANNEL=stable
+pwd="${PWD}"
 
 if [ $TARGET == "--release" ]; then
   LOCAL_KERNEL_CMD_OPTIONS="intel_iommu=on"
@@ -52,21 +53,27 @@ cp launch/scripts/*.sh $BASE_DIRECTORY/scripts/exec/
 
 if [ $ACTION == "--run" ]; then
 
-if [[ "$(docker images -q intel-vm:latest 2> /dev/null)" != "" ]]; then
+if [[ "$(docker images -q intel-vm:latest 2> /dev/null)" != "" ]] && [[ "$(docker images -q intel-guest:latest 2> /dev/null)" != "" ]]; then
   echo “Preparing to launch crosvm...”
 else
   echo “Failed to launch crosvm..., exit status: $?”
   exit 1
 fi
 
+if [[ "$(docker images -q intel-vm-launch 2> /dev/null)" != "" ]]; then
+  docker rmi -f intel-vm-launch:latest
+fi
+
+
 cd $BASE_DIRECTORY/docker/exec/
 docker build -t intel-vm-launch:latest -f Dockerfile-start .
-exec docker run -it --privileged \
+exec docker run -it --rm --privileged \
     --ipc=host \
     -e DISPLAY=$DISPLAY -e XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR -e WAYLAND_DISPLAY=$WAYLAND_DISPLAY \
     -v /dev/log:/dev/log \
     -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
     -v /proc:/proc -v /sys:/sys \
+    -e container=docker \
     --mount type=bind,source=$BASE_DIRECTORY/images,target=/images \
     --mount type=bind,source=$BASE_DIRECTORY/scripts,target=/scripts \
     intel-vm-launch:latest \
@@ -75,9 +82,13 @@ exec docker run -it --privileged \
 docker rmi -f intel-vm-launch:latest
 else
 if [ $ACTION == "--stop" ]; then
+  if [[ "$(docker images -q intel-vm-stop 2> /dev/null)" != "" ]]; then
+    docker rmi -f intel-vm-stop:latest
+  fi
+
   cd $BASE_DIRECTORY/docker/exec/
   docker build -t intel-vm-stop:latest -f Dockerfile-stop .
-  exec docker run -it --privileged \
+  exec docker run -it --cap-add net_admin \
       --ipc=host \
       -e DISPLAY=$DISPLAY -e XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR -e WAYLAND_DISPLAY=$WAYLAND_DISPLAY \
       -v /dev/log:/dev/log \

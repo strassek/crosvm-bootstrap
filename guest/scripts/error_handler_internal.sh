@@ -8,10 +8,12 @@ set -o errexit   ## set -e : exit the script if any statement returns a non-true
 lib_name='error_handler_internal'
 LOG_DIR=${1}
 ERR_LOG_NAME=${2}
+MOUNT_DIR=${3}
 
 echo "error_handler_internal: Recieved Arguments...."
 echo "LOG_DIR:" $LOG_DIR
 echo "ERR_LOG_NAME:" $ERR_LOG_NAME
+echo "MOUNT_DIR:" $MOUNT_DIR
 echo "--------------------------"
 
 mkdir -p $LOG_DIR
@@ -36,6 +38,19 @@ function exit_handler ()
     local error_code="$?"
 
     test $error_code == 0 && return;
+
+    if [ $MOUNT_DIR != "--none" ]; then
+      if [ -e $MOUNT_DIR/images/user-temp ]; then
+        rm -rf $MOUNT_DIR/images/user-temp/guest_temp/
+        if mount | grep $MOUNT_DIR/images/user-temp > /dev/null; then
+          umount -l $MOUNT_DIR/images/user-temp
+        fi
+
+        rm -rf $MOUNT_DIR/images/user-temp
+        rm $MOUNT_DIR/images/rootfs_temp.tar
+        rm $MOUNT_DIR/images/rootfs.ext4
+      fi
+    fi
 
     #
     # LOCAL VARIABLES:

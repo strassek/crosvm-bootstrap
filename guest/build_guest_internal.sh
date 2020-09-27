@@ -24,6 +24,9 @@ SOURCE_PWD=$BASE_PWD/source
 LOCAL_BUILD_TYPE=$BUILD_TYPE
 LOCAL_COMPONENT_ONLY_BUILDS=$COMPONENT_ONLY_BUILDS
 LOCAL_INITIAL_BUILD_SETUP=$INITIAL_BUILD_SETUP
+LOG_DIR=$BASE_PWD/component_log
+SCRIPTS_DIR=$LOCAL_PWD/scripts
+
 mkdir -p $LOCAL_PWD/output
  
 if bash guest/scripts/common_checks_internal.sh $LOCAL_PWD $SOURCE_PWD --true --false $INITIAL_BUILD_SETUP $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET  $CREATE_BASE_IMAGE_ONLY; then
@@ -32,6 +35,8 @@ else
   echo “Failed to find needed dependencies, exit status: $?”
   exit 1
 fi
+
+source $SCRIPTS_DIR/guest/error_handler_internal.sh $LOG_DIR guest.log $LOCAL_PWD
 
 destroy_docker_images() {
 if [ $INITIAL_BUILD_SETUP == "--none" ]; then
@@ -68,7 +73,7 @@ if [ $INITIAL_BUILD_SETUP == "--rebuild-all" ] || [ $INITIAL_BUILD_SETUP == "--r
   fi
 fi
 
-if [ $INITIAL_BUILD_SETUP == "--rebuild-all" ] || [ $INITIAL_BUILD_SETUP == "--rebuild-drivers" ] || [ $INITIAL_BUILD_SETUP == "--rebuild-vm" ]; then
+if [ $INITIAL_BUILD_SETUP == "--rebuild-all" ] || [ $INITIAL_BUILD_SETUP == "--rebuild-drivers" ] || [ $INITIAL_BUILD_SETUP == "--rebuild-guest" ]; then
   if [[ "$(docker images -q intel-guest:latest 2> /dev/null)" != "" ]]; then
     docker rmi -f intel-guest:latest
   fi
@@ -133,7 +138,8 @@ if docker run -it --privileged --mount type=bind,source=$SOURCE_PWD,target=/buil
     cp $LOCAL_PWD/scripts/guest/services_internal.sh user-temp/guest_temp/
     cp $LOCAL_PWD/scripts/guest/run_time_settings.sh user-temp/guest_temp/
     chroot user-temp/ /bin/bash /guest_temp/services_internal.sh
-    chroot user-temp/ /bin/bash /guest_temp/default_user.sh test test0000
+    echo "Configuring default user"
+    chroot user-temp/ /bin/bash /guest_temp/default_user.sh
     LOCAL_BUILD_CHANNEL=stable
     LOCAL_BUILD_TARGET=release
     if [ $BUILD_CHANNEL == "--dev" ]; then

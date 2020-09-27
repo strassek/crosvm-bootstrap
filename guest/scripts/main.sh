@@ -16,9 +16,7 @@ LOCAL_BUILD_TYPE=$BUILD_TYPE
 LOG_DIR=/log/component_log_guest
 SCRIPTS_DIR=/scripts/guest
 
-echo $PWD
-ls -a /scripts/guest
-source $SCRIPTS_DIR/error_handler_internal.sh $LOG_DIR main_guest_err.log
+source $SCRIPTS_DIR/error_handler_internal.sh $LOG_DIR main_guest_err.log --none
 
 echo "main: Recieved Arguments...."
 if bash $SCRIPTS_DIR/common_checks_internal.sh $LOCAL_DIRECTORY_PREFIX /build --true --true --none $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET --false; then

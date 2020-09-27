@@ -1,8 +1,8 @@
 #! /bin/bash
 
 
-chgrp render /dev/wl0
-chmod 760 /dev/wl0
+sudo chgrp render /dev/wl0
+sudo chmod 760 /dev/wl0
 
 if test -z "${XDG_RUNTIME_DIR}"; then
     export XDG_RUNTIME_DIR=/tmp/${UID}-runtime-dir

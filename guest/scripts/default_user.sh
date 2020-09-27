@@ -19,10 +19,12 @@ export uid=$LOCAL_uid gid=$LOCAL_gid
 mkdir -p /home/developer
 echo "$LOCAL_UNAME:x:$uid:$gid:$LOCAL_UNAME,,,:/home/$LOCAL_UNAME:/bin/bash" >> /etc/passwd
 echo "$LOCAL_UNAME:x:${uid}:" >> /etc/group
+echo $LOCAL_UNAME:$LOCAL_PASSWORD | chpasswd
 echo "$LOCAL_UNAME ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$LOCAL_UNAME
 chmod 0440 /etc/sudoers.d/$LOCAL_UNAME
 chown $uid:$gid -R /home/$LOCAL_UNAME
 
+echo "adding groups"
 usermod -aG sudo,audio,video,input,render,lp $LOCAL_UNAME
 #loginctl enable-linger $UNAME
 
