@@ -143,7 +143,7 @@ setup_build_env
 
 echo "Building guest."
 if chroot $LOCAL_ROOTFS_GUEST_MOUNT_DIR/ /bin/bash /scripts/guest/main.sh $LOCAL_BUILD_TYPE --all $BUILD_CHANNEL $BUILD_TARGET; then
-  echo "Built------------" $component
+  echo "Built all packages needed for guest." 
 else
   exit 1
 fi
