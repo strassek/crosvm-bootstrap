@@ -66,6 +66,7 @@ export RUSTUP_HOME=/usr/local/rustup
 export RUST_VERSION=1.45.2
 export LD_LIBRARY_PATH=$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu:$LOCAL_CURRENT_WLD_PATH/lib:$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu:$LOCAL_CURRENT_WLD_PATH/lib
 
+source /usr/local/cargo/env
 # Set Working Build directory based on the channel.
 WORKING_DIR=/build/$LOCAL_CHANNEL/vm
 LOCAL_MINI_GBM_PC=$WORKING_DIR/minigbm/minigbm-$LOCAL_CHANNEL-$LOCAL_BUILD_TARGET.pc

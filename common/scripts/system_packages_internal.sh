@@ -62,7 +62,6 @@ install_package kmod
 install_package libdbus-1-dev
 install_package protobuf-compiler
 install_package sudo
-install_package cargo
 install_package ninja-build
 install_package ssh
 install_package git
