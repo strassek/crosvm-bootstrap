@@ -30,7 +30,7 @@ SCRIPTS_DIR=$LOCAL_PWD/scripts
 LOCAL_ROOTFS_BASE=rootfs_base
 LOCAL_ROOTFS_MOUNT_DIR=rootfs_base-temp
 
-mkdir -p $LOCAL_PWD/output
+mkdir -p $BASE_PWD/build/images
 mkdir -p $BASE_PWD/build/log/common
  
 if bash common/scripts/common_checks_internal.sh $LOCAL_PWD $SOURCE_PWD --true --false $COMPONENT_TARGET $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET  $CREATE_BASE_IMAGE_ONLY; then

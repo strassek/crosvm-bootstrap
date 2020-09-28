@@ -89,9 +89,10 @@ if [ $BUILD_TYPE == "--really-clean" ]; then
   
   if [ -e $LOCAL_ROOTFS_COMMON.ext4 ]; then
     rm  $LOCAL_ROOTFS_COMMON.ext4
-    LOCAL_BUILD_TYPE=--clean
-    LOCAL_COMPONENT_ONLY_BUILDS=--all
   fi
+  
+  LOCAL_BUILD_TYPE=--clean
+  LOCAL_COMPONENT_ONLY_BUILDS=--all
 fi
 }
 
