@@ -31,7 +31,7 @@ if [ $BUILD_TARGET != "--release" ] && [ $BUILD_TARGET != "--debug" ] ]; then
  exit 1
 fi
 
-if [ $BUILD_ARCH != "x86_64" ] && [ $BUILD_ARCH != "i386" ] ]; then
+if [ $BUILD_ARCH != "x86_64" ] && [ $BUILD_ARCH != "i386" ]; then
  echo "Invalid Build Arch. Valid Values: x86_64, i386. Recieved:" $BUILD_ARCH
  exit 1
 fi
