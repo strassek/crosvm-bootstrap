@@ -81,3 +81,22 @@ if [ $COMPONENT_TARGET == "--kernel" ] || [ $COMPONENT_TARGET == "--rebuild-all"
   fi
 fi
 
+if [ $COMPONENT_TARGET == "--container-image" ] || [ $COMPONENT_TARGET == "--rebuild-all" ] ; then
+  echo "Preparing to create docker image...."
+  cd $BASE_DIR/images
+  if [ ! -e rootfs_host.ext4 ]; then
+    echo "Cannot find rootfs_host.ext4 file. Please check the build...."
+    exit 1
+  fi
+  
+  if [[ "$(docker images -q intel_host 2> /dev/null)" != "" ]]; then
+    docker rmi -f intel_host:latest
+  fi
+  
+  mkdir intel_host
+  mount rootfs_host.ext4 intel_host
+  tar -C intel_host -c . | sudo docker import - intel_host
+  umount -l intel_host
+  rm -rf intel_host
+fi
+
