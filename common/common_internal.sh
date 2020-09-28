@@ -60,8 +60,8 @@ if [ -e $LOCAL_ROOTFS_MOUNT_DIR ]; then
 fi
 
 if [ $BUILD_TYPE == "--really-clean" ]; then
-  if [ -e .${LOCAL_ROOTFS_BASE}_lock ]; then
-    rm .${LOCAL_ROOTFS_BASE}_lock
+  if [ -e $LOCAL_ROOTFS_BASE.lock ]; then
+    rm $LOCAL_ROOTFS_BASE.lock
   fi
   
   if [ -e $LOCAL_ROOTFS_BASE.ext4 ]; then
@@ -81,8 +81,8 @@ if [ -e $LOCAL_ROOTFS_MOUNT_DIR ]; then
   rm -rf $LOCAL_ROOTFS_MOUNT_DIR
 fi
 
-if [ -e .${LOCAL_ROOTFS_BASE}_lock ]; then
-  rm .${LOCAL_ROOTFS_BASE}_lock
+if [ -e $LOCAL_ROOTFS_BASE.lock ]; then
+  rm $LOCAL_ROOTFS_BASE.lock
 fi
 
 if [ -e $LOCAL_ROOTFS_BASE.ext4 ]; then
@@ -125,7 +125,7 @@ fi
 echo "Configuring Run time settings"   
 chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/common/run_time_settings.sh test $LOCAL_BUILD_CHANNEL $LOCAL_BUILD_TARGET
 echo "Rootfs ready..."  
-echo "rootfs generated" > .${LOCAL_ROOTFS_BASE}_lock
+echo "rootfs generated" > $LOCAL_ROOTFS_BASE.lock
 echo "Cleaningup build env..." 
 if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/build > /dev/null; then
   umount -l $LOCAL_ROOTFS_MOUNT_DIR/build

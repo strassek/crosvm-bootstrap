@@ -11,11 +11,8 @@ set -o nounset
 set -o pipefail
 
 PWD_DIR=$1
-
 mkdir -p $PWD_DIR/source
-
-LOCAL_PWD=$PWD
-cd source
+cd $PWD_DIR/source
 # Repo initialization and cloning all needed Libraries.
 if [ ! -f "/usr/bin/python" ]; then
 ln -s /usr/bin/python3 /usr/bin/python

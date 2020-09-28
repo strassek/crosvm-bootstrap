@@ -67,8 +67,8 @@ chroot $LOCAL_ROOTFS_GUEST_MOUNT_DIR/ /bin/bash /scripts/guest/services_internal
 
 echo "Rootfs image for guest is ready. Preparing to compile guest packages..."
 umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR
-if [ ! -e .${LOCAL_ROOTFS_GUEST}_lock ]; then
-  echo "rootfs generated" > .${LOCAL_ROOTFS_GUEST}_lock
+if [ ! -e $LOCAL_ROOTFS_GUEST.lock ]; then
+  echo "rootfs generated" > $LOCAL_ROOTFS_GUEST.lock
 fi
 }
 
@@ -94,8 +94,8 @@ destroy_guest_rootfs_as_needed() {
 cleanup_build_env
 
 if [ $BUILD_TYPE == "--really-clean" ]; then
-  if [ -e .${LOCAL_ROOTFS_GUEST}_lock ]; then
-    rm .${LOCAL_ROOTFS_GUEST}_lock
+  if [ -e $LOCAL_ROOTFS_GUEST.lock ]; then
+    rm $LOCAL_ROOTFS_GUEST.lock
   fi
   
   if [ -e $LOCAL_PWD/images/$LOCAL_ROOTFS_GUEST.ext4 ]; then

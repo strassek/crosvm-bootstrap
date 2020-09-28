@@ -55,7 +55,7 @@ function exit_handler ()
     fi
   
     cd $MOUNT_DIR/images/
-    if [ ! -e .${LOCAL_ROOTFS_GUEST}_lock ] && [ -e $LOCAL_ROOTFS_GUEST.ext4 ]; then
+    if [ ! -e $LOCAL_ROOTFS_GUEST.lock ] && [ -e $LOCAL_ROOTFS_GUEST.ext4 ]; then
       rm $MOUNT_DIR/images/$LOCAL_ROOTFS_GUEST.ext4
     fi
   fi

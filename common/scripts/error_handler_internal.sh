@@ -26,7 +26,7 @@ fi
 
 LOCAL_ROOTFS_BASE=rootfs_base
 LOCAL_ROOTFS_MOUNT_DIR=$MOUNT_DIR/images/rootfs_base-temp
-LOCAL_ROOTFS_COMMON=$MOUNT_DIR/images/rootfs_common
+LOCAL_ROOTFS_COMMON=rootfs_common
 LOCAL_ROOTFS_COMMON_MOUNT_DIR=$MOUNT_DIR/images/rootfs_common-temp
 
 echo "error_handler_internal: Using Arguments...."
@@ -98,12 +98,12 @@ function exit_handler ()
     fi
     
     cd $MOUNT_DIR/images/
-    if [ ! -e .${LOCAL_ROOTFS_BASE}_lock ] && [ -e $LOCAL_ROOTFS_BASE.ext4 ]; then
+    if [ ! -e $LOCAL_ROOTFS_BASE.lock ] && [ -e $LOCAL_ROOTFS_BASE.ext4 ]; then
       rm $MOUNT_DIR/images/$LOCAL_ROOTFS_BASE.ext4
       echo "destroying rootfs image----- \n";
     fi
     
-    if [ ! -e .${LOCAL_ROOTFS_COMMON}_lock ] && [ -e $LOCAL_ROOTFS_COMMON.ext4 ]; then
+    if [ ! -e $LOCAL_ROOTFS_COMMON.lock ] && [ -e $LOCAL_ROOTFS_COMMON.ext4 ]; then
       rm $MOUNT_DIR/images/$LOCAL_ROOTFS_COMMON.ext4
       echo "destroying rootfs image----- \n";
     fi

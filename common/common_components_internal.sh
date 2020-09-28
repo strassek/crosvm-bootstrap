@@ -56,8 +56,8 @@ fi
 
 echo "Preparing rootfs images for building common components..."
 cp -rf $LOCAL_ROOTFS_BASE.ext4 $LOCAL_ROOTFS_COMMON.ext4
-if [ ! -e .${LOCAL_ROOTFS_COMMON}_lock ]; then
-  echo "rootfs generated" > .${LOCAL_ROOTFS_COMMON}_lock
+if [ ! -e $LOCAL_ROOTFS_COMMON.lock ]; then
+  echo "rootfs generated" > $LOCAL_ROOTFS_COMMON.lock
 fi
 }
 
@@ -83,8 +83,8 @@ destroy_component_rootfs_as_needed() {
 cleanup_build_env
 
 if [ $BUILD_TYPE == "--really-clean" ]; then
-  if [ -e .${LOCAL_ROOTFS_COMMON}_lock ]; then
-    rm .${LOCAL_ROOTFS_COMMON}_lock
+  if [ -e $LOCAL_ROOTFS_COMMON.lock ]; then
+    rm $LOCAL_ROOTFS_COMMON.lock
   fi
   
   if [ -e $LOCAL_ROOTFS_COMMON.ext4 ]; then

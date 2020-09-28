@@ -55,8 +55,8 @@ fi
 echo "Preparing rootfs image for host..."
 cp -rf $LOCAL_ROOTFS_COMMON.ext4 $LOCAL_ROOTFS_HOST.ext4
 echo "Rootfs image for host is ready. Preparing to compile vm..."
-if [ ! -e .${LOCAL_ROOTFS_HOST}_lock ]; then
-  echo "rootfs generated" > .${LOCAL_ROOTFS_HOST}_lock
+if [ ! -e $LOCAL_ROOTFS_HOST.lock ]; then
+  echo "rootfs generated" > $LOCAL_ROOTFS_HOST.lock
 fi
 }
 
@@ -82,8 +82,8 @@ destroy_host_rootfs_as_needed() {
 cleanup_build_env
 
 if [ $BUILD_TYPE == "--really-clean" ]; then
-  if [ -e .${LOCAL_ROOTFS_HOST}_lock ]; then
-    rm .${LOCAL_ROOTFS_HOST}_lock
+  if [ -e $LOCAL_ROOTFS_HOST.lock ]; then
+    rm $LOCAL_ROOTFS_HOST.lock
   fi
   
   if [ -e $LOCAL_PWD/images/$LOCAL_ROOTFS_HOST.ext4 ]; then
