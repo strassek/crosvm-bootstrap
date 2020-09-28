@@ -25,6 +25,8 @@ echo "ERR_LOG_NAME:" $ERR_LOG_NAME
 echo "--------------------------"
 
 exec 2>"$stderr_log"
+LOCAL_ROOTFS_GUEST=rootfs_guest
+LOCAL_ROOTFS_GUEST_MOUNT_DIR=$MOUNT_DIR/images/rootfs_guest-temp
 
 
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
@@ -35,34 +37,32 @@ exec 2>"$stderr_log"
 
 function exit_handler ()
 {   
+  if [ $MOUNT_DIR != "--none" ]; then
+    if [ -e $LOCAL_ROOTFS_GUEST_MOUNT_DIR ]; then
+      if mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR/build > /dev/null; then
+        umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR/build
+      fi
+  
+      if mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR/log/guest > /dev/null; then
+        umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR/log/guest
+      fi
+        
+      if mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR > /dev/null; then
+        umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR
+      fi
+
+      rm -rf $LOCAL_ROOTFS_GUEST_MOUNT_DIR
+    fi
+  
+    cd $MOUNT_DIR/images/
+    if [ ! -e .${LOCAL_ROOTFS_GUEST}_lock ] && [ -e $LOCAL_ROOTFS_GUEST.ext4 ]; then
+      rm $MOUNT_DIR/images/$LOCAL_ROOTFS_GUEST.ext4
+    fi
+  fi
+  
     local error_code="$?"
 
     test $error_code == 0 && return;
-
-    if [ $MOUNT_DIR != "--none" ]; then
-      if [ -e $MOUNT_DIR/images/user-temp ]; then
-        if mount | grep $MOUNT_DIR/images/user-temp/build > /dev/null; then
-          umount -l $MOUNT_DIR/images/user-temp/build
-        fi
-        
-        if mount | grep user-temp/log > /dev/null; then
-          umount -l user-temp/log
-        fi
-        
-        if mount | grep $MOUNT_DIR/images/user-temp > /dev/null; then
-          umount -l $MOUNT_DIR/images/user-temp
-        fi
-
-        rm -rf $MOUNT_DIR/images/user-temp
-        if [ -e $MOUNT_DIR/images/rootfs_temp.tar ]; then
-          rm $MOUNT_DIR/images/rootfs_temp.tar
-        fi
-        
-        if [ ! -e $MOUNT_DIR/images/.rootfs_lock ]; then
-          rm $MOUNT_DIR/images/rootfs.ext4
-        fi
-      fi
-    fi
 
     #
     # LOCAL VARIABLES:

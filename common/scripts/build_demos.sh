@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# package-builder.sh
-# Builds all needed drivers, cros_vm and other needed packages.
+# build-demos.sh
+# Builds all demos.
 
 # exit on any script line that fails
 set -o errexit
@@ -13,10 +13,11 @@ set -o pipefail
 BUILD_TARGET=${1:-"--release"}
 BUILD_TYPE=${2:-"--incremental"}
 BUILD_CHANNEL=${3:-"--stable"}
+BUILD_ARCH=${4:-"x86_64"}
 LOCAL_BUILD_TARGET=release
 LOCAL_CHANNEL=stable
 
-if /scripts/guest/common_build_internal.sh $BUILD_TYPE $BUILD_TARGET $BUILD_CHANNEL
+if /scripts/common/common_build_internal.sh $BUILD_TYPE $BUILD_TARGET $BUILD_CHANNEL $BUILD_ARCH
 then
   echo "Starting Build...."
 else

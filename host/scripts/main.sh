@@ -13,12 +13,10 @@ LOCAL_DIRECTORY_PREFIX=/build
 LOCAL_BUILD_CHANNEL="--dev"
 LOCAL_BUILD_TARGET="--release"
 LOCAL_BUILD_TYPE=$BUILD_TYPE
-LOG_DIR=/log/component_log_host
+LOG_DIR=/log/host
 SCRIPTS_DIR=/scripts/host
 
-echo $PWD
-ls -a /scripts/host
-source $SCRIPTS_DIR/error_handler_internal.sh $LOG_DIR main_host_err.log
+source $SCRIPTS_DIR/error_handler_internal.sh $LOG_DIR main_host_err.log --none
 
 echo "main: Recieved Arguments...."
 if bash $SCRIPTS_DIR/common_checks_internal.sh $LOCAL_DIRECTORY_PREFIX /build --true --true --none $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET --false; then
@@ -92,61 +90,7 @@ echo "LOCAL_BUILD_TYPE:" $LOCAL_BUILD_TYPE
 echo "LOG_DIR:" $LOG_DIR
 echo "--------------------------"
 
-build_x11() {
-if [ $COMPONENT_ONLY_BUILDS == "--x11" ] || [ $COMPONENT_ONLY_BUILDS == "--all" ]; then
-  build_target="${1}"
-  build_type="${2}"
-  channel="${3}"
-
-  if [ $LOCAL_BUILD_CHANNEL != $channel ] && [ $LOCAL_BUILD_CHANNEL != "--all" ]; then
-    return 0;
-  fi
-
-  if [ $LOCAL_BUILD_TARGET != $build_target ] && [ $LOCAL_BUILD_TARGET != "--all" ]; then
-  return 0;
-  fi
-
-  bash $SCRIPTS_DIR/build_x11_packages.sh $build_target $build_type $channel
-fi
-}
-
-build_wayland() {
-if [ $COMPONENT_ONLY_BUILDS == "--wayland" ] || [ $COMPONENT_ONLY_BUILDS == "--all" ]; then
-  build_target="${1}"
-  build_type="${2}"
-  channel="${3}"
-
-  if [ $LOCAL_BUILD_CHANNEL != $channel ] && [ $LOCAL_BUILD_CHANNEL != "--all" ]; then
-    return 0;
-  fi
-
-  if [ $LOCAL_BUILD_TARGET != $build_target ] && [ $LOCAL_BUILD_TARGET != "--all" ]; then
-  return 0;
-  fi
-
-  bash $SCRIPTS_DIR/build_wayland_packages.sh $build_target $build_type $channel
-fi
-}
-
-build_drivers() {
-if [ $COMPONENT_ONLY_BUILDS == "--drivers" ] || [ $COMPONENT_ONLY_BUILDS == "--all" ]; then
-  build_target="${1}"
-  build_type="${2}"
-  channel="${3}"
-
-  if [ $LOCAL_BUILD_CHANNEL != $channel ] && [ $LOCAL_BUILD_CHANNEL != "--all" ]; then
-    return 0;
-  fi
-
-  if [ $LOCAL_BUILD_TARGET != $build_target ] && [ $LOCAL_BUILD_TARGET != "--all" ]; then
-  return 0;
-  fi
-  
-  bash $SCRIPTS_DIR/build_driver_packages.sh $build_target $build_type $channel
-fi
-}
-
-build_vm() {
+build_host() {
 if [ $COMPONENT_ONLY_BUILDS == "--vm" ] || [ $COMPONENT_ONLY_BUILDS == "--all" ]; then
   build_target="${1}"
   build_type="${2}"
@@ -160,25 +104,7 @@ if [ $COMPONENT_ONLY_BUILDS == "--vm" ] || [ $COMPONENT_ONLY_BUILDS == "--all" ]
   return 0;
   fi
   
-  bash $SCRIPTS_DIR/build_vm_packages.sh $build_target $build_type $channel
-fi
-}
-
-build_demos() {
-if [ $COMPONENT_ONLY_BUILDS == "--demos" ] || [ $COMPONENT_ONLY_BUILDS == "--all" ]; then
-  build_target="${1}"
-  build_type="${2}"
-  channel="${3}"
-  
-  if [ $LOCAL_BUILD_CHANNEL != $channel ] && [ $LOCAL_BUILD_CHANNEL != "--all" ]; then
-    return 0;
-  fi
-
-  if [ $LOCAL_BUILD_TARGET != $build_target ] && [ $LOCAL_BUILD_TARGET != "--all" ]; then
-  return 0;
-  fi
-  
-  bash $SCRIPTS_DIR/build_demos.sh $build_target $build_type $channel
+  bash $SCRIPTS_DIR/build_host_packages.sh $build_target $build_type $channel
 fi
 }
 
@@ -186,34 +112,18 @@ fi
 #------------------------------------Dev Channel-----------"
 echo "Building User Mode Graphics Drivers..."
 #Debug
-build_x11 --debug $LOCAL_BUILD_TYPE --dev
-build_wayland --debug $LOCAL_BUILD_TYPE --dev
-build_drivers --debug $LOCAL_BUILD_TYPE --dev
-build_vm --debug $LOCAL_BUILD_TYPE --dev
-build_demos --debug $LOCAL_BUILD_TYPE --dev
+build_host --debug $LOCAL_BUILD_TYPE --dev
 
 # Release Builds.
-build_x11 --release $LOCAL_BUILD_TYPE --dev
-build_wayland --release $LOCAL_BUILD_TYPE --dev
-build_drivers --release $LOCAL_BUILD_TYPE --dev
-build_vm --release $LOCAL_BUILD_TYPE --dev
-build_demos --release $LOCAL_BUILD_TYPE --dev
+build_host --release $LOCAL_BUILD_TYPE --dev
 #----------------------------Dev Channel ends-----------------
 
 #------------------------------------Stable Channel-----------"
 #Debug
-build_x11 --debug $LOCAL_BUILD_TYPE --stable
-build_wayland --debug $LOCAL_BUILD_TYPE --stable
-build_drivers --debug $LOCAL_BUILD_TYPE --stable
-build_vm --debug $LOCAL_BUILD_TYPE --stable
-build_demos --debug $LOCAL_BUILD_TYPE --stable
+build_host --debug $LOCAL_BUILD_TYPE --stable
 
 # Release Builds.
-build_x11 --release $LOCAL_BUILD_TYPE --stable
-build_wayland --release $LOCAL_BUILD_TYPE --stable
-build_drivers --release $LOCAL_BUILD_TYPE --stable
-build_vm --release $LOCAL_BUILD_TYPE --stable
-build_demos --release $LOCAL_BUILD_TYPE --stable
+build_host --release $LOCAL_BUILD_TYPE --stable
 #----------------------------stable Channel ends-----------------
 
 echo "Done!"

@@ -1,3 +1,5 @@
+# error_handler_internal.sh
+# Used for unmounting and cleaning up failed builds.
 #Original source https://stackoverflow.com/questions/64786/error-handling-in-bash and modified for our use.
 
 set -o pipefail  # trace ERR through pipes
@@ -13,10 +15,19 @@ MOUNT_DIR=${3}
 echo "error_handler_internal: Recieved Arguments...."
 echo "LOG_DIR:" $LOG_DIR
 echo "ERR_LOG_NAME:" $ERR_LOG_NAME
+echo "MOUNT_DIR:" $MOUNT_DIR
 echo "--------------------------"
 
 mkdir -p $LOG_DIR
 stderr_log=$LOG_DIR/$ERR_LOG_NAME
+if [ -e $stderr_log ]; then
+  rm $stderr_log
+fi
+
+LOCAL_ROOTFS_BASE=rootfs_base
+LOCAL_ROOTFS_MOUNT_DIR=$MOUNT_DIR/images/rootfs_base-temp
+LOCAL_ROOTFS_COMMON=$MOUNT_DIR/images/rootfs_common
+LOCAL_ROOTFS_COMMON_MOUNT_DIR=$MOUNT_DIR/images/rootfs_common-temp
 
 echo "error_handler_internal: Using Arguments...."
 echo "LOG_DIR:" $LOG_DIR
@@ -24,8 +35,6 @@ echo "ERR_LOG_NAME:" $ERR_LOG_NAME
 echo "--------------------------"
 
 exec 2>"$stderr_log"
-LOCAL_ROOTFS_HOST=rootfs_host
-LOCAL_ROOTFS_HOST_MOUNT_DIR=$MOUNT_DIR/images/rootfs_host-temp
 
 
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
@@ -35,32 +44,72 @@ LOCAL_ROOTFS_HOST_MOUNT_DIR=$MOUNT_DIR/images/rootfs_host-temp
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
 
 function exit_handler ()
-{
+{   
   if [ $MOUNT_DIR != "--none" ]; then
-    if [ -e $LOCAL_ROOTFS_HOST_MOUNT_DIR ]; then
-      if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/build > /dev/null; then
-        umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR/build
-      fi
-  
-      if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/log/host > /dev/null; then
-        umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR/log/host
+    if [ -e $LOCAL_ROOTFS_MOUNT_DIR ]; then
+      if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/build > /dev/null; then
+        umount -l $LOCAL_ROOTFS_MOUNT_DIR/build
       fi
         
-      if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR > /dev/null; then
-        umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR
+      if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/log/common > /dev/null; then
+        umount -l $LOCAL_ROOTFS_MOUNT_DIR/log/common
+      fi
+      
+      if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/proc > /dev/null; then
+        echo "unmounting" $LOCAL_ROOTFS_MOUNT_DIR/proc
+        umount -l $LOCAL_ROOTFS_MOUNT_DIR/proc
+      fi
+  
+      if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/dev/shm > /dev/null; then
+        echo "unmounting" $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
+        umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
+      fi
+  
+      if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/dev/pts > /dev/null; then
+        echo "unmounting" $LOCAL_ROOTFS_MOUNT_DIR/dev/pts
+        umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/pts
+      fi
+      
+      if mount | grep $LOCAL_ROOTFS_MOUNT_DIR > /dev/null; then
+        umount -l $LOCAL_ROOTFS_MOUNT_DIR
       fi
 
-      rm -rf $LOCAL_ROOTFS_HOST_MOUNT_DIR
+      rm -rf $LOCAL_ROOTFS_MOUNT_DIR
     fi
+    
+    if [ -e $LOCAL_ROOTFS_COMMON_MOUNT_DIR ]; then
+      if mount | grep $LOCAL_ROOTFS_COMMON_MOUNT_DIR/build > /dev/null; then
+        umount -l $LOCAL_ROOTFS_COMMON_MOUNT_DIR/build
+      fi
   
+      if mount | grep $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common > /dev/null; then
+        umount -l $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common
+      fi
+        
+      if mount | grep $LOCAL_ROOTFS_COMMON_MOUNT_DIR > /dev/null; then
+        umount -l $LOCAL_ROOTFS_COMMON_MOUNT_DIR
+      fi
+
+      rm -rf $LOCAL_ROOTFS_COMMON_MOUNT_DIR
+    fi
+      
+    if [ -e $MOUNT_DIR/images/rootfs_temp.tar ]; then
+      rm $MOUNT_DIR/images/rootfs_temp.tar
+    fi
+    
     cd $MOUNT_DIR/images/
-    if [ ! -e .${LOCAL_ROOTFS_HOST}_lock ] && [ -e $LOCAL_ROOTFS_HOST.ext4 ]; then
-      rm $MOUNT_DIR/images/$LOCAL_ROOTFS_HOST.ext4
+    if [ ! -e .${LOCAL_ROOTFS_BASE}_lock ] && [ -e $LOCAL_ROOTFS_BASE.ext4 ]; then
+      rm $MOUNT_DIR/images/$LOCAL_ROOTFS_BASE.ext4
+      echo "destroying rootfs image----- \n";
+    fi
+    
+    if [ ! -e .${LOCAL_ROOTFS_COMMON}_lock ] && [ -e $LOCAL_ROOTFS_COMMON.ext4 ]; then
+      rm $MOUNT_DIR/images/$LOCAL_ROOTFS_COMMON.ext4
+      echo "destroying rootfs image----- \n";
     fi
   fi
   
-  local error_code="$?"
-
+    local error_code="$?"
   test $error_code == 0 && return;
 
     #

@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# services.sh
-# Enable needed services.
+# services_internal.sh
+# Enable needed services in guest side.
 
 # exit on any script line that fails
 set -o errexit

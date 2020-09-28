@@ -13,7 +13,7 @@ LOCAL_DIRECTORY_PREFIX=/build
 LOCAL_BUILD_CHANNEL="--dev"
 LOCAL_BUILD_TARGET="--release"
 LOCAL_BUILD_TYPE=$BUILD_TYPE
-LOG_DIR=/log/component_guest
+LOG_DIR=/log/guest/
 SCRIPTS_DIR=/scripts/guest
 
 source $SCRIPTS_DIR/error_handler_internal.sh $LOG_DIR main_guest_err.log --none
@@ -47,27 +47,14 @@ echo "Directory Prefix being used:" $LOCAL_DIRECTORY_PREFIX
 
 if [ $LOCAL_BUILD_CHANNEL == "--all" ]; then
   echo "Build Tree: dev, Stable"
-  if [ $BUILD_TYPE == "--really-clean" ]; then
-    rm -rf/opt/stable
-    rm -rf /opt/dev
-    LOCAL_BUILD_TYPE="--clean"
-  fi
 fi
 
 if [ $LOCAL_BUILD_CHANNEL == "--dev" ]; then
   echo "Build Tree: dev"
-  if [ $BUILD_TYPE == "--really-clean" ]; then
-    rm -rf /opt/dev
-    LOCAL_BUILD_TYPE="--clean"
-  fi
 fi
 
 if [ $LOCAL_BUILD_CHANNEL == "--stable" ]; then
   echo "Build Tree: Stable"
-  if [ $BUILD_TYPE == "--really-clean" ]; then
-    rm -rf /opt/stable
-    LOCAL_BUILD_TYPE="--clean"
-  fi
 fi
 
 if [ $LOCAL_BUILD_TARGET == "--all" ]; then
@@ -90,62 +77,8 @@ echo "LOCAL_BUILD_TYPE:" $LOCAL_BUILD_TYPE
 echo "LOG_DIR:" $LOG_DIR
 echo "--------------------------"
 
-build_x11() {
-if [ $COMPONENT_ONLY_BUILDS == "--x11" ] || [ $COMPONENT_ONLY_BUILDS == "--all" ]; then
-  build_target="${1}"
-  build_type="${2}"
-  channel="${3}"
-
-  if [ $LOCAL_BUILD_CHANNEL != $channel ] && [ $LOCAL_BUILD_CHANNEL != "--all" ]; then
-    return 0;
-  fi
-
-  if [ $LOCAL_BUILD_TARGET != $build_target ] && [ $LOCAL_BUILD_TARGET != "--all" ]; then
-    return 0;
-  fi
-
-  bash $SCRIPTS_DIR/build_x11_packages.sh $build_target $build_type $channel
-fi
-}
-
-build_wayland() {
-if [ $COMPONENT_ONLY_BUILDS == "--wayland" ] || [ $COMPONENT_ONLY_BUILDS == "--all" ]; then
-  build_target="${1}"
-  build_type="${2}"
-  channel="${3}"
-
-  if [ $LOCAL_BUILD_CHANNEL != $channel ] && [ $LOCAL_BUILD_CHANNEL != "--all" ]; then
-    return 0;
-  fi
-
-  if [ $LOCAL_BUILD_TARGET != $build_target ] && [ $LOCAL_BUILD_TARGET != "--all" ]; then
-    return 0;
-  fi
-
-  bash $SCRIPTS_DIR/build_wayland_packages.sh $build_target $build_type $channel
-fi
-}
-
-build_drivers() {
-if [ $COMPONENT_ONLY_BUILDS == "--drivers" ] || [ $COMPONENT_ONLY_BUILDS == "--all" ]; then
-  build_target="${1}"
-  build_type="${2}"
-  channel="${3}"
-
-  if [ $LOCAL_BUILD_CHANNEL != $channel ] && [ $LOCAL_BUILD_CHANNEL != "--all" ]; then
-    return 0;
-  fi
-
-  if [ $LOCAL_BUILD_TARGET != $build_target ] && [ $LOCAL_BUILD_TARGET != "--all" ]; then
-    return 0;
-  fi
-  
-  bash $SCRIPTS_DIR/build_driver_packages.sh $build_target $build_type $channel
-fi
-}
-
 build_guest() {
-if [ $COMPONENT_ONLY_BUILDS == "--vm" ] || [ $COMPONENT_ONLY_BUILDS == "--all" ]; then
+if [ $COMPONENT_ONLY_BUILDS == "--all" ]; then
   build_target="${1}"
   build_type="${2}"
   channel="${3}"
@@ -166,30 +99,18 @@ fi
 #------------------------------------Dev Channel-----------"
 echo "Building User Mode Graphics Drivers..."
 #Debug
-build_x11 --debug $LOCAL_BUILD_TYPE --dev
-build_wayland --debug $LOCAL_BUILD_TYPE --dev
-build_drivers --debug $LOCAL_BUILD_TYPE --dev
 build_guest --debug $LOCAL_BUILD_TYPE --dev
 
 # Release Builds.
-build_x11 --release $LOCAL_BUILD_TYPE --dev
-build_wayland --release $LOCAL_BUILD_TYPE --dev
-build_drivers --release $LOCAL_BUILD_TYPE --dev
 build_guest --release $LOCAL_BUILD_TYPE --dev
 #----------------------------Dev Channel ends-----------------
 
 #------------------------------------Stable Channel-----------"
 #Debug
-build_x11 --debug $LOCAL_BUILD_TYPE --stable
-build_wayland --debug $LOCAL_BUILD_TYPE --stable
-build_drivers --debug $LOCAL_BUILD_TYPE --stable
 build_guest --debug $LOCAL_BUILD_TYPE --stable
 
 # Release Builds.
-build_x11 --release $LOCAL_BUILD_TYPE --stable
-build_wayland --release $LOCAL_BUILD_TYPE --stable
-build_drivers --release $LOCAL_BUILD_TYPE --stable
 build_guest --release $LOCAL_BUILD_TYPE --stable
 #----------------------------stable Channel ends-----------------
 
-echo "Done!"
+echo "Built all packages needed for guest!"

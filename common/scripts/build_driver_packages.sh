@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# package-builder.sh
-# Builds all needed drivers, cros_vm and other needed packages.
+# build-driver-packages.sh
+# Builds driver packages.
 
 # exit on any script line that fails
 set -o errexit
@@ -13,11 +13,11 @@ set -o pipefail
 BUILD_TARGET=${1:-"--release"}
 BUILD_TYPE=${2:-"--incremental"}
 BUILD_CHANNEL=${3:-"--stable"}
-
+BUILD_ARCH=${4:-"x86_64"}
 LOCAL_BUILD_TARGET=release
 LOCAL_CHANNEL=stable
 
-if /scripts/guest/common_build_internal.sh $BUILD_TYPE $BUILD_TARGET $BUILD_CHANNEL
+if /scripts/common/common_build_internal.sh $BUILD_TYPE $BUILD_TARGET $BUILD_CHANNEL $BUILD_ARCH
 then
   echo "Starting Build...."
 else
@@ -33,30 +33,44 @@ if [ $BUILD_TARGET == "--debug" ]; then
   LOCAL_BUILD_TARGET=debug
 fi
 
-LOCAL_CURRENT_WLD_PATH=/opt/$LOCAL_CHANNEL/$LOCAL_BUILD_TARGET/x86
-LOCAL_MESON_BUILD_DIR=build.$LOCAL_BUILD_TARGET.x86
-CROSS_SETTINGS=meson-cross-i686-$LOCAL_CHANNEL-$LOCAL_BUILD_TARGET.ini
+if [ $BUILD_ARCH == "i386" ]; then
+  LOCAL_CURRENT_WLD_PATH=/opt/$LOCAL_CHANNEL/$LOCAL_BUILD_TARGET/x86
+  LOCAL_MESON_BUILD_DIR=build.$LOCAL_BUILD_TARGET.x86
+  CROSS_SETTINGS=meson-cross-i686-$LOCAL_CHANNEL-$LOCAL_BUILD_TARGET.ini
 
-# Export environment variables
-export C_INCLUDE_PATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm/
-export CPLUS_INCLUDE_PATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm/
-export CPATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm/
-export PATH="$PATH:$LOCAL_CURRENT_WLD_PATH/include/:$LOCAL_CURRENT_WLD_PATH/include/libdrm/:$LOCAL_CURRENT_WLD_PATH/bin"
-export ACLOCAL_PATH=$LOCAL_CURRENT_WLD_PATH/share/aclocal
-export ACLOCAL="aclocal -I $ACLOCAL_PATH"
-export PKG_CONFIG_PATH=$LOCAL_CURRENT_WLD_PATH/lib/pkgconfig:$LOCAL_CURRENT_WLD_PATH/share/pkgconfig:/usr/lib/i386-linux-gnu/pkgconfig:/lib/i386-linux-gnu/pkgconfig
-export PKG_CONFIG_PATH_FOR_BUILD=$PKG_CONFIG_PATH
-export CC=/usr/bin/i686-linux-gnu-gcc
+  # Export environment variables
+  export C_INCLUDE_PATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm/
+  export CPLUS_INCLUDE_PATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm/
+  export CPATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm/
+  export PATH="$PATH:$LOCAL_CURRENT_WLD_PATH/include/:$LOCAL_CURRENT_WLD_PATH/include/libdrm/:$LOCAL_CURRENT_WLD_PATH/bin"
+  export ACLOCAL_PATH=$LOCAL_CURRENT_WLD_PATH/share/aclocal
+  export ACLOCAL="aclocal -I $ACLOCAL_PATH"
+  export PKG_CONFIG_PATH=$LOCAL_CURRENT_WLD_PATH/lib/pkgconfig:$LOCAL_CURRENT_WLD_PATH/share/pkgconfig:/usr/lib/i386-linux-gnu/pkgconfig:/lib/i386-linux-gnu/pkgconfig
+  export PKG_CONFIG_PATH_FOR_BUILD=$PKG_CONFIG_PATH
+  export CC=/usr/bin/i686-linux-gnu-gcc
 
-LOCAL_COMPILER_OPTIONS="--host=i686-linux-gnu "CFLAGS=-m32" "CXXFLAGS=-m32" "LDFLAGS=-m32" --prefix=$LOCAL_CURRENT_WLD_PATH"
-LOCAL_MESON_COMPILER_OPTIONS="--cross-file $CROSS_SETTINGS"
+  LOCAL_COMPILER_OPTIONS="--host=i686-linux-gnu "CFLAGS=-m32" "CXXFLAGS=-m32" "LDFLAGS=-m32" --prefix=$LOCAL_CURRENT_WLD_PATH"
+  LOCAL_MESON_COMPILER_OPTIONS="--cross-file $CROSS_SETTINGS"
+else
+  LOCAL_CURRENT_WLD_PATH=/opt/$LOCAL_CHANNEL/$LOCAL_BUILD_TARGET/x86_64
+  LOCAL_MESON_BUILD_DIR=build.$LOCAL_BUILD_TARGET.x86_64
+  LOCAL_COMPILER_OPTIONS=""
+  LOCAL_MESON_COMPILER_OPTIONS=""
+
+  # Export environment variables
+  export C_INCLUDE_PATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm/
+  export CPLUS_INCLUDE_PATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm/
+  export CPATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm/
+  export PATH="$PATH:$LOCAL_CURRENT_WLD_PATH/include/:$LOCAL_CURRENT_WLD_PATH/include/libdrm/:$LOCAL_CURRENT_WLD_PATH/bin"
+  export ACLOCAL_PATH=$LOCAL_CURRENT_WLD_PATH/share/aclocal
+  export ACLOCAL="aclocal -I $ACLOCAL_PATH"
+  export PKG_CONFIG_PATH=$LOCAL_CURRENT_WLD_PATH/lib/pkgconfig:$LOCAL_CURRENT_WLD_PATH/share/pkgconfig:$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu/pkgconfig:/lib/x86_64-linux-gnu/pkgconfig
+fi
 
 # Set Working Build directory based on the channel.
 WORKING_DIR=/build/$LOCAL_CHANNEL/drivers
 
 echo "Working Directory:" $WORKING_DIR
-
-export PKG_CONFIG_PATH=$LOCAL_CURRENT_WLD_PATH/lib/pkgconfig:$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH:/lib/x86_64-linux-gnu/pkgconfig
 env
 echo "---------------------------------"
 
@@ -67,12 +81,16 @@ if [ $BUILD_TYPE == "--clean" ]; then
   if [ -d $LOCAL_MESON_BUILD_DIR ]; then
     rm -rf $LOCAL_MESON_BUILD_DIR
   fi
-
-  if [ -f $CROSS_SETTINGS ]; then
-    rm $CROSS_SETTINGS
-  fi
 fi
 }
+
+if [ $BUILD_ARCH == "i386" ]; then
+  # Create settings for cross compiling
+  if [ $BUILD_TYPE == "--clean" ]; then
+    if [ -f $CROSS_SETTINGS ]; then
+      rm $CROSS_SETTINGS
+    fi
+  fi
 
 generate_compiler_settings() {
 if [ ! -f $CROSS_SETTINGS ]; then
@@ -100,6 +118,11 @@ endian = 'little'
 EOF
 fi
 }
+else
+generate_compiler_settings() {
+echo "64bit build"
+}
+fi
 
 echo "checking " $LOCAL_CURRENT_WLD_PATH/share/aclocal
 mkdir -p $LOCAL_CURRENT_WLD_PATH/share/aclocal
