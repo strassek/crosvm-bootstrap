@@ -26,15 +26,15 @@ else
 fi
 
 if [ $BUILD_CHANNEL == "--dev" ]; then
-LOCAL_CHANNEL=dev
+  LOCAL_CHANNEL=dev
 fi
 
-if [ $BUILD_TYPE == "--debug" ]; then
-LOCAL_BUILD_TYPE=debug
+if [ $BUILD_TARGET == "--debug" ]; then
+  LOCAL_BUILD_TARGET=debug
 fi
 
-LOCAL_CURRENT_WLD_PATH=/opt/$LOCAL_CHANNEL/$LOCAL_BUILD_TYPE/x86_64
-LOCAL_MESON_BUILD_DIR=build.$LOCAL_BUILD_TYPE.x86_64
+LOCAL_CURRENT_WLD_PATH=/opt/$LOCAL_CHANNEL/$LOCAL_BUILD_TARGET/x86_64
+LOCAL_MESON_BUILD_DIR=build.$LOCAL_BUILD_TARGET.x86_64
 
 # Export environment variables
 export C_INCLUDE_PATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm/
@@ -52,17 +52,10 @@ WORKING_DIR=/build/$LOCAL_CHANNEL/demos
 
 # Print all environment settings
 echo "Build settings being used....."
-if [ $BUILD_TYPE == "--release" ]; then
+if [ $BUILD_TARGET == "--release" ]; then
   echo "Build Type: Release"
 else
   echo "Build Type: Debug"
-fi
-
-echo "Channel:" $LOCAL_CHANNEL
-if [ $CLEAN_BUILD == "--clean" ]; then
-  echo "Clean" $LOCAL_BUILD_TYPE "Build"
-else
-  echo "Incremental" $LOCAL_BUILD_TYPE "Build"
 fi
 
 echo "Working Directory:" $WORKING_DIR
@@ -80,7 +73,7 @@ cd /build
 FORCE_CONFIGURE=0
 CUSTOM_APP_OPTIONS=""
 function make_clean_asneeded() {
-if [ $CLEAN_BUILD == "--clean" ]; then
+if [ $BUILD_TYPE == "--clean" ]; then
   if [ "$(find . | grep -i '.*[.]o' | wc -c)" == 0 ]; then
     echo "make clean called"
     make clean || true
