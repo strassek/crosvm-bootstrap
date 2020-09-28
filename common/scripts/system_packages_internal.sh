@@ -50,6 +50,7 @@ function install_package_i386() {
 package_name="${1}"
 if [ ! "$(dpkg -s $package_name:i386)" ]; then
   echo "installing:" $package_name:i386 "----------------"
+  apt-mark unhold $package_name
   apt-get install -y  --no-install-recommends --no-install-suggests $package_name:i386
   apt-mark hold $package_name:i386
   echo "---------------------"
@@ -113,7 +114,6 @@ install_package libxml2-utils
 install_package libtool-bin
 install_package libxml2-dev
 install_package libc6-dev
-install_package zstd
 
 echo "Installing needed i386 system packages..."
 install_package_i386 libunwind-dev
@@ -130,6 +130,7 @@ install_package_i386 libexpat1-dev
 install_package_i386 libc6-dev
 install_package_i386 libxml2-dev
 install_package_i386 zstd
+install_package_i386 libzstd-dev
 
 apt autoremove -y
 
