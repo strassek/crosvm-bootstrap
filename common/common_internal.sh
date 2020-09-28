@@ -47,10 +47,6 @@ if [ -e $LOCAL_ROOTFS_MOUNT_DIR ]; then
   if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/build > /dev/null; then
     umount -l $LOCAL_ROOTFS_MOUNT_DIR/build
   fi
-  
-  if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/log/common > /dev/null; then
-    umount -l $LOCAL_ROOTFS_MOUNT_DIR/log/common
-  fi
         
   if mount | grep $LOCAL_ROOTFS_MOUNT_DIR > /dev/null; then
     umount -l $LOCAL_ROOTFS_MOUNT_DIR
@@ -130,10 +126,10 @@ echo "Cleaningup build env..."
 if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/build > /dev/null; then
   umount -l $LOCAL_ROOTFS_MOUNT_DIR/build
 fi
-  
-if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/log/common > /dev/null; then
-  umount -l $LOCAL_ROOTFS_MOUNT_DIR/log/common
-fi
+
+umount -l $LOCAL_ROOTFS_MOUNT_DIR/proc
+umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
+umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/pts
         
 if mount | grep $LOCAL_ROOTFS_MOUNT_DIR > /dev/null; then
   umount -l $LOCAL_ROOTFS_MOUNT_DIR

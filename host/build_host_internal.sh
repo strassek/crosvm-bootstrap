@@ -73,6 +73,18 @@ if [ -e $LOCAL_ROOTFS_HOST_MOUNT_DIR ]; then
   if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR > /dev/null; then
     umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR
   fi
+  
+  if mount | grep $$LOCAL_ROOTFS_HOST_MOUNT_DIR/proc > /dev/null; then
+    umount -l $$LOCAL_ROOTFS_MOUNT_DIR/proc
+  fi
+  
+  if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/shm > /dev/null; then
+    umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
+  fi
+  
+  if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/pt > /dev/null; then
+    umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/pt
+  fi
 
   rm -rf $LOCAL_ROOTFS_HOST_MOUNT_DIR
 fi
@@ -114,6 +126,14 @@ fi
 mkdir -p $LOCAL_ROOTFS_HOST_MOUNT_DIR/build
 mkdir -p $LOCAL_ROOTFS_HOST_MOUNT_DIR/scripts/host
 mkdir -p $LOCAL_ROOTFS_HOST_MOUNT_DIR/log/host
+
+mkdir -p $LOCAL_ROOTFS_HOST_MOUNT_DIR/proc
+mkdir -p $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/shm
+mkdir -p $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/pts
+mount -t proc /proc $LOCAL_ROOTFS_HOST_MOUNT_DIR/proc
+mount -o bind /dev/shm $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/shm
+mount -o bind /dev/pts $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/pts
+
 mount --rbind $SOURCE_PWD $LOCAL_ROOTFS_HOST_MOUNT_DIR/build
 mount --rbind $BASE_PWD/build/log/host $LOCAL_ROOTFS_HOST_MOUNT_DIR/log/host
 cp $LOCAL_PWD/scripts/host/*.sh $LOCAL_ROOTFS_HOST_MOUNT_DIR/scripts/host/ 
