@@ -47,15 +47,15 @@ function exit_handler ()
       fi
       
       if mount | grep $$LOCAL_ROOTFS_HOST_MOUNT_DIR/proc > /dev/null; then
-        umount -l $$LOCAL_ROOTFS_MOUNT_DIR/proc
+        umount -l $$LOCAL_ROOTFS_HOST_MOUNT_DIR/proc
       fi
   
       if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/shm > /dev/null; then
-        umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
+        umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/shm
       fi
   
       if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/pt > /dev/null; then
-        umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/pt
+        umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/pt
       fi
         
       if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR > /dev/null; then
