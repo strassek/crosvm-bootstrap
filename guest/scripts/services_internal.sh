@@ -31,9 +31,6 @@ systemctl --user enable sommelier-stable-x@0.service
 echo "Enabling sommelier-x@1.service"
 systemctl --user enable sommelier-stable-x@1.service
 
-echo "render:x:109" >> /etc/group
-echo "input:x:107" >> /etc/group
-
 echo root:test0000 | chpasswd
 
 mkdir -p /etc/sudoers.d

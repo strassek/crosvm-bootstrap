@@ -53,7 +53,7 @@ cp launch/scripts/*.sh $BASE_DIRECTORY/scripts/exec/
 
 if [ $ACTION == "--run" ]; then
 
-if [[ "$(docker images -q intel-vm:latest 2> /dev/null)" != "" ]] && [[ "$(docker images -q intel-guest:latest 2> /dev/null)" != "" ]]; then
+if [[ "$(docker images -q intel-vm:latest 2> /dev/null)" != "" ]]; then
   echo “Preparing to launch crosvm...”
 else
   echo “Failed to launch crosvm..., exit status: $?”

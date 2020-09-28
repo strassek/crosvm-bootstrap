@@ -35,4 +35,4 @@ LOCAL_LIBRARY_PATH=$LOCAL_INTEL_LIB_BASELINE/lib:$LOCAL_INTEL_LIB_BASELINE/lib/x
 
 echo "LD LIBRARY PATH:" $LOCAL_LIBRARY_PATH
 
-LD_LIBRARY_PATH=$LOCAL_LIBRARY_PATH $LOCAL_EXEC_DIRECTORY/crosvm $ACTION --disable-sandbox --rwdisk /images/rootfs.ext4 -s /images/crosvm.sock -m 10240 --cpus 4 -p "root=/dev/vda" -p "$KERNEL_CMD_OPTIONS" -p "drm.debug=255 debug loglevel=8 initcall_debug systemd.show_status=1" --host_ip 10.0.0.1 --netmask 255.255.255.0 --mac 9C:B6:D0:E3:96:4D --wayland-sock=$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY --gpu egl=true,glx=true,gles=true --x-display=$DISPLAY --wayland-dmabuf  /images/vmlinux
+LD_LIBRARY_PATH=$LOCAL_LIBRARY_PATH $LOCAL_EXEC_DIRECTORY/crosvm $ACTION --disable-sandbox --rwdisk /images/rootfs.ext4 -s /images/crosvm.sock -m 10240 --cpus 4 -p "root=/dev/vda" -p "$KERNEL_CMD_OPTIONS" --host_ip 10.0.0.1 --netmask 255.255.255.0 --mac 9C:B6:D0:E3:96:4D --wayland-sock=$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY --gpu egl=true,glx=true,gles=true --x-display=$DISPLAY --wayland-dmabuf  /images/vmlinux

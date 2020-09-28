@@ -1,3 +1,15 @@
+#! /bin/bash
+
+# user.sh
+# Set up user account for the VM.
+
+# exit on any script line that fails
+set -o errexit
+# bail on any unitialized variable reads
+set -o nounset
+# bail on failing commands before last pipe
+set -o pipefail
+
 UNAME=${1:-"test"}
 CHANNEL=${2:-"stable"}
 BUILD_TARGET=${3:-"release"}
@@ -6,14 +18,18 @@ if [ ! -e /home/$UNAME/ ]; then
   echo "Invalid User. Please run add_user first."
 fi
 
-cat > /home/$UNAME/.bash_env_settings <<EOF
-# Export environment variables
-export WLD=/opt/$CHANNEL/$BUILD_TARGET/x86
-export WLD_64=/opt/$CHANNEL/$BUILD_TARGET/x86_64
+if [ $CHANNEL == "stable" ] && [ $BUILD_TARGET == "release" ]; then
+  cp /config/stable_release.env /home/$UNAME/.bash_env_settings
+fi
 
-export PATH=/intel/bin:$WLD_64/bin:$WLD/bin:$PATH
-export LIBGL_DRIVERS_PATH=$WLD_64/lib/x86_64-linux-gnu/dri:$WLD/lib/dri
-export LD_LIBRARY_PATH=$WLD_64/lib/x86_64-linux-gnu:$WLD_64/lib/x86_64-linux-gnu/dri:$WLD_64/lib:$WLD/lib:$WLD/lib/dri
-export LIBVA_DRIVERS_PATH=$WLD_64/lib/x86_64-linux-gnu:$WLD/lib
-export LIBVA_DRIVER_NAME=iHD
-EOF
+if [ $CHANNEL == "stable" ] && [ $BUILD_TARGET == "debug" ]; then
+  cp /config/stable_debug.env /home/$UNAME/.bash_env_settings
+fi
+
+if [ $CHANNEL == "dev" ] && [ $BUILD_TARGET == "release" ]; then
+  cp /config/dev_release.env /home/$UNAME/.bash_env_settings
+fi
+
+if [ $CHANNEL == "dev" ] && [ $BUILD_TARGET == "debug" ]; then
+  cp /config/dev_debug.env /home/$UNAME/.bash_env_settings
+fi

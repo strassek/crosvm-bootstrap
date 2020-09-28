@@ -41,14 +41,26 @@ function exit_handler ()
 
     if [ $MOUNT_DIR != "--none" ]; then
       if [ -e $MOUNT_DIR/images/user-temp ]; then
-        rm -rf $MOUNT_DIR/images/user-temp/guest_temp/
+        if mount | grep $MOUNT_DIR/images/user-temp/build > /dev/null; then
+          umount -l $MOUNT_DIR/images/user-temp/build
+        fi
+        
+        if mount | grep user-temp/log > /dev/null; then
+          umount -l user-temp/log
+        fi
+        
         if mount | grep $MOUNT_DIR/images/user-temp > /dev/null; then
           umount -l $MOUNT_DIR/images/user-temp
         fi
 
         rm -rf $MOUNT_DIR/images/user-temp
-        rm $MOUNT_DIR/images/rootfs_temp.tar
-        rm $MOUNT_DIR/images/rootfs.ext4
+        if [ -e $MOUNT_DIR/images/rootfs_temp.tar ]; then
+          rm $MOUNT_DIR/images/rootfs_temp.tar
+        fi
+        
+        if [ ! -e $MOUNT_DIR/images/.rootfs_lock ]; then
+          rm $MOUNT_DIR/images/rootfs.ext4
+        fi
       fi
     fi
 

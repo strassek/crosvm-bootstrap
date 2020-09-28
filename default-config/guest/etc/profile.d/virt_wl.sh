@@ -1,9 +1,5 @@
 #! /bin/bash
 
-
-sudo chgrp render /dev/wl0
-sudo chmod 760 /dev/wl0
-
 if test -z "${XDG_RUNTIME_DIR}"; then
     export XDG_RUNTIME_DIR=/tmp/${UID}-runtime-dir
     if ! test -d "${XDG_RUNTIME_DIR}"; then

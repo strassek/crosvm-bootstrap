@@ -24,7 +24,7 @@ SOURCE_PWD=$BASE_PWD/source
 LOCAL_BUILD_TYPE=$BUILD_TYPE
 LOCAL_COMPONENT_ONLY_BUILDS=$COMPONENT_ONLY_BUILDS
 LOCAL_INITIAL_BUILD_SETUP=$INITIAL_BUILD_SETUP
-LOG_DIR=$BASE_PWD/component_log
+LOG_DIR=$BASE_PWD/build/log/guest
 SCRIPTS_DIR=$LOCAL_PWD/scripts
 
 mkdir -p $LOCAL_PWD/output
@@ -38,168 +38,163 @@ fi
 
 source $SCRIPTS_DIR/guest/error_handler_internal.sh $LOG_DIR guest.log $LOCAL_PWD
 
-destroy_docker_images() {
+cleanup_build_env() {
+echo "cleanup---"
+if [ -e user-temp ]; then
+  if mount | grep user-temp/build > /dev/null; then
+    umount -l user-temp/build
+  fi
+  
+  if mount | grep user-temp/log > /dev/null; then
+    umount -l user-temp/log
+  fi
+        
+  if mount | grep user-temp > /dev/null; then
+    umount -l user-temp
+  fi
+
+  rm -rf user-temp
+fi
+echo "cleanup done---"
+}
+
+destroy_rootfs_as_needed() {
 if [ $INITIAL_BUILD_SETUP == "--none" ]; then
   return;
 fi
 
+cleanup_build_env
+
 if [ $INITIAL_BUILD_SETUP == "--rebuild-all" ]; then
-  if [[ "$(docker images -q intel-base-guest:latest 2> /dev/null)" != "" ]]; then
-    docker rmi -f intel-base-guest:latest
+  if [ -e $LOCAL_PWD/images/rootfs.ext4 ]; then
+  echo "destroy_docker_images1---"
+    rm  $LOCAL_PWD/images/rootfs.ext4
   fi
 fi
+echo "destroy_docker_images---"
+}
 
-if [ $INITIAL_BUILD_SETUP == "--rebuild-all" ] || [ $INITIAL_BUILD_SETUP == "--rebuild-x11" ]; then
-  if [[ "$(docker images -q intel-x11-guest:latest 2> /dev/null)" != "" ]]; then
-    docker rmi -f intel-x11-guest:latest
-  fi
+generate_rootfs() {
+if [ -e $LOCAL_PWD/images/rootfs.ext4 ]; then
+  echo "rootfs image already exists. Reusing it."
+  return 0;
+fi
+    
+echo "Generating rootfs image..."
+
+if [ -e user-temp ]; then
+  rm -rf user-temp
+fi
+    
+dd if=/dev/zero of=rootfs.ext4 bs=3000 count=1M
+mkfs.ext4 rootfs.ext4
+mkdir user-temp/
+mount rootfs.ext4 user-temp/
+debootstrap --arch=amd64 buster user-temp/
+    
+echo "Configuring rootfs..."
+cp -rvf $LOCAL_PWD/config/default-config/guest/* user-temp/
+    
+mkdir -p user-temp/scripts/
+cp $LOCAL_PWD/scripts/guest/*.sh user-temp/scripts/
+
+mkdir -p user-temp/config/
+cp -v $LOCAL_PWD/config/*.env user-temp/config
+
+echo "Installing needed system packages inside vm"
+chroot user-temp/ /bin/bash /scripts/system_packages_internal.sh
+echo "enabling needed services"
+chroot user-temp/ /bin/bash /scripts/services_internal.sh
+echo "Configuring default user"
+chroot user-temp/ /bin/bash /scripts/default_user.sh
+LOCAL_BUILD_CHANNEL=stable
+LOCAL_BUILD_TARGET=release
+if [ $BUILD_CHANNEL == "--dev" ]; then
+  LOCAL_BUILD_CHANNEL=dev
+fi
+    
+if [ $BUILD_TARGET == "--debug" ]; then
+  LOCAL_BUILD_TARGET=debug
+fi
+    
+chroot user-temp/ /bin/bash /scripts/run_time_settings.sh test $LOCAL_BUILD_CHANNEL $LOCAL_BUILD_TARGET
+mkdir -p user-temp/build
+}
+
+setup_build_env() {
+if [ ! -e user-temp ]; then
+  echo "Cannot find chroot..."
+  exit 1
+fi
+if [ ! -e user-temp/scripts/ ]; then
+  rm -rf user-temp/scripts/
 fi
 
-if [ $INITIAL_BUILD_SETUP == "--rebuild-all" ] || [ $INITIAL_BUILD_SETUP == "--rebuild-x11" ] || [ $INITIAL_BUILD_SETUP == "--rebuild-wayland" ]; then
-  if [[ "$(docker images -q intel-wayland-guest:latest 2> /dev/null)" != "" ]]; then
-    docker rmi -f intel-wayland-guest:latest
-  fi
-fi
+mkdir -p user-temp/scripts/
+mount --rbind $SOURCE_PWD user-temp/build
+mount --rbind $BASE_PWD/build/log/guest user-temp/log
+}
 
-if [ $INITIAL_BUILD_SETUP == "--rebuild-all" ] || [ $INITIAL_BUILD_SETUP == "--rebuild-x11" ] || [ $INITIAL_BUILD_SETUP == "--rebuild-wayland" ] || [ $INITIAL_BUILD_SETUP == "--rebuild-drivers" ]; then
-  if [[ "$(docker images -q intel-drivers-guest:latest 2> /dev/null)" != "" ]]; then
-    docker rmi -f intel-drivers-guest:latest
-  fi
-fi
+setup_32build_env() {
+cp $LOCAL_PWD/scripts/guest/*.sh user-temp/scripts/
+}
 
-if [ $INITIAL_BUILD_SETUP == "--rebuild-all" ] || [ $INITIAL_BUILD_SETUP == "--rebuild-x11" ] || [ $INITIAL_BUILD_SETUP == "--rebuild-wayland" ] || [ $INITIAL_BUILD_SETUP == "--rebuild-drivers" ] || [ $INITIAL_BUILD_SETUP == "--rebuild-demos" ]; then
-  if [[ "$(docker images -q intel-demos-guest:latest 2> /dev/null)" != "" ]]; then
-    docker rmi -f intel-demos-guest:latest
-  fi
-fi
+setup_64build_env() {
+cp $LOCAL_PWD/scripts/host/*.sh user-temp/scripts/
+}
 
-if [ $INITIAL_BUILD_SETUP == "--rebuild-all" ] || [ $INITIAL_BUILD_SETUP == "--rebuild-drivers" ] || [ $INITIAL_BUILD_SETUP == "--rebuild-guest" ]; then
-  if [[ "$(docker images -q intel-guest:latest 2> /dev/null)" != "" ]]; then
-    docker rmi -f intel-guest:latest
-  fi
+building_component() {
+component="${1}"
+if chroot user-temp/ /bin/bash /scripts/main.sh $LOCAL_BUILD_TYPE $component $BUILD_CHANNEL $BUILD_TARGET; then
+  echo "Built------------" $component
+else
+  exit 1
 fi
 }
 
-destroy_docker_images
-
-SHA=`git rev-parse --short HEAD`
-TAG=`git describe --always`
-if [ -z $? ]; then
-    echo "$TAG" > VERSION
-else
-    echo "COMMIT-$SHA" > VERSION
-fi
-
 # Handle base builds
-echo "Checking for base guest image..."
-if [[ "$(docker images -q intel-base-guest:latest 2> /dev/null)" == "" ]]; then
-  cd $LOCAL_PWD/docker/guest/
-  docker build -t intel-base-guest:latest -f Dockerfile.base-guest .
-  LOCAL_COMPONENT_ONLY_BUILDS="--all"
-fi
+mkdir -p $LOCAL_PWD/images
+cd $LOCAL_PWD/images
+destroy_rootfs_as_needed
+generate_rootfs
 
 if [ $CREATE_BASE_IMAGE_ONLY == "--true" ]; then
   exit 0;
 fi
 
-echo "Building components."
-building_component() {
-component="${1}"
-docker_image="${2}"
-echo "running docker" $docker_image
-if docker run -it --privileged --mount type=bind,source=$SOURCE_PWD,target=/build --mount type=bind,source=$LOCAL_PWD/scripts,target=/scripts --mount type=bind,source=$LOCAL_PWD/output,target=/log intel-temp:latest $LOCAL_BUILD_TYPE $component $BUILD_CHANNEL $BUILD_TARGET; then
-  echo "committing------------"
-  export CONTAINER_ID=`docker ps -lq`
-  if [ $component == "--guest" ]; then
-    echo "Generating rootfs image..."
-    mkdir -p $LOCAL_PWD/images
-    cd $LOCAL_PWD/images
-    docker export -o rootfs_temp.tar $CONTAINER_ID
-    if [ -e rootfs.ext4 ]; then
-      rm rootfs.ext4
-    fi
-    
-    if [ -e user-temp ]; then
-      rm -rf user-temp
-    fi
-    
-    dd if=/dev/zero of=rootfs.ext4 bs=3000 count=1M
-    mkfs.ext4 rootfs.ext4
-    mkdir -p user-temp/
-    mount rootfs.ext4 user-temp/
-    tar -xvf rootfs_temp.tar -C user-temp/
-    
-    echo "Configuring rootfs..."
-    cp -rvf $LOCAL_PWD/config/default-config/guest/* user-temp/
-    
-    echo "enabling needed services"
-    mkdir -p user-temp/guest_temp/config
-    cp $LOCAL_PWD/scripts/guest/default_user.sh user-temp/guest_temp/
-    cp $LOCAL_PWD/scripts/guest/services_internal.sh user-temp/guest_temp/
-    cp $LOCAL_PWD/scripts/guest/run_time_settings.sh user-temp/guest_temp/
-    chroot user-temp/ /bin/bash /guest_temp/services_internal.sh
-    echo "Configuring default user"
-    chroot user-temp/ /bin/bash /guest_temp/default_user.sh
-    LOCAL_BUILD_CHANNEL=stable
-    LOCAL_BUILD_TARGET=release
-    if [ $BUILD_CHANNEL == "--dev" ]; then
-      LOCAL_BUILD_CHANNEL=dev
-    fi
-    
-    if [ $BUILD_TARGET == "--debug" ]; then
-      LOCAL_BUILD_TARGET=debug
-    fi
-    
-    chroot user-temp/ /bin/bash /guest_temp/run_time_settings.sh test $LOCAL_BUILD_CHANNEL $LOCAL_BUILD_TARGET
-    
-    #cleanup
-    rm -rf user-temp/guest_temp/
-    umount -l user-temp
-    rm rootfs_temp.tar
-  fi
-  docker commit $CONTAINER_ID $docker_image
-  docker rmi -f intel-temp:latest
-else
-  docker rmi -f intel-temp:latest
-  exit 1
-fi
-}
+setup_build_env
 
+echo "Building components."
+# 64 bit builds
+setup_64build_env
 if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--x11" ]; then
-  cd $LOCAL_PWD/docker/guest
-  docker build -t intel-temp:latest -f Dockerfile.x11-guest .
-  building_component "--x11" "intel-x11-guest"
+  building_component "--x11"
 fi
 
 if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--wayland" ]; then
-  if [[ "$(docker images -q intel-x11-guest:latest 2> /dev/null)" == "" ]]; then
-    echo "wayland is not built. Please build x11 first. i.e. COMPONENT_ONLY_BUILDS=--all or COMPONENT_ONLY_BUILDS=--wayland"
-    exit 1
-  fi
-  
-  cd $LOCAL_PWD/docker/guest
-  docker build -t intel-temp:latest -f Dockerfile.wayland-guest .
-  building_component "--wayland" "intel-wayland-guest"
+  building_component "--wayland"
 fi
 
 if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--drivers" ]; then
-  if [[ "$(docker images -q intel-wayland-guest:latest 2> /dev/null)" == "" ]]; then
-    echo "wayland is not built. Please build wayland first. i.e. COMPONENT_ONLY_BUILDS=--all or COMPONENT_ONLY_BUILDS=--wayland"
-    exit 1
-  fi
-  
-  cd $LOCAL_PWD/docker/guest
-  docker build -t intel-temp:latest -f Dockerfile.drivers-guest .
-  building_component "--drivers" "intel-drivers-guest:latest"
+  building_component "--drivers"
+fi
+
+# 32 bit builds
+setup_64build_env
+if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--x11" ]; then
+  building_component "--x11"
+fi
+
+if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--wayland" ]; then
+  building_component "--wayland"
+fi
+
+if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--drivers" ]; then
+  building_component "--drivers"
 fi
 
 if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--guest" ]; then
-  if [[ "$(docker images -q intel-drivers-guest:latest 2> /dev/null)" == "" ]]; then
-    echo "wayland is not built. Please build drivers first. i.e. COMPONENT_ONLY_BUILDS=--all or COMPONENT_ONLY_BUILDS=--drivers"
-    exit 1
-  fi
-
-  cd $LOCAL_PWD/docker/guest
-  docker build -t intel-temp:latest -f Dockerfile-guest .
-  building_component "--guest" "intel-guest:latest"
+  building_component "--guest"
 fi
+
+cleanup_build_env

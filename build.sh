@@ -59,8 +59,8 @@ fi
 if [ $KERNEL_ONLY != "--true" ]; then
   # Create Base image. This will be used for guest.
   echo "Preparing to build Guest image...."
-  if bash guest/build_guest_internal.sh $BASE_DIR $INITIAL_BUILD_SETUP $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET --false; then
-    echo “Cloning Source...”
+  if bash common/common.sh $BASE_DIR $INITIAL_BUILD_SETUP $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET --true; then
+    echo “Prepaing to build...”
   else
     echo “Failed to create guest image, exit status: $?”
     cleanup_docker_image

@@ -13,7 +13,7 @@ LOCAL_DIRECTORY_PREFIX=/build
 LOCAL_BUILD_CHANNEL="--dev"
 LOCAL_BUILD_TARGET="--release"
 LOCAL_BUILD_TYPE=$BUILD_TYPE
-LOG_DIR=/log/component_log_guest
+LOG_DIR=/log/component_guest
 SCRIPTS_DIR=/scripts/guest
 
 source $SCRIPTS_DIR/error_handler_internal.sh $LOG_DIR main_guest_err.log --none

@@ -53,6 +53,7 @@ if [ $PARAM_CHECKS_ONLY == "--false" ]; then
   
   mkdir -p $DIRECTORY_PREFIX/config
   cp -rf default-config $DIRECTORY_PREFIX/config/
+  cp -rf launch/config/*.* $DIRECTORY_PREFIX/config/
 
   mkdir -p build/docker/guest
   cp guest/dockerfiles/base.dockerfile build/docker/guest/Dockerfile.base-guest
@@ -63,7 +64,7 @@ if [ $PARAM_CHECKS_ONLY == "--false" ]; then
 fi
 
 if [ $BUILD_CHECK == "--true" ]; then
-  if [ $INITIAL_BUILD_SETUP != "--none" ]  && [ $INITIAL_BUILD_SETUP != "--rebuild-all" ] && [ $INITIAL_BUILD_SETUP != "--rebuild-x11" ] && [ $INITIAL_BUILD_SETUP != "--rebuild-wayland" ] && [ $INITIAL_BUILD_SETUP != "--rebuild-drivers" ] && [ $INITIAL_BUILD_SETUP != "--rebuild-guest" ]; then
+  if [ $INITIAL_BUILD_SETUP != "--none" ]  && [ $INITIAL_BUILD_SETUP != "--rebuild-all" ]; then
     echo "Invalid INITIAL_BUILD_SETUP. Please check build_options.txt file for supported combinations."
     exit 1
   fi

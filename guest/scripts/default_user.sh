@@ -15,21 +15,19 @@ LOCAL_PASSWORD=test0000
 LOCAL_uid=1000
 LOCAL_gid=1000
 
-export uid=$LOCAL_uid gid=$LOCAL_gid
-mkdir -p /home/developer
-echo "$LOCAL_UNAME:x:$uid:$gid:$LOCAL_UNAME,,,:/home/$LOCAL_UNAME:/bin/bash" >> /etc/passwd
-echo "$LOCAL_UNAME:x:${uid}:" >> /etc/group
-echo $LOCAL_UNAME:$LOCAL_PASSWORD | chpasswd
+adduser test
+echo test:test0000 | chpasswd
 echo "$LOCAL_UNAME ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$LOCAL_UNAME
 chmod 0440 /etc/sudoers.d/$LOCAL_UNAME
-chown $uid:$gid -R /home/$LOCAL_UNAME
+chown test:test -R /home/$LOCAL_UNAME
 
 echo "adding groups"
 usermod -aG sudo,audio,video,input,render,lp $LOCAL_UNAME
 #loginctl enable-linger $UNAME
+echo "bash_aliases"
 
-cat > /home/$LOCAL_UNAME/.bash_aliases <<EOF
-if [ -f /home/$LOCAL_UNAME/.bash_env_settings ]; then
-    . /home/$LOCAL_UNAME/.bash_env_settings
-fi
-EOF
+echo ". /home/$LOCAL_UNAME/.bash_env_settings" > /home/$LOCAL_UNAME/.bash_aliases
+chmod 0440 /home/$LOCAL_UNAME/.bash_aliases
+
+chown $uid:$gid -R /home/$LOCAL_UNAME
+echo "Default user setup.."
