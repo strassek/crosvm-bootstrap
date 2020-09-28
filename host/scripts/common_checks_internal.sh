@@ -50,7 +50,7 @@ if [ $BUILD_CHECK == "--true" ]; then
     exit 1
   fi
 
-  if [ $COMPONENT_ONLY_BUILDS != "--vm" ]; then
+  if [ $COMPONENT_ONLY_BUILDS != "--all" ]; then
     echo "Invalid value for COMPONENT_ONLY_BUILDS. Please check build_options.txt file for supported combinations."
     exit 1
   fi

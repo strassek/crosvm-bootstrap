@@ -150,8 +150,8 @@ generate_host_rootfs
 setup_build_env
 
 echo "Building host."
-if chroot $LOCAL_ROOTFS_HOST_MOUNT_DIR/ /bin/bash /scripts/host/main.sh $LOCAL_BUILD_TYPE --vm $BUILD_CHANNEL $BUILD_TARGET; then
-  echo "Built------------" vm
+if chroot $LOCAL_ROOTFS_HOST_MOUNT_DIR/ /bin/bash /scripts/host/main.sh $LOCAL_BUILD_TYPE --all $BUILD_CHANNEL $BUILD_TARGET; then
+  echo "Built------------"
 else
   exit 1
 fi

@@ -114,6 +114,7 @@ install_package libxml2-utils
 install_package libtool-bin
 install_package libxml2-dev
 install_package libc6-dev
+install_package zstd
 
 echo "Installing needed i386 system packages..."
 install_package_i386 libunwind-dev
@@ -129,6 +130,7 @@ install_package_i386 libffi-dev
 install_package_i386 libexpat1-dev
 install_package_i386 libc6-dev
 install_package_i386 libxml2-dev
+install_package_i386 zstd
 
 apt autoremove -y
 
