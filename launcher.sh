@@ -69,10 +69,11 @@ cd $BASE_DIRECTORY/docker/exec/
 docker build -t intel-vm-launch:latest -f Dockerfile-start .
 exec docker run -it --rm --privileged \
     --ipc=host \
-    -e DISPLAY=$DISPLAY -e XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR -e WAYLAND_DISPLAY=$WAYLAND_DISPLAY \
+    -e DISPLAY=$DISPLAY -e XDG_RUNTIME_DIR=/tmp -e WAYLAND_DISPLAY=$WAYLAND_DISPLAY \
     -v /dev/log:/dev/log \
     -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
     -v /proc:/proc -v /sys:/sys \
+    -v /$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/tmp/$WAYLAND_DISPLAY:rw \
     -e container=docker \
     --mount type=bind,source=$BASE_DIRECTORY/images,target=/images \
     --mount type=bind,source=$BASE_DIRECTORY/scripts,target=/scripts \
@@ -94,6 +95,7 @@ if [ $ACTION == "--stop" ]; then
       -v /dev/log:/dev/log \
       -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
       -v /proc:/proc -v /sys:/sys \
+      -v /$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/tmp/$WAYLAND_DISPLAY:rw \
       --mount type=bind,source=$BASE_DIRECTORY/images,target=/images \
       --mount type=bind,source=$BASE_DIRECTORY/scripts,target=/scripts \
       intel-vm-stop:latest \

@@ -37,4 +37,4 @@ echo "LD LIBRARY PATH:" $LOCAL_LIBRARY_PATH $(genMAC)
 
 /bin/bash /scripts/exec/ip_tables.sh eth0 vmtap0
 
-LD_LIBRARY_PATH=$LOCAL_LIBRARY_PATH $LOCAL_EXEC_DIRECTORY/crosvm $ACTION --disable-sandbox --rwdisk /images/rootfs_guest.ext4 -s /images/crosvm.sock -m 10240 --cpus 4 -p "root=/dev/vda" -p "$KERNEL_CMD_OPTIONS" -p "console=hvc0" --host_ip 10.0.0.1 --netmask 255.255.255.0 --mac $(genMAC) --wayland-sock=$WAYLAND_DISPLAY --gpu egl=true,glx=true,gles=true --x-display=$DISPLAY --wayland-dmabuf  --serial type=stdout,hardware=virtio-console,num=1 /images/vmlinux
+LD_LIBRARY_PATH=$LOCAL_LIBRARY_PATH $LOCAL_EXEC_DIRECTORY/crosvm $ACTION --disable-sandbox --rwdisk /images/rootfs_guest.ext4 -s /images/crosvm.sock -m 10240 --cpus 4 -p "root=/dev/vda" -p "$KERNEL_CMD_OPTIONS" -p "console=hvc0" --host_ip 10.0.0.1 --netmask 255.255.255.0 --mac $(genMAC) --wayland-sock=/tmp/$WAYLAND_DISPLAY --gpu egl=true,glx=true,gles=true --x-display=$DISPLAY --wayland-dmabuf  --serial type=stdout,hardware=virtio-console,num=1 /images/vmlinux

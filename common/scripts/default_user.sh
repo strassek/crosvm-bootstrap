@@ -23,15 +23,18 @@ echo test:test0000 | chpasswd
 echo "$LOCAL_UNAME ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$LOCAL_UNAME
 chmod 0440 /etc/sudoers.d/$LOCAL_UNAME
 chown $uid:$gid -R /home/$LOCAL_UNAME
+cp -rvf /etc/skel/* /home/$LOCAL_UNAME/
 
 echo "adding groups"
 usermod -aG sudo,audio,video,input,render,lp $LOCAL_UNAME
 #loginctl enable-linger $UNAME
 echo "bash_aliases"
 
-echo "if [ -f /home/$LOCAL_UNAME/.bash_env_settings ]; then" > /home/$LOCAL_UNAME/.bashrc
-echo "  . /home/$LOCAL_UNAME/.bash_env_settings" >> /home/$LOCAL_UNAME/.bashrc
-echo "fi"  >> /home/$LOCAL_UNAME/.bashrc
+echo "if [ -f /home/$LOCAL_UNAME/.bash_env_settings ]; then" > /home/$LOCAL_UNAME/.bbash_aliases
+echo "  . /home/$LOCAL_UNAME/.bash_env_settings" >> /home/$LOCAL_UNAME/.bash_aliases
+echo "fi"  >> /home/$LOCAL_UNAME/.bash_aliases
+
+chmod 0664 /home/$LOCAL_UNAME/.bash_aliases
 
 chown $uid:$gid -R /home/$LOCAL_UNAME
 echo "Default user setup.."
