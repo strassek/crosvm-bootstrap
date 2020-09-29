@@ -60,11 +60,6 @@ else
   exit 1
 fi
 
-if [[ "$(docker images -q intel-vm-launch 2> /dev/null)" != "" ]]; then
-  docker rmi -f intel-vm-launch:latest
-fi
-
-
 cd $BASE_DIRECTORY/docker/exec/
 docker build -t intel-vm-launch:latest -f Dockerfile-start .
 exec docker run -it --rm --privileged \
