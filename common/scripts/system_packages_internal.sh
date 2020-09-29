@@ -61,6 +61,8 @@ fi
     
 install_package kmod
 install_package libdbus-1-dev
+install_package dbus
+install_package dbus-user-session
 install_package protobuf-compiler
 install_package sudo
 install_package ninja-build
