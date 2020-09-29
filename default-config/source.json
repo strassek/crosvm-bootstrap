@@ -1,7 +1,0 @@
-{
-    "path": "source/",
-    "name": "source.ext4",
-    "fstype": "ext4",
-    "isSparse": true,
-    "sizeInMB": 30720
-}
