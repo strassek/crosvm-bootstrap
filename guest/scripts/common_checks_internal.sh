@@ -47,7 +47,7 @@ if [ $PARAM_CHECKS_ONLY == "--false" ]; then
 fi
 
 if [ $BUILD_CHECK == "--true" ]; then
-  if [ $COMPONENT_TARGET != "--guest" ]; then
+  if [ $COMPONENT_TARGET != "--guest" ] && [ $COMPONENT_TARGET != "--rebuild-all" ]; then
     echo "Invalid COMPONENT_TARGET. Please check build_options.txt file for supported combinations."
     exit 1
   fi
