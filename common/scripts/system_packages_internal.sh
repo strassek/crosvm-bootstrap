@@ -75,6 +75,7 @@ install_package autoconf
 install_package nasm
 install_package make
 install_package python3-mako
+install_package pciutils
 install_package llvm
 install_package libtool
 install_package automake

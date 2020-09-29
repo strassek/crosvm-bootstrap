@@ -23,7 +23,6 @@ echo test:test0000 | chpasswd
 echo "$LOCAL_UNAME ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$LOCAL_UNAME
 chmod 0440 /etc/sudoers.d/$LOCAL_UNAME
 chown $uid:$gid -R /home/$LOCAL_UNAME
-cp -rvf /etc/skel/* /home/$LOCAL_UNAME/
 
 echo "adding groups"
 usermod -aG sudo,audio,video,input,render,lp $LOCAL_UNAME
@@ -36,5 +35,14 @@ echo "fi"  >> /home/$LOCAL_UNAME/.bash_aliases
 
 chmod 0664 /home/$LOCAL_UNAME/.bash_aliases
 
+ls -a /etc/skel/ 
+
+if [ -e /etc/skel/ ]; then
+  cp -RvT /etc/skel /home/$LOCAL_UNAME
+fi
+
+ls -a /home/$LOCAL_UNAME 
+
 chown $uid:$gid -R /home/$LOCAL_UNAME
+
 echo "Default user setup.."

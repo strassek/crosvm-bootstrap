@@ -10,7 +10,7 @@ set -o nounset
 # bail on failing commands before last pipe
 set -o pipefail
 
-PWD_DIR=$1
+PWD_DIR=$PWD
 mkdir -p $PWD_DIR/source
 cd $PWD_DIR/source
 # Repo initialization and cloning all needed Libraries.

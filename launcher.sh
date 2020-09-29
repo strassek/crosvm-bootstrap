@@ -7,14 +7,14 @@ set -o errexit   ## set -e : exit the script if any statement returns a non-true
 
 set -ex
 
-BASE_DIRECTORY=${1} # Expected Directory Structure <basefolder>/rootfs.ext4, vmlinux, crosvm
-XDG_RUNTIME_DIR=${2}
-WAYLAND_DISPLAY=${3}
-DISPLAY=${4}
-CHANNEL=${5:-"--stable"}
-TARGET=${6:-"--release"}
-ACTION=${7:-"--run"}
+XDG_RUNTIME_DIR=${1}
+WAYLAND_DISPLAY=${2}
+DISPLAY=${3}
+CHANNEL=${4:-"--stable"}
+TARGET=${5:-"--release"}
+ACTION=${6:-"--run"}
 
+BASE_DIRECTORY=$PWD/build
 LOCAL_KERNEL_CMD_OPTIONS=""
 LOCAL_BUILD_TARGET=release
 LOCAL_CHANNEL=stable
