@@ -114,6 +114,7 @@ install_package libxml2-utils
 install_package libtool-bin
 install_package libxml2-dev
 install_package libc6-dev
+install_package locales
 
 echo "Installing needed i386 system packages..."
 install_package_i386 libunwind-dev

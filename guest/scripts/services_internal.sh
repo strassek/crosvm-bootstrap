@@ -35,4 +35,6 @@ echo root:test0000 | chpasswd
 
 mkdir -p /etc/sudoers.d
 
+echo "127.0.1.1  gaming" >> /etc/hosts
+
 echo "Done configuring the needed services and groups..."

@@ -83,7 +83,7 @@ fi
 
 if [ $COMPONENT_TARGET == "--container-image" ] || [ $COMPONENT_TARGET == "--rebuild-all" ] ; then
   echo "Preparing to create docker image...."
-  cd $BASE_DIR/images
+  cd $BASE_DIR/build/images
   if [ ! -e rootfs_host.ext4 ]; then
     echo "Cannot find rootfs_host.ext4 file. Please check the build...."
     exit 1
