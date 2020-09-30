@@ -39,16 +39,16 @@ function exit_handler ()
 {
   if [ $MOUNT_DIR != "--none" ]; then
     if [ -e $LOCAL_ROOTFS_GUEST_MOUNT_DIR ]; then
-      if mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR/build > /dev/null; then
-        umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR/build
+      if sudo mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR/build > /dev/null; then
+        sudo umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR/build
       fi
 
-      if mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR/log/guest > /dev/null; then
-        umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR/log/guest
+      if sudo mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR/log/guest > /dev/null; then
+        sudo umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR/log/guest
       fi
 
-      if mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR > /dev/null; then
-        umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR
+      if sudo mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR > /dev/null; then
+        sudo umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR
       fi
 
       rm -rf $LOCAL_ROOTFS_GUEST_MOUNT_DIR

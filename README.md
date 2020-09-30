@@ -4,12 +4,25 @@ A collection of scripts and dockerfiles to generate Docker images meant to host
 [crosvm](https://chromium.googlesource.com/chromiumos/platform/crosvm/).
 
 ## Quickstart
-1. Run `./check-environment.sh` to make sure your system has docker set up
-correctly.
-2. Run `./build.sh` to kick off the build of the container and generate
-a rootfs image using the default settings.
-3. Configure iptables on your host using either or `./scripts/configure-host-network.sh` wizard or `./scripts/configure-iptables.sh` directly.
-4. Run ./launcher.sh to launch the vm.
+1. Run `./check-environment.sh`
+2. Run `./sync_code.sh`
+3. Run `./build.sh`
+4. Run `./launcher.sh`
+
+Login with:
+User: test
+Password: test0000
+
+or
+
+User: root
+Password: test0000
+
+## Running applications
+
+`sommelier --glamor --drm-device=/dev/dri/renderD128 es2gears_wayland`
+
+`sommelier -X --xwayland-path=/opt/stable/release/x86_64/bin/Xwayland --glamor --drm-device=/dev/dri/renderD128 glxgears`
 
 ## How to customize
 Edit files in `default-config/` to change the default settings for the images 

@@ -25,7 +25,7 @@ if [ $BUILD_CHANNEL != "--dev" ] && [ $BUILD_CHANNEL != "--stable" ]; then
  exit 1
 fi
 
-if [ $BUILD_TARGET != "--release" ] && [ $BUILD_TARGET != "--debug" ] ]; then
+if [ $BUILD_TARGET != "--release" ] && [ $BUILD_TARGET != "--debug" ]; then
  echo "Invalid Build Channel. Valid Values: --release, --debug, --all. Recieved:" $BUILD_TYPE
  exit 1
 fi

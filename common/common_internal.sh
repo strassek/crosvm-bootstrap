@@ -44,12 +44,12 @@ source $SCRIPTS_DIR/common/error_handler_internal.sh $LOG_DIR rootfs.log $LOCAL_
 
 destroy_base_rootfs_as_needed() {
 if [ -e $LOCAL_ROOTFS_MOUNT_DIR ]; then
-  if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/build > /dev/null; then
-    umount -l $LOCAL_ROOTFS_MOUNT_DIR/build
+  if sudo mount | grep $LOCAL_ROOTFS_MOUNT_DIR/build > /dev/null; then
+    sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/build
   fi
 
-  if mount | grep $LOCAL_ROOTFS_MOUNT_DIR > /dev/null; then
-    umount -l $LOCAL_ROOTFS_MOUNT_DIR
+  if sudo mount | grep $LOCAL_ROOTFS_MOUNT_DIR > /dev/null; then
+    sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR
   fi
 
   rm -rf $LOCAL_ROOTFS_MOUNT_DIR
@@ -86,28 +86,28 @@ if [ -e $LOCAL_ROOTFS_BASE.ext4 ]; then
 fi
 
 echo "Generating rootfs...."
-dd if=/dev/zero of=$LOCAL_ROOTFS_BASE.ext4 bs=5000 count=1M
+dd if=/dev/zero of=$LOCAL_ROOTFS_BASE.ext4 bs=1G count=15
 mkfs.ext4 $LOCAL_ROOTFS_BASE.ext4
 mkdir $LOCAL_ROOTFS_MOUNT_DIR/
-mount $LOCAL_ROOTFS_BASE.ext4 $LOCAL_ROOTFS_MOUNT_DIR/
-debootstrap --arch=amd64 buster $LOCAL_ROOTFS_MOUNT_DIR/
+sudo mount $LOCAL_ROOTFS_BASE.ext4 $LOCAL_ROOTFS_MOUNT_DIR/
+sudo debootstrap --arch=amd64 buster $LOCAL_ROOTFS_MOUNT_DIR/
 
-mkdir -p $LOCAL_ROOTFS_MOUNT_DIR/scripts/common
-cp $LOCAL_PWD/scripts/common/*.sh $LOCAL_ROOTFS_MOUNT_DIR/scripts/common/
-mkdir -p $LOCAL_ROOTFS_MOUNT_DIR/config/
-cp -v $LOCAL_PWD/config/*.env $LOCAL_ROOTFS_MOUNT_DIR/config
+sudo mkdir -p $LOCAL_ROOTFS_MOUNT_DIR/scripts/common
+sudo cp $LOCAL_PWD/scripts/common/*.sh $LOCAL_ROOTFS_MOUNT_DIR/scripts/common/
+sudo mkdir -p $LOCAL_ROOTFS_MOUNT_DIR/config/
+sudo cp -v $LOCAL_PWD/config/*.env $LOCAL_ROOTFS_MOUNT_DIR/config
 
-mkdir -p $LOCAL_ROOTFS_MOUNT_DIR/proc
-mkdir -p $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
-mkdir -p $LOCAL_ROOTFS_MOUNT_DIR/dev/pts
-mount -t proc /proc $LOCAL_ROOTFS_MOUNT_DIR/proc
-mount -o bind /dev/shm $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
-mount -o bind /dev/pts $LOCAL_ROOTFS_MOUNT_DIR/dev/pts
+sudo mkdir -p $LOCAL_ROOTFS_MOUNT_DIR/proc
+sudo mkdir -p $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
+sudo mkdir -p $LOCAL_ROOTFS_MOUNT_DIR/dev/pts
+sudo mount -t proc /proc $LOCAL_ROOTFS_MOUNT_DIR/proc
+sudo mount -o bind /dev/shm $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
+sudo mount -o bind /dev/pts $LOCAL_ROOTFS_MOUNT_DIR/dev/pts
 
 echo "Installing needed system packages for host and vm"
-chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/common/system_packages_internal.sh
+sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/common/system_packages_internal.sh
 echo "Configuring default user"
-chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/common/default_user.sh
+sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/common/default_user.sh
 LOCAL_BUILD_CHANNEL=stable
 LOCAL_BUILD_TARGET=release
 if [ $BUILD_CHANNEL == "--dev" ]; then
@@ -119,20 +119,20 @@ if [ $BUILD_TARGET == "--debug" ]; then
 fi
 
 echo "Configuring Run time settings"
-chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/common/run_time_settings.sh test $LOCAL_BUILD_CHANNEL $LOCAL_BUILD_TARGET
+sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/common/run_time_settings.sh test $LOCAL_BUILD_CHANNEL $LOCAL_BUILD_TARGET
 echo "Rootfs ready..."
 echo "rootfs generated" > $LOCAL_ROOTFS_BASE.lock
 echo "Cleaningup build env..."
-if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/build > /dev/null; then
-  umount -l $LOCAL_ROOTFS_MOUNT_DIR/build
+if sudo mount | grep $LOCAL_ROOTFS_MOUNT_DIR/build > /dev/null; then
+  sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/build
 fi
 
-umount -l $LOCAL_ROOTFS_MOUNT_DIR/proc
-umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
-umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/pts
+sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/proc
+sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
+sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/pts
 
-if mount | grep $LOCAL_ROOTFS_MOUNT_DIR > /dev/null; then
-  umount -l $LOCAL_ROOTFS_MOUNT_DIR
+if sudo mount | grep $LOCAL_ROOTFS_MOUNT_DIR > /dev/null; then
+  sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR
 fi
 
 rm -rf $LOCAL_ROOTFS_MOUNT_DIR

@@ -26,7 +26,6 @@ export PATH=$PATH:$PWD_DIR/source/env/
 if [ ! -d "depot_tools" ]; then
   echo "Cloning Depot Tools."
   git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
-  git config --global color.ui false
 else
   echo "Updating Depot Tools."
   git pull
