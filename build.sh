@@ -11,7 +11,7 @@ set -o nounset
 # bail on failing commands before last pipe
 set -o pipefail
 
-COMPONENT_TARGET=${1:-"--none"}
+COMPONENT_TARGET=${1:-"--rebuild-all"}
 BUILD_TYPE=${2:-"--clean"} # Possible values: --clean, --incremental --really-clean
 COMPONENT_ONLY_BUILDS=${3:-"--all"}
 BUILD_CHANNEL=${4:-"--stable"} # Possible values: --dev, --stable, --all
@@ -24,7 +24,7 @@ if [ $COMPONENT_TARGET == "--rootfs" ] || [ $COMPONENT_TARGET == "--rebuild-all"
   if bash common/common_internal.sh $BASE_DIR $COMPONENT_TARGET $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET --true; then
     echo “Built rootfs with default usersetup.”
   else
-    echo “Failed to built rootfs with default usersetup, exit status: $?”
+    echo “Failed to build rootfs with default usersetup, exit status: $?”
     exit 1
   fi
 fi
@@ -95,8 +95,8 @@ if [ $COMPONENT_TARGET == "--container-image" ] || [ $COMPONENT_TARGET == "--reb
   fi
 
   mkdir intel_host
-  mount rootfs_host.ext4 intel_host
-  tar -C intel_host -c . | sudo docker import - intel_host
-  umount -l intel_host
+  sudo mount rootfs_host.ext4 intel_host
+  sudo tar -C intel_host -c . | sudo docker import - intel_host
+  sudo umount -l intel_host
   rm -rf intel_host
 fi

@@ -14,14 +14,14 @@ PWD_DIR=$PWD
 mkdir -p $PWD_DIR/source
 cd $PWD_DIR/source
 # Repo initialization and cloning all needed Libraries.
-if [ ! -f "/usr/bin/python" ]; then
-ln -s /usr/bin/python3 /usr/bin/python
-fi
+#if [ ! -f "/usr/bin/python" ]; then
+#ln -s /usr/bin/python3 /usr/bin/python # same as python-is-python3
+#fi
 
 if [ ! -d "depot_tools" ]; then
   echo "Cloning Depot Tools."
   git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
-  git config --global color.ui false
+#  git config --global color.ui false
 else
   echo "Updating Depot Tools."
   git pull

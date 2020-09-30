@@ -7,9 +7,9 @@ set -o errexit   ## set -e : exit the script if any statement returns a non-true
 
 set -ex
 
-XDG_RUNTIME_DIR=${1}
-WAYLAND_DISPLAY=${2}
-DISPLAY=${3}
+XDG_RUNTIME_DIR=${1:-$XDG_RUNTIME_DIR}
+WAYLAND_DISPLAY=${2:-$WAYLAND_DISPLAY}
+DISPLAY=${3:-$DISPLAY}
 CHANNEL=${4:-"--stable"}
 TARGET=${5:-"--release"}
 ACTION=${6:-"--run"}

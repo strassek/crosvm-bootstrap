@@ -165,6 +165,7 @@ rustup --version
 cargo --version
 rustc --version
 rustup default stable
+# What is this doing?
 cargo install thisiznotarealpackage -q || true
 
 # Make sure we have libc packages correctly installed

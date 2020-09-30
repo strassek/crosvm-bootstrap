@@ -1,7 +1,14 @@
 #! /bin/bash
 
+DEBOOTSTRAP_CMD=`which debootstrap`
+if [ $? -ne 0 ]; then
+    echo "debootstrap does not appear to be installed or it is not found in PATH."
+    echo "Please install debootstrap and ensure it is on the PATH."
+    exit 1
+fi
+
 DOCKER_CMD=`which docker`
-if [ ! -z $? ]; then
+if [ $? -ne 0 ]; then
     echo "Docker does not appear to be installed or it is not found in PATH."
     echo "Please install Docker and ensure it is on the PATH."
     exit 1
@@ -10,10 +17,11 @@ else
     if [ -z "$DOCKER_SOCK" ]; then
         echo "Docker does not appear to be running."
         exit 1
+    fi
 fi
 
-groups | grep docker 2>&1 > /dev/null
-if [ ! -z $? ]; then
+groups `whoami` | grep docker 2>&1 > /dev/null
+if [ $? -ne 0 ]; then
     while true; do
         read -p "Do you want to be added to the docker user group? [Y/n]: " add_docker
         case $add_docker in
@@ -25,4 +33,3 @@ if [ ! -z $? ]; then
 fi
 
 echo "Your system seems ready to go."
-echo "Start the build with clean-build.sh"

@@ -38,28 +38,28 @@ function exit_handler ()
 {
   if [ $MOUNT_DIR != "--none" ]; then
     if [ -e $LOCAL_ROOTFS_HOST_MOUNT_DIR ]; then
-      if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/build > /dev/null; then
-        umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR/build
+      if sudo mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/build > /dev/null; then
+        sudo umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR/build
       fi
 
-      if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/log/host > /dev/null; then
-        umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR/log/host
+      if sudo mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/log/host > /dev/null; then
+        sudo umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR/log/host
       fi
 
-      if mount | grep $$LOCAL_ROOTFS_HOST_MOUNT_DIR/proc > /dev/null; then
-        umount -l $$LOCAL_ROOTFS_HOST_MOUNT_DIR/proc
+      if sudo mount | grep $$LOCAL_ROOTFS_HOST_MOUNT_DIR/proc > /dev/null; then
+        sudo umount -l $$LOCAL_ROOTFS_HOST_MOUNT_DIR/proc
       fi
 
-      if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/shm > /dev/null; then
-        umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/shm
+      if sudo mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/shm > /dev/null; then
+        sudo umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/shm
       fi
 
-      if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/pt > /dev/null; then
-        umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/pt
+      if sudo mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/pt > /dev/null; then
+        sudo umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/pt
       fi
 
-      if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR > /dev/null; then
-        umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR
+      if sudo mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR > /dev/null; then
+        sudo umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR
       fi
 
       rm -rf $LOCAL_ROOTFS_HOST_MOUNT_DIR
