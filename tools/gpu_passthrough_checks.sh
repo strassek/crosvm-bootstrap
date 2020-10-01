@@ -25,6 +25,7 @@ else
     fi
     update-grub  
     echo "Please reboot your system for the changes to take effect."
+    exit 0
   else
     echo "The system cannot support GPU Passthrough without enabling IOMMU support."
     exit 1

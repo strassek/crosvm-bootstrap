@@ -93,7 +93,11 @@ if [ $COMPONENT_TARGET == "--container-image" ] || [ $COMPONENT_TARGET == "--reb
   if [[ "$(docker images -q intel_host 2> /dev/null)" != "" ]]; then
     docker rmi -f intel_host:latest
   fi
-
+  
+  if mount | grep intel_host > /dev/null; then
+    umount -l intel_host
+  fi
+  rm -rf intel_host
   mkdir intel_host
   mount rootfs_host.ext4 intel_host
   tar -C intel_host -c . | sudo docker import - intel_host
