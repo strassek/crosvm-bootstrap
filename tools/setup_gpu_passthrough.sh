@@ -109,7 +109,6 @@ for g in /sys/kernel/iommu_groups/*; do
     
     for d in $g/devices/*; do
       if [ -e /sys/bus/pci/drivers/vfio-pci ]; then
-        echo -e "Hiding \t$(lspci -nns ${d##*/})"
         local serial_no=$(lspci -nns ${d##*/} | perl -anE '$F[0] =~ /^[0-9a-f:.]+$/i && say $F[0]')
         local vfio_id=$(lspci -nns ${d##*/} | perl -anE '$F[0] =~ /^[0-9a-f:.]+$/i && say $F[8]')
         vfio_id=${vfio_id#?};
@@ -122,6 +121,10 @@ for g in /sys/kernel/iommu_groups/*; do
   
         echo "current_driver" $current_driver
         local pci_id=$(get_device_id ${serial_no})
+        if [ -z $pci_id ]; then
+          continue;
+          
+        echo -e "Hiding \t$(lspci -nns ${d##*/})"
         echo "$vfio_id" "$pci_id" > /sys/bus/pci/drivers/vfio-pci/new_id
         echo "$serial_no" > /sys/bus/pci/devices/"$serial_no"/driver/unbind
         echo "$serial_no" > /sys/bus/pci/drivers/vfio-pci/bind
@@ -155,6 +158,9 @@ for g in /sys/kernel/iommu_groups/*; do
         vfio_id=${vfio_id#?};
         vfio_id=$(echo $vfio_id | cut -f1 -d":")
         local pci_id=$(get_device_id ${serial_no})
+        if [ -z $pci_id ]; then
+          continue;
+          
         echo "$serial_no" > /sys/bus/pci/drivers/vfio-pci/unbind
         # FIXME: HOW DO we bind all the drivers correctly ? echo "$pci_id" > /sys/bus/pci/devices/"$serial_no"/driver/bind
       fi
@@ -180,6 +186,9 @@ for g in $CACHE; do
     echo "Skipping device with PCI ID: $PCI_ID" $vendor
     continue;
   fi
+  
+  if [ -z $PCI_ID ]; then
+    continue;
 
   local read_link=$(readlink /sys/bus/pci/devices/"${g}"/driver)
   echo "read_link" $read_link "${g}"
@@ -213,6 +222,9 @@ for g in $CACHE; do
     echo "Skipping device with PCI ID: $PCI_ID" $vendor
     continue;
   fi
+  
+  if [ -z $PCI_ID ]; then
+    continue;
   
   DEVICE_NO=$((DEVICE_NO+1))
   echo "$DEVICE_NO) PCI ID: $PCI_ID Device Type: $DEVICE_TYPE Vendor: $vendor Used by Host: $is_busy"
