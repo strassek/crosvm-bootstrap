@@ -73,7 +73,7 @@ exec docker run -it --rm --privileged \
     --mount type=bind,source=$BASE_DIRECTORY/images,target=/images \
     --mount type=bind,source=$BASE_DIRECTORY/scripts,target=/scripts \
     intel-vm-launch:latest \
-    $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $LOCAL_KERNEL_CMD_OPTIONS run
+    $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $LOCAL_KERNEL_CMD_OPTIONS
 
 docker rmi -f intel-vm-launch:latest
 else
@@ -93,8 +93,9 @@ if [ $ACTION == "--stop" ]; then
       -v /$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/tmp/$WAYLAND_DISPLAY:rw \
       --mount type=bind,source=$BASE_DIRECTORY/images,target=/images \
       --mount type=bind,source=$BASE_DIRECTORY/scripts,target=/scripts \
+      --device /dev/vfio:/dev/vfio \
       intel-vm-stop:latest \
-      $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $LOCAL_KERNEL_CMD_OPTIONS stop
+      $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $LOCAL_KERNEL_CMD_OPTIONS
 
   docker rmi -f intel-vm-stop:latest
 fi
