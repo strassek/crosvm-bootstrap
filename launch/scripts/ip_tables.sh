@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # exit on any script line that fails
-#set -o errexit
+set -o errexit
 # bail on any unitialized variable reads
 set -o nounset
 # bail on failing commands before last pipe
@@ -26,13 +26,12 @@ fi
 
 HOST=$1
 GUEST=$2
-EXISTING=`iptables -S | grep "\-i $GUEST \-o $HOST"`
+EXISTING=`iptables -S | grep "\-i $GUEST \-o $HOST"` || true
 if [[ ( $? == 0 && $FORCE != 1 ) ]]; then
   echo "Looks like your rules are already set up... aborting to be safe."
   echo "Rerun with --force to proceed anyway."
   exit 0
 fi
-set -o errexit
 
 iptables -t nat -A POSTROUTING -o $HOST -j MASQUERADE
 iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
