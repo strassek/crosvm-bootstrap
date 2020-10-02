@@ -33,6 +33,10 @@ if [ $BUILD_TARGET == "--debug" ]; then
 LOCAL_BUILD_TARGET=debug
 fi
 
+export LANGUAGE=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
 # Set Working Build directory based on the channel.
 WORKING_DIR=/build/$LOCAL_CHANNEL/x11
 

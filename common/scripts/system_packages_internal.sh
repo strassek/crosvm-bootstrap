@@ -22,6 +22,18 @@ apt-mark hold *gl*
 apt-mark hold *drm*
 apt-mark hold *gbm*
 
+echo "Setting up locales"
+export LANGUAGE=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+apt install -y locales
+echo "LC_ALL=en_US.UTF-8" >> /etc/environment
+echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+echo "LANG=en_US.UTF-8" > /etc/locale.conf
+locale-gen en_US.UTF-8
+update-locale LANG=en_US.UTF-8
+dpkg-reconfigure --frontend noninteractive locales
+
 echo "Checking if 32 bit and 64 bit architecture is supported1 ..."
 apt update -y --no-install-recommends --no-install-suggests
 apt upgrade -y --no-install-recommends --no-install-suggests
@@ -117,7 +129,6 @@ install_package libxml2-utils
 install_package libtool-bin
 install_package libxml2-dev
 install_package libc6-dev
-install_package locales
 
 echo "Installing needed i386 system packages..."
 install_package_i386 libunwind-dev
