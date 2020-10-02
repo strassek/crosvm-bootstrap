@@ -17,7 +17,7 @@ mkdir -p $PWD_DIR/source
 cd $PWD_DIR/source
 mkdir -p $PWD_DIR/source/env
 # Repo initialization and cloning all needed Libraries.
-if [ ! -f "/usr/bin/python" ]; then
+if [ ! -f "$PWD_DIR/source/env/python" ]; then
 ln -s /usr/bin/python3 $PWD_DIR/source/env/python
 fi
 
