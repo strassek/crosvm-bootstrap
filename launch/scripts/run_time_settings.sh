@@ -33,3 +33,7 @@ fi
 if [ $CHANNEL == "dev" ] && [ $BUILD_TARGET == "debug" ]; then
   cp /config/dev_debug.env /home/$UNAME/.bash_env_settings
 fi
+
+echo "export LANGUAGE=en_US.UTF-8" >> /home/$UNAME/.bash_env_settings
+echo "export LANG=en_US.UTF-8" >> /home/$UNAME/.bash_env_settings
+echo "export LC_ALL=en_US.UTF-8" > /home/$UNAME/.bash_env_settings
