@@ -127,7 +127,7 @@ for g in /sys/kernel/iommu_groups/*; do
           
         echo -e "Hiding \t$(lspci -nns ${d##*/})"
         echo "$vfio_id" "$pci_id" > /sys/bus/pci/drivers/vfio-pci/new_id
-        echo "$serial_no" > /sys/bus/pci/devices/"$serial_no"/driver/unbind
+        echo "vfio-pci" > /sys/bus/pci/devices/"$serial_no"/driver_override
         echo "$serial_no" > /sys/bus/pci/drivers/vfio-pci/bind
       fi
     done
@@ -163,8 +163,9 @@ for g in /sys/kernel/iommu_groups/*; do
           continue;
         fi
           
-        echo "$serial_no" > /sys/bus/pci/drivers/vfio-pci/unbind
-        # FIXME: HOW DO we bind all the drivers correctly ? echo "$pci_id" > /sys/bus/pci/devices/"$serial_no"/driver/bind
+        echo "$serial_no" >> /sys/bus/pci/drivers/vfio-pci/unbind
+        echo "$vfio_id" "$pci_id" >> /sys/bus/pci/drivers/vfio-pci/remove_id
+        echo > /sys/bus/pci/devices/"$serial_no"/driver_override
       fi
     done
   fi
