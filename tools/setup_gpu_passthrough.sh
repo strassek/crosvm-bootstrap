@@ -258,7 +258,6 @@ for g in $CACHE; do
     PCI_ID=$(get_device_id ${g})
     DEVICE_TYPE=$(is_discrete $PCI_ID)
     is_busy=$(is_bound ${g})
-    load_vifio_modules
     IOMMU_GROUP=$(find_iommu_group ${g})
     bind_iommu_group $IOMMU_GROUP
   fi
@@ -270,3 +269,4 @@ unbind_virtio_devices
 else 
 bind_vifio_devices
 fi
+

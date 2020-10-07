@@ -21,7 +21,7 @@ LOCAL_CHANNEL=stable
 pwd="${PWD}"
 
 if [ $TARGET == "--release" ]; then
-  LOCAL_KERNEL_CMD_OPTIONS="intel_iommu=on"
+  LOCAL_KERNEL_CMD_OPTIONS="intel_iommu=on drm.debug=255 debug loglevel=8 initcall_debug"
 else
   LOCAL_KERNEL_CMD_OPTIONS="intel_iommu=on drm.debug=255 debug loglevel=8 initcall_debug"
   LOCAL_BUILD_TARGET=debug
@@ -50,6 +50,7 @@ fi
 
 mkdir -p $BASE_DIRECTORY/scripts/exec/
 cp launch/scripts/*.sh $BASE_DIRECTORY/scripts/exec/
+cp tools/*.sh $BASE_DIRECTORY/scripts/exec/
 
 if [ $ACTION == "--run" ]; then
 
