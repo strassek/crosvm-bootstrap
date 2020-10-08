@@ -1,12 +1,7 @@
 #! /bin/bash
-# exit on any script line that fails
-set -o errexit
-# bail on any unitialized variable reads
-set -o nounset
-# bail on failing commands before last pipe
-set -o pipefail
 
 BIND_DEVICE=${1}
+OPTION=${2}
 
 CACHE=$(lspci -v | perl -anE '/VGA/i && $F[0] =~ /^[0-9a-f:.]+$/i && say $F[0]')
 
@@ -37,12 +32,6 @@ then
 else
   echo false
 fi
-}
-
-load_vifio_modules() {
-modprobe vfio
-modprobe vfio_iommu_type1
-modprobe vfio_pci
 }
 
 find_iommu_group() {
@@ -89,22 +78,11 @@ for g in /sys/kernel/iommu_groups/*; do
     fi
     
     if [ $total_devices != 1 ]; then
-      echo "The following devices share the same IOMMU group and need to be passed through to VM."
+      echo "The following devices share the same IOMMU group and will be passed through to VM."
       for d in $g/devices/*; do
         echo -e "\t$(lspci -nns ${d##*/})"
         total_devices=$((total_devices+1))
       done;
-      echo "Press Y followed by [ENTER] to bind these devices to VM:"
-      read option
-      if [ "$option" == "N" ] || [ "$option" == "n" ]; then
-        echo "GPU Pass through cannot be enabled without re-binding all these devices to VM. Please re-run the setup to enable GPU Pass through support."
-        exit 0
-      else
-        if [ "$option" != "Y" ] && [ "$option" != "y" ]; then
-          echo "Invalid choice. Quitting..."
-          exit 0
-        fi
-      fi
     fi
     
     for d in $g/devices/*; do
@@ -129,8 +107,10 @@ for g in /sys/kernel/iommu_groups/*; do
         echo "$vfio_id" "$pci_id" > /sys/bus/pci/drivers/vfio-pci/new_id
         echo "vfio-pci" > /sys/bus/pci/devices/"$serial_no"/driver_override
         echo "$serial_no" > /sys/bus/pci/drivers/vfio-pci/bind
+        break;
       fi
     done
+    break;
   fi
 done
 }
@@ -151,7 +131,7 @@ for g in /sys/kernel/iommu_groups/*; do
         local serial_no=$(lspci -nns ${d##*/} | perl -anE '$F[0] =~ /^[0-9a-f:.]+$/i && say $F[0]')
         local read_link=$(readlink /sys/bus/pci/devices/"$serial_no"/driver)
         local current_driver=$(basename $read_link)
-        if [ $current_driver != "vfio-pci" ]; then
+        if [[ $current_driver != "vfio-pci" ]]; then
           continue;
         fi
         
@@ -172,77 +152,12 @@ for g in /sys/kernel/iommu_groups/*; do
 done
 }
 
-unload_vifio_modules() {
-modprobe -r vfio_pci
-modprobe -r vfio_iommu_type1
-modprobe -r vfio
-}
-
 unbind_virtio_devices() {
-local virtio_device_available=0
-for g in $CACHE; do
-  PCI_ID=$(get_device_id ${g})
-  DEVICE_TYPE=$(is_discrete $PCI_ID)
-  is_busy=$(is_bound ${g})
-  vendor=$(get_vendor ${g})
-  if [ $vendor != "Intel" ]; then
-    echo "Skipping device with PCI ID: $PCI_ID" $vendor
-    continue;
-  fi
-  
-  if [ -z $PCI_ID ]; then
-    continue;
-  fi
-
-  local read_link=$(readlink /sys/bus/pci/devices/"${g}"/driver)
-  echo "read_link" $read_link "${g}"
-  local current_driver=$(basename $read_link)
-  if [[ $current_driver == "vfio-pci" ]]; then
-    virtio_device_available=$((virtio_device_available+1))
-    echo "$virtio_device_available) PCI ID: $PCI_ID Device Type: $DEVICE_TYPE Vendor: $vendor"
-    echo "The following devices have been assigned to VM and will be detached from VM now."
-    echo "Press Y followed by [ENTER] to make these devices available for rest of the system:"
-    read option
-    if [ "$option" != "Y" ] && [ "$option" != "y" ]; then
-      echo "Skipping this device..."
-      continue
-    fi
-  
-    IOMMU_GROUP=$(find_iommu_group ${g})
-    unbind_iommu_group $IOMMU_GROUP
-  fi
-done
+IOMMU_GROUP=$(find_iommu_group $OPTION)
+unbind_iommu_group $IOMMU_GROUP
 }
 
 bind_vifio_devices() {
-local DEVICE_NO=0
-echo "Supported devices on the platform:"
-for g in $CACHE; do
-  PCI_ID=$(get_device_id ${g})
-  DEVICE_TYPE=$(is_discrete $PCI_ID)
-  is_busy=$(is_bound ${g})
-  vendor=$(get_vendor ${g})
-  if [ $vendor != "Intel" ]; then
-    echo "Skipping device with PCI ID: $PCI_ID" $vendor
-    continue;
-  fi
-  
-  if [ -z $PCI_ID ]; then
-    continue;
-  fi
-  
-  DEVICE_NO=$((DEVICE_NO+1))
-  echo "$DEVICE_NO) PCI ID: $PCI_ID Device Type: $DEVICE_TYPE Vendor: $vendor Used by Host: $is_busy"
-done;
-
-if [ $DEVICE_NO == 0 ] || [ $DEVICE_NO == 1 ]; then
-  echo "$DEVICE_NO GPU Device are available on the system. Minimum two GPU's are needed to support GPU Pass through for VM."
-  exit 0
-fi
-
-echo "Please choose the device to be used by CrosVM:"
-echo "Choose between [1-$DEVICE_NO] followed by [ENTER] to enable this option:"
-read option
 TEMP_DEVICE_NO=0
 for g in $CACHE; do
   vendor=$(get_vendor ${g})
@@ -251,15 +166,17 @@ for g in $CACHE; do
   fi
   TEMP_DEVICE_NO=$((TEMP_DEVICE_NO+1))
   
-  if [ $TEMP_DEVICE_NO != $option ]; then
+  if [ $TEMP_DEVICE_NO != $OPTION ]; then
     continue;
   else
-    echo "Chosen option:" $option
     PCI_ID=$(get_device_id ${g})
     DEVICE_TYPE=$(is_discrete $PCI_ID)
     is_busy=$(is_bound ${g})
     IOMMU_GROUP=$(find_iommu_group ${g})
     bind_iommu_group $IOMMU_GROUP
+    SERIALNO=$(lspci -nns ${d##*/} | perl -anE '$F[0] =~ /^[0-9a-f:.]+$/i && say $F[0]')
+    echo $SERIALNO
+    break;
   fi
 done
 }
@@ -267,6 +184,6 @@ done
 if [ $BIND_DEVICE == "unbind" ]; then
 unbind_virtio_devices
 else 
-bind_vifio_devices
+bind_vifio_devices 
 fi
 
