@@ -63,27 +63,27 @@ fi
 cleanup_build_env() {
 if [ -e $LOCAL_ROOTFS_HOST_MOUNT_DIR ]; then
   if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/build > /dev/null; then
-    umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR/build
+    sudo umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR/build
   fi
 
   if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/log/host > /dev/null; then
-    umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR/log/host
+    sudo umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR/log/host
   fi
 
   if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR > /dev/null; then
-    umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR
+    sudo umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR
   fi
 
   if mount | grep $$LOCAL_ROOTFS_HOST_MOUNT_DIR/proc > /dev/null; then
-    umount -l $$LOCAL_ROOTFS_MOUNT_DIR/proc
+    sudo umount -l $$LOCAL_ROOTFS_MOUNT_DIR/proc
   fi
 
   if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/shm > /dev/null; then
-    umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
+    sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
   fi
 
   if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/pt > /dev/null; then
-    umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/pt
+    sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/pt
   fi
 
   rm -rf $LOCAL_ROOTFS_HOST_MOUNT_DIR
@@ -113,30 +113,30 @@ if [ ! -e $LOCAL_ROOTFS_HOST.ext4 ]; then
 fi
 
 mkdir -p $LOCAL_ROOTFS_HOST_MOUNT_DIR
-mount $LOCAL_ROOTFS_HOST.ext4 $LOCAL_ROOTFS_HOST_MOUNT_DIR/
+sudo mount $LOCAL_ROOTFS_HOST.ext4 $LOCAL_ROOTFS_HOST_MOUNT_DIR/
 
 if [ ! -e $LOCAL_ROOTFS_HOST_MOUNT_DIR/scripts/host ]; then
-  rm -rf $LOCAL_ROOTFS_HOST_MOUNT_DIR/scripts/host
+  sudo rm -rf $LOCAL_ROOTFS_HOST_MOUNT_DIR/scripts/host
 fi
 
 if [ ! -e $LOCAL_ROOTFS_HOST_MOUNT_DIR/log/host ]; then
-  rm -rf $LOCAL_ROOTFS_HOST_MOUNT_DIR/log/host
+  sudo rm -rf $LOCAL_ROOTFS_HOST_MOUNT_DIR/log/host
 fi
 
-mkdir -p $LOCAL_ROOTFS_HOST_MOUNT_DIR/build
-mkdir -p $LOCAL_ROOTFS_HOST_MOUNT_DIR/scripts/host
-mkdir -p $LOCAL_ROOTFS_HOST_MOUNT_DIR/log/host
+sudo mkdir -p $LOCAL_ROOTFS_HOST_MOUNT_DIR/build
+sudo mkdir -p $LOCAL_ROOTFS_HOST_MOUNT_DIR/scripts/host
+sudo mkdir -p $LOCAL_ROOTFS_HOST_MOUNT_DIR/log/host
 
-mkdir -p $LOCAL_ROOTFS_HOST_MOUNT_DIR/proc
-mkdir -p $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/shm
-mkdir -p $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/pts
-mount -t proc /proc $LOCAL_ROOTFS_HOST_MOUNT_DIR/proc
-mount -o bind /dev/shm $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/shm
-mount -o bind /dev/pts $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/pts
+sudo mkdir -p $LOCAL_ROOTFS_HOST_MOUNT_DIR/proc
+sudo mkdir -p $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/shm
+sudo mkdir -p $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/pts
+sudo mount -t proc /proc $LOCAL_ROOTFS_HOST_MOUNT_DIR/proc
+sudo mount -o bind /dev/shm $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/shm
+sudo mount -o bind /dev/pts $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/pts
 
-mount --rbind $SOURCE_PWD $LOCAL_ROOTFS_HOST_MOUNT_DIR/build
-mount --rbind $BASE_PWD/build/log/host $LOCAL_ROOTFS_HOST_MOUNT_DIR/log/host
-cp $LOCAL_PWD/scripts/host/*.sh $LOCAL_ROOTFS_HOST_MOUNT_DIR/scripts/host/
+sudo mount --rbind $SOURCE_PWD $LOCAL_ROOTFS_HOST_MOUNT_DIR/build
+sudo mount --rbind $BASE_PWD/build/log/host $LOCAL_ROOTFS_HOST_MOUNT_DIR/log/host
+sudo cp $LOCAL_PWD/scripts/host/*.sh $LOCAL_ROOTFS_HOST_MOUNT_DIR/scripts/host/
 }
 
 # Handle base builds
@@ -150,7 +150,7 @@ generate_host_rootfs
 setup_build_env
 
 echo "Building host."
-if chroot $LOCAL_ROOTFS_HOST_MOUNT_DIR/ /bin/bash /scripts/host/main.sh $LOCAL_BUILD_TYPE --all $BUILD_CHANNEL $BUILD_TARGET; then
+if sudo chroot $LOCAL_ROOTFS_HOST_MOUNT_DIR/ /bin/bash /scripts/host/main.sh $LOCAL_BUILD_TYPE --all $BUILD_CHANNEL $BUILD_TARGET; then
   echo "Built------------"
 else
   exit 1

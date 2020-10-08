@@ -48,30 +48,30 @@ function exit_handler ()
   if [ $MOUNT_DIR != "--none" ]; then
     if [ -e $LOCAL_ROOTFS_MOUNT_DIR ]; then
       if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/build > /dev/null; then
-        umount -l $LOCAL_ROOTFS_MOUNT_DIR/build
+        sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/build
       fi
 
       if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/log/common > /dev/null; then
-        umount -l $LOCAL_ROOTFS_MOUNT_DIR/log/common
+        sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/log/common
       fi
 
       if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/proc > /dev/null; then
         echo "unmounting" $LOCAL_ROOTFS_MOUNT_DIR/proc
-        umount -l $LOCAL_ROOTFS_MOUNT_DIR/proc
+        sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/proc
       fi
 
       if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/dev/shm > /dev/null; then
         echo "unmounting" $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
-        umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
+        sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
       fi
 
       if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/dev/pts > /dev/null; then
         echo "unmounting" $LOCAL_ROOTFS_MOUNT_DIR/dev/pts
-        umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/pts
+        sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/pts
       fi
 
       if mount | grep $LOCAL_ROOTFS_MOUNT_DIR > /dev/null; then
-        umount -l $LOCAL_ROOTFS_MOUNT_DIR
+        sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR
       fi
 
       rm -rf $LOCAL_ROOTFS_MOUNT_DIR
@@ -79,15 +79,15 @@ function exit_handler ()
 
     if [ -e $LOCAL_ROOTFS_COMMON_MOUNT_DIR ]; then
       if mount | grep $LOCAL_ROOTFS_COMMON_MOUNT_DIR/build > /dev/null; then
-        umount -l $LOCAL_ROOTFS_COMMON_MOUNT_DIR/build
+        sudo umount -l $LOCAL_ROOTFS_COMMON_MOUNT_DIR/build
       fi
 
       if mount | grep $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common > /dev/null; then
-        umount -l $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common
+        sudo umount -l $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common
       fi
 
       if mount | grep $LOCAL_ROOTFS_COMMON_MOUNT_DIR > /dev/null; then
-        umount -l $LOCAL_ROOTFS_COMMON_MOUNT_DIR
+        sudo umount -l $LOCAL_ROOTFS_COMMON_MOUNT_DIR
       fi
 
       rm -rf $LOCAL_ROOTFS_COMMON_MOUNT_DIR

@@ -55,18 +55,18 @@ fi
 echo "Preparing rootfs image for guest..."
 cp -rf $LOCAL_ROOTFS_COMMON.ext4 $LOCAL_ROOTFS_GUEST.ext4
 mkdir -p $LOCAL_ROOTFS_GUEST_MOUNT_DIR
-mount $LOCAL_ROOTFS_GUEST.ext4 $LOCAL_ROOTFS_GUEST_MOUNT_DIR/
+sudo mount $LOCAL_ROOTFS_GUEST.ext4 $LOCAL_ROOTFS_GUEST_MOUNT_DIR/
 
-mkdir -p $LOCAL_ROOTFS_GUEST_MOUNT_DIR/scripts/guest/
-cp $LOCAL_PWD/scripts/guest/*.sh $LOCAL_ROOTFS_GUEST_MOUNT_DIR/scripts/guest/
+sudo mkdir -p $LOCAL_ROOTFS_GUEST_MOUNT_DIR/scripts/guest/
+sudo cp $LOCAL_PWD/scripts/guest/*.sh $LOCAL_ROOTFS_GUEST_MOUNT_DIR/scripts/guest/
 
-cp -rvf $LOCAL_PWD/config/default-config/guest/* $LOCAL_ROOTFS_GUEST_MOUNT_DIR/
+sudo cp -rvf $LOCAL_PWD/config/default-config/guest/* $LOCAL_ROOTFS_GUEST_MOUNT_DIR/
 
 echo "enabling needed services"
-chroot $LOCAL_ROOTFS_GUEST_MOUNT_DIR/ /bin/bash /scripts/guest/services_internal.sh
+sudo chroot $LOCAL_ROOTFS_GUEST_MOUNT_DIR/ /bin/bash /scripts/guest/services_internal.sh
 
 echo "Rootfs image for guest is ready. Preparing to compile guest packages..."
-umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR
+sudo umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR
 if [ ! -e $LOCAL_ROOTFS_GUEST.lock ]; then
   echo "rootfs generated" > $LOCAL_ROOTFS_GUEST.lock
 fi
@@ -75,15 +75,15 @@ fi
 cleanup_build_env() {
 if [ -e $LOCAL_ROOTFS_GUEST_MOUNT_DIR ]; then
   if mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR/build > /dev/null; then
-    umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR/build
+    sudo umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR/build
   fi
 
   if mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR/log/guest > /dev/null; then
-    umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR/log/guest
+    sudo umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR/log/guest
   fi
 
   if mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR > /dev/null; then
-    umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR
+    sudo umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR
   fi
 
   rm -rf $LOCAL_ROOTFS_GUEST_MOUNT_DIR
@@ -113,22 +113,22 @@ if [ ! -e $LOCAL_ROOTFS_GUEST.ext4 ]; then
 fi
 
 mkdir -p $LOCAL_ROOTFS_GUEST_MOUNT_DIR
-mount $LOCAL_ROOTFS_GUEST.ext4 $LOCAL_ROOTFS_GUEST_MOUNT_DIR/
+sudo mount $LOCAL_ROOTFS_GUEST.ext4 $LOCAL_ROOTFS_GUEST_MOUNT_DIR/
 
 if [ ! -e $LOCAL_ROOTFS_GUEST_MOUNT_DIR/scripts/guest ]; then
-  rm -rf $LOCAL_ROOTFS_GUEST_MOUNT_DIR/scripts/guest
+  sudo rm -rf $LOCAL_ROOTFS_GUEST_MOUNT_DIR/scripts/guest
 fi
 
 if [ ! -e $LOCAL_ROOTFS_GUEST_MOUNT_DIR/log/guest ]; then
-  rm -rf $LOCAL_ROOTFS_GUEST_MOUNT_DIR/log/guest
+  sudo rm -rf $LOCAL_ROOTFS_GUEST_MOUNT_DIR/log/guest
 fi
 
-mkdir -p $LOCAL_ROOTFS_GUEST_MOUNT_DIR/build
-mkdir -p $LOCAL_ROOTFS_GUEST_MOUNT_DIR/scripts/guest
-mkdir -p $LOCAL_ROOTFS_GUEST_MOUNT_DIR/log/guest
-mount --rbind $SOURCE_PWD $LOCAL_ROOTFS_GUEST_MOUNT_DIR/build
-mount --rbind $BASE_PWD/build/log/guest $LOCAL_ROOTFS_GUEST_MOUNT_DIR/log/guest
-cp $LOCAL_PWD/scripts/guest/*.sh $LOCAL_ROOTFS_GUEST_MOUNT_DIR/scripts/guest/
+sudo mkdir -p $LOCAL_ROOTFS_GUEST_MOUNT_DIR/build
+sudo mkdir -p $LOCAL_ROOTFS_GUEST_MOUNT_DIR/scripts/guest
+sudo mkdir -p $LOCAL_ROOTFS_GUEST_MOUNT_DIR/log/guest
+sudo mount --rbind $SOURCE_PWD $LOCAL_ROOTFS_GUEST_MOUNT_DIR/build
+sudo mount --rbind $BASE_PWD/build/log/guest $LOCAL_ROOTFS_GUEST_MOUNT_DIR/log/guest
+sudo cp $LOCAL_PWD/scripts/guest/*.sh $LOCAL_ROOTFS_GUEST_MOUNT_DIR/scripts/guest/
 }
 
 # Handle base builds
@@ -142,7 +142,7 @@ generate_guest_rootfs
 setup_build_env
 
 echo "Building guest."
-if chroot $LOCAL_ROOTFS_GUEST_MOUNT_DIR/ /bin/bash /scripts/guest/main.sh $LOCAL_BUILD_TYPE --all $BUILD_CHANNEL $BUILD_TARGET; then
+if sudo chroot $LOCAL_ROOTFS_GUEST_MOUNT_DIR/ /bin/bash /scripts/guest/main.sh $LOCAL_BUILD_TYPE --all $BUILD_CHANNEL $BUILD_TARGET; then
   echo "Built all packages needed for guest."
 else
   exit 1

@@ -64,15 +64,15 @@ fi
 cleanup_build_env() {
 if [ -e $LOCAL_ROOTFS_COMMON_MOUNT_DIR ]; then
   if mount | grep $LOCAL_ROOTFS_COMMON_MOUNT_DIR/build > /dev/null; then
-    umount -l $LOCAL_ROOTFS_COMMON_MOUNT_DIR/build
+    sudo umount -l $LOCAL_ROOTFS_COMMON_MOUNT_DIR/build
   fi
 
   if mount | grep $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common > /dev/null; then
-    umount -l $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common
+    sudo umount -l $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common
   fi
 
   if mount | grep $LOCAL_ROOTFS_COMMON_MOUNT_DIR > /dev/null; then
-    umount -l $LOCAL_ROOTFS_COMMON_MOUNT_DIR
+    sudo umount -l $LOCAL_ROOTFS_COMMON_MOUNT_DIR
   fi
 
   rm -rf $LOCAL_ROOTFS_COMMON_MOUNT_DIR
@@ -103,29 +103,29 @@ if [ ! -e $LOCAL_ROOTFS_COMMON.ext4 ]; then
 fi
 
 mkdir -p $LOCAL_ROOTFS_COMMON_MOUNT_DIR
-mount $LOCAL_ROOTFS_COMMON.ext4 $LOCAL_ROOTFS_COMMON_MOUNT_DIR/
+sudo mount $LOCAL_ROOTFS_COMMON.ext4 $LOCAL_ROOTFS_COMMON_MOUNT_DIR/
 
 if [ -e $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common ]; then
-  rm -rf $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common
+  sudo rm -rf $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common
 fi
 
 if [ -e $LOCAL_ROOTFS_COMMON_MOUNT_DIR/scripts/common ]; then
-  rm -rf $LOCAL_ROOTFS_COMMON_MOUNT_DIR/scripts/common
+  sudo rm -rf $LOCAL_ROOTFS_COMMON_MOUNT_DIR/scripts/common
 fi
 
-mkdir -p $LOCAL_ROOTFS_COMMON_MOUNT_DIR/scripts/common
-cp -v $LOCAL_PWD/scripts/common/*.sh $LOCAL_ROOTFS_COMMON_MOUNT_DIR/scripts/common/
+sudo mkdir -p $LOCAL_ROOTFS_COMMON_MOUNT_DIR/scripts/common
+sudo cp -v $LOCAL_PWD/scripts/common/*.sh $LOCAL_ROOTFS_COMMON_MOUNT_DIR/scripts/common/
 
-mkdir -p $LOCAL_ROOTFS_COMMON_MOUNT_DIR/build
-mkdir -p $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common
-mount --rbind $SOURCE_PWD $LOCAL_ROOTFS_COMMON_MOUNT_DIR/build
-mount --rbind $BASE_PWD/build/log/common $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common
+sudo mkdir -p $LOCAL_ROOTFS_COMMON_MOUNT_DIR/build
+sudo mkdir -p $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common
+sudo mount --rbind $SOURCE_PWD $LOCAL_ROOTFS_COMMON_MOUNT_DIR/build
+sudo mount --rbind $BASE_PWD/build/log/common $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common
 }
 
 building_component() {
 component="${1}"
 ls -a $LOCAL_ROOTFS_COMMON_MOUNT_DIR/scripts/common/
-if chroot $LOCAL_ROOTFS_COMMON_MOUNT_DIR/ /bin/bash /scripts/common/main.sh $LOCAL_BUILD_TYPE $component $BUILD_CHANNEL $BUILD_TARGET; then
+if sudo chroot $LOCAL_ROOTFS_COMMON_MOUNT_DIR/ /bin/bash /scripts/common/main.sh $LOCAL_BUILD_TYPE $component $BUILD_CHANNEL $BUILD_TARGET; then
   echo "Built------------" $component
 else
   exit 1
