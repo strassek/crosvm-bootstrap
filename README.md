@@ -6,7 +6,7 @@ A collection of scripts and dockerfiles to generate Docker images meant to host
 ## Quickstart
 1. Run ./tools/install_system_dependencies.sh to install all system dependencies.
 1. Run ./sync_code.sh to fetch the code.
-1. Run `./build.sh` to kick off the build of the container and generate
+1. Run `./build.sh --rebuild-all` to kick off the build of the container and generate
 a rootfs image using the default settings.
 2. Run ./launcher.sh to launch the vm.
 
