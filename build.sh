@@ -19,6 +19,10 @@ BUILD_TARGET=${5:-"--release"} # Possible values: --release, --debug, --all
 
 BASE_DIR=$PWD
 
+if [ $COMPONENT_TARGET == "--rebuild-all" ] ; then
+  rm -rf build/
+fi
+
 if [ $COMPONENT_TARGET == "--rootfs" ] || [ $COMPONENT_TARGET == "--rebuild-all" ] ; then
   # Create Base image. This will be used for Host and cloning source code.
   if bash common/common_internal.sh $BASE_DIR $COMPONENT_TARGET $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET --true; then

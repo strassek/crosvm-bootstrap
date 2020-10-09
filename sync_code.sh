@@ -10,7 +10,8 @@ set -o nounset
 # bail on failing commands before last pipe
 set -o pipefail
 
-CHANNEL=${1:-"--stable"}
+FORCE=${1:-""}
+CHANNEL=${2:-"--stable"}
 
 PWD_DIR=$PWD
 mkdir -p $PWD_DIR/source
@@ -34,13 +35,18 @@ fi
 
 cd depot_tools/
 export PATH=$PWD:$PATH
+LOCAL_SYNC_PARAM=""
+
+if [[ "$FORCE" == "--force" ]]; then
+  LOCAL_SYNC_PARAM='--force-sync'
+fi
 
 if [ $CHANNEL == "--stable" ] || [ $CHANNEL == "--all" ]; then
   cd $PWD_DIR/source
   mkdir -p stable
   cd stable
   repo init -u  https://github.com/kalyankondapally/manifest.git -m dev.xml
-  repo sync
+  repo sync $LOCAL_SYNC_PARAM
 fi
 
 if [ $CHANNEL == "--dev" ] || [ $CHANNEL == "--all" ]; then
@@ -48,5 +54,5 @@ if [ $CHANNEL == "--dev" ] || [ $CHANNEL == "--all" ]; then
   mkdir -p dev
   cd dev
   repo init -u  https://github.com/kalyankondapally/manifest.git -m dev.xml
-  repo sync
+  repo sync $LOCAL_SYNC_PARAM
 fi
