@@ -32,20 +32,20 @@ if [ $LOCAL_CHANNEL == "--dev" ]; then
 fi
 
 if [ -e $BASE_DIRECTORY/docker/exec/ ]; then
-  rm -rf $BASE_DIRECTORY/docker/exec/
+  sudo rm -rf $BASE_DIRECTORY/docker/exec/
 fi
 
 mkdir -p $BASE_DIRECTORY/docker/exec/
 
 if [ -e $BASE_DIRECTORY/scripts/exec/ ]; then
-  rm -rf $BASE_DIRECTORY/scripts/exec/
+  sudo rm -rf $BASE_DIRECTORY/scripts/exec/
 fi
 
 cp launch/docker/start.dockerfile $BASE_DIRECTORY/docker/exec/Dockerfile-start
 cp launch/docker/stop.dockerfile $BASE_DIRECTORY/docker/exec/Dockerfile-stop
 
 if [ -e $BASE_DIRECTORY/scripts/exec/ ]; then
-  rm -rf $BASE_DIRECTORY/scripts/exec/
+  sudo rm -rf $BASE_DIRECTORY/scripts/exec/
 fi
 
 mkdir -p $BASE_DIRECTORY/scripts/exec/
@@ -54,7 +54,7 @@ cp tools/*.sh $BASE_DIRECTORY/scripts/exec/
 
 if [ $ACTION == "--run" ]; then
 
-if [[ "$(docker images -q intel_host:latest 2> /dev/null)" != "" ]]; then
+if [[ "$(sudo docker images -q intel_host:latest 2> /dev/null)" != "" ]]; then
   echo “Preparing to launch crosvm...”
 else
   echo “Failed to launch crosvm..., exit status: $?”
@@ -62,8 +62,8 @@ else
 fi
 
 cd $BASE_DIRECTORY/docker/exec/
-docker build -t intel-vm-launch:latest -f Dockerfile-start .
-exec docker run -it --rm --privileged \
+sudo docker build -t intel-vm-launch:latest -f Dockerfile-start .
+exec sudo docker run -it --rm --privileged \
     --ipc=host \
     -e DISPLAY=$DISPLAY -e XDG_RUNTIME_DIR=/tmp -e WAYLAND_DISPLAY=$WAYLAND_DISPLAY \
     -v /dev/log:/dev/log \
@@ -76,16 +76,16 @@ exec docker run -it --rm --privileged \
     intel-vm-launch:latest \
     $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $LOCAL_KERNEL_CMD_OPTIONS
 
-docker rmi -f intel-vm-launch:latest
+sudo docker rmi -f intel-vm-launch:latest
 else
 if [ $ACTION == "--stop" ]; then
-  if [[ "$(docker images -q intel-vm-stop 2> /dev/null)" != "" ]]; then
-    docker rmi -f intel-vm-stop:latest
+  if [[ "$(sudo docker images -q intel-vm-stop 2> /dev/null)" != "" ]]; then
+    sudo docker rmi -f intel-vm-stop:latest
   fi
 
   cd $BASE_DIRECTORY/docker/exec/
-  docker build -t intel-vm-stop:latest -f Dockerfile-stop .
-  exec docker run -it --cap-add net_admin \
+  sudo docker build -t intel-vm-stop:latest -f Dockerfile-stop .
+  exec sudo docker run -it --cap-add net_admin \
       --ipc=host \
       -e DISPLAY=$DISPLAY -e XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR -e WAYLAND_DISPLAY=$WAYLAND_DISPLAY \
       -v /dev/log:/dev/log \
@@ -98,6 +98,6 @@ if [ $ACTION == "--stop" ]; then
       intel-vm-stop:latest \
       $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $LOCAL_KERNEL_CMD_OPTIONS
 
-  docker rmi -f intel-vm-stop:latest
+  sudo docker rmi -f intel-vm-stop:latest
 fi
 fi

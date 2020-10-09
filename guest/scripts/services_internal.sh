@@ -37,4 +37,7 @@ mkdir -p /etc/sudoers.d
 
 echo "127.0.1.1  gaming" >> /etc/hosts
 
+ln -s /intel/bin/app-launcher.sh /intel/bin/launch
+ln -s /intel/bin/app-launcher-x.sh /intel/bin/launch-x
+
 echo "Done configuring the needed services and groups..."

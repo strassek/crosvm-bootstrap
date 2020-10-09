@@ -30,16 +30,34 @@ if [[ "$DEBUG" == "--true" ]]; then
   export MESA_DEBUG=1
   export EGL_LOG_LEVEL=debug
   export LIBGL_DEBUG=verbose
-  export WAYLAND_DEBUG=1
 fi
 
 if [[ "$ENABLE_USERPTR" == "--true" ]]; then
   export ENABLE_USERPTR=1
 fi
 
+if [[ "$TARGET" == "steam" ]]; then
+  LD_PRELOAD=$WLD/lib/libdrm.so
+  LD_PRELOAD=$WLD/lib/libdrm_intel.so
+  LD_PRELOAD=$WLD/lib/dri/iris_dri.so
+  LD_PRELOAD=$WLD/lib/x86_64-linux-gnu/libglapi.so
+  LD_PRELOAD=$WLD/lib/x86_64-linux-gnu/libGLESv2.so
+  LD_PRELOAD=$WLD/lib/x86_64-linux-gnu/libGLESv1_CM.so
+  LD_PRELOAD=$WLD/lib/x86_64-linux-gnu/libGL.so
+  LD_PRELOAD=$WLD/lib/x86_64-linux-gnu/libEGL.so
+  LD_PRELOAD=$WLD/lib/x86_64-linux-gnu/libvulkan_intel.so
+  LD_PRELOAD=$WLD/lib/x86_64-linux-gnu/libepoxy.so
+  LD_PRELOAD=$WLD/lib/x86_64-linux-gnu/libgbm.so
+  LD_PRELOAD=$WLD/lib/libxcb-glx.so
+  LD_PRELOAD=$WLD/lib/libxcb-dri3.so
+  LD_PRELOAD=$WLD/lib/libxcb-dri2.so
+  LD_PRELOAD=$WLD/lib/libX11.so
+fi
+
 LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libdrm.so
 LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libdrm_intel.so
 LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/dri/iris_dri.so
+LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libglapi.so
 LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libGLESv2.so
 LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libGLESv1_CM.so
 LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libGL.so
@@ -47,5 +65,9 @@ LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libEGL.so
 LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libvulkan_intel.so
 LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libepoxy.so
 LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libgbm.so
+LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libxcb-glx.so
+LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libxcb-dri3.so
+LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libxcb-dri2.so
+LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libX11.so
 
-sommelier --glamor --drm-device=/dev/dri/renderD128 $1
+sommelier --glamor --drm-device=/dev/dri/renderD128 -X --xwayland-path=$WLD_64/bin/Xwayland --xwayland-gl-driver-path=$WLD_64/lib/x86_64-linux-gnu/dri/ $1

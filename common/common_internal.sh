@@ -86,7 +86,7 @@ if [ -e $LOCAL_ROOTFS_BASE.ext4 ]; then
 fi
 
 echo "Generating rootfs...."
-dd if=/dev/zero of=$LOCAL_ROOTFS_BASE.ext4 bs=5000 count=1M
+dd if=/dev/zero of=$LOCAL_ROOTFS_BASE.ext4 bs=30000 count=1M
 mkfs.ext4 $LOCAL_ROOTFS_BASE.ext4
 mkdir $LOCAL_ROOTFS_MOUNT_DIR/
 
@@ -98,8 +98,6 @@ sudo mount -o bind /dev/pts $LOCAL_ROOTFS_MOUNT_DIR/dev/pts
 
 sudo mkdir -p $LOCAL_ROOTFS_MOUNT_DIR/scripts/common
 sudo cp $LOCAL_PWD/scripts/common/*.sh $LOCAL_ROOTFS_MOUNT_DIR/scripts/common/
-sudo mkdir -p $LOCAL_ROOTFS_MOUNT_DIR/config/
-sudo cp -v $LOCAL_PWD/config/*.env $LOCAL_ROOTFS_MOUNT_DIR/config
 
 echo "Installing needed system packages for host and vm"
 sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/common/system_packages_internal.sh
@@ -115,8 +113,6 @@ if [ $BUILD_TARGET == "--debug" ]; then
   LOCAL_BUILD_TARGET=debug
 fi
 
-echo "Configuring Run time settings"
-sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/common/run_time_settings.sh test $LOCAL_BUILD_CHANNEL $LOCAL_BUILD_TARGET
 echo "Rootfs ready..."
 echo "rootfs generated" > $LOCAL_ROOTFS_BASE.lock
 echo "Cleaningup build env..."

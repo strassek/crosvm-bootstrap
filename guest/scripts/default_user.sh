@@ -27,6 +27,7 @@ usermod -aG sudo,audio,video,input,render,lp $LOCAL_UNAME
 echo "bash_aliases"
 
 echo ". /home/$LOCAL_UNAME/.bash_env_settings" > /home/$LOCAL_UNAME/.bash_aliases
+echo "export PATH=/intel/bin:$PATH" >> /home/$LOCAL_UNAME/.bash_aliases
 chmod 0440 /home/$LOCAL_UNAME/.bash_aliases
 
 chown $uid:$gid -R /home/$LOCAL_UNAME

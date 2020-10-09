@@ -40,8 +40,6 @@ if [ $PARAM_CHECKS_ONLY == "--false" ]; then
 
   mkdir -p $DIRECTORY_PREFIX/scripts/common
   cp -rf common/scripts/*.* $DIRECTORY_PREFIX/scripts/common/
-  cp common/scripts/default_user.sh $DIRECTORY_PREFIX/scripts/common/
-  cp launch/scripts/run_time_settings.sh $DIRECTORY_PREFIX/scripts/common/
 
   if [ -e $DIRECTORY_PREFIX/config ]; then
     rm -rf $DIRECTORY_PREFIX/config
@@ -49,7 +47,6 @@ if [ $PARAM_CHECKS_ONLY == "--false" ]; then
 
   mkdir -p $DIRECTORY_PREFIX/config
   cp -rf default-config $DIRECTORY_PREFIX/config/
-  cp -rf common/config/*.* $DIRECTORY_PREFIX/config/
 fi
 
 if [ $BUILD_CHECK == "--true" ]; then
