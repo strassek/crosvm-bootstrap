@@ -8,7 +8,7 @@ A collection of scripts and dockerfiles to generate Docker images meant to host
 1. Run ./sync_code.sh to fetch the code.
 1. Run `./build.sh --rebuild-all` to kick off the build of the container and generate
 a rootfs image using the default settings.
-2. Run ./launcher.sh to launch the vm.
+2. Run ./launcher.sh $XDG_RUNTIME_DIR $WAYLAND_DISPLAY $DISPLAY to launch the vm.
 
 ## How to customize
 Edit files in `default-config/` to change the default settings for the images 
