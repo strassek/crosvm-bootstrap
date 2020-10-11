@@ -38,6 +38,7 @@ LOCAL_ROOTFS_GUEST_MOUNT_DIR=$MOUNT_DIR/images/rootfs_guest-temp
 function exit_handler ()
 {
   if [ $MOUNT_DIR != "--none" ]; then
+    cd $MOUNT_DIR/images/
     if [ -e $LOCAL_ROOTFS_GUEST_MOUNT_DIR ]; then
       if mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR/build > /dev/null; then
         sudo umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR/build
@@ -55,10 +56,21 @@ function exit_handler ()
         sudo umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR/containers/game_fast
       fi
 
+      if mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR/containers/intel_drivers > /dev/null; then
+        sudo umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR/containers/intel_drivers
+      fi
+
+      if [ -e $LOCAL_ROOTFS_GUEST_MOUNT_DIR/containers ]; then
+        sudo rm -rf $LOCAL_ROOTFS_GUEST_MOUNT_DIR/containers
+      fi
+
+      if mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR > /dev/null; then
+        sudo umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR
+      fi
+
       rm -rf $LOCAL_ROOTFS_GUEST_MOUNT_DIR
     fi
 
-    cd $MOUNT_DIR/images/
     if [ ! -e $LOCAL_ROOTFS_GUEST.lock ] && [ -e $LOCAL_ROOTFS_GUEST.ext4 ]; then
       rm $MOUNT_DIR/images/$LOCAL_ROOTFS_GUEST.ext4
     fi

@@ -111,6 +111,10 @@ fi
 cd $BASE_DIR/
 UPDATE_CONTAINER='--false'
 
+if [[ "$COMPONENT_TARGET" == "--guest" ]]; then
+  UPDATE_CONTAINER='--true'
+fi
+
 if [[ "$COMPONENT_TARGET" == "--game-fast" ]] || [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]]; then
   if [ -e $BASE_DIR/build/scripts/game_fast ]; then
     rm -rf $BASE_DIR/build/scripts/game_fast
@@ -137,7 +141,11 @@ if [[ "$UPDATE_CONTAINER" == "--true" ]] || [[ "$COMPONENT_TARGET" == "--guest" 
   mkdir -p $BASE_DIR/build/scripts/guest
   cp -rf $BASE_DIR/guest/scripts/*.* $BASE_DIR/build/scripts/guest
 
-  if [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]] || [[ ! -e $BASE_DIR/build/images/rootfs_guest.ext4 ]]; then
+  if [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]] || [[ "$BUILD_TYPE" == "--really-clean" ]] || [[ ! -e $BASE_DIR/build/images/rootfs_guest.ext4 ]]; then
+    if [[ -e $BASE_DIR/build/images/rootfs_guest.ext4 ]]; then
+      rm $BASE_DIR/build/images/rootfs_guest.ext4
+    fi
+    
     if bash rootfs/create_rootfs.sh $BASE_DIR 'guest' '--really-clean' '30000'; then
       echo “Built guest with default usersetup.”
     else
