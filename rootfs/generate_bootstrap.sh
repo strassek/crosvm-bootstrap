@@ -14,7 +14,7 @@ DEBIAN_VERSION=${1:-"buster"}
 
 mkdir temp
 cd temp
-../debootstrap --arch=amd64 --make-tarball=rootfs_base.tar --variant=minbase $DEBIAN_VERSION . || true
+../debootstrap --arch=amd64 --make-tarball=rootfs_base.tar $DEBIAN_VERSION . || true
 echo "created bootstrap"
 rm -rf ../rootfs_base.tar || true
 mv rootfs_base.tar ../

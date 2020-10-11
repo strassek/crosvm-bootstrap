@@ -104,7 +104,7 @@ function exit_handler ()
     fi
 
     if [ ! -e $LOCAL_ROOTFS_COMMON.lock ] && [ -e $LOCAL_ROOTFS_COMMON.ext4 ]; then
-      rm $MOUNT_DIR/images/$LOCAL_ROOTFS_COMMON.ext4
+      rm $MOUNT_DIR/containers/$LOCAL_ROOTFS_COMMON.ext4
       echo "destroying rootfs image----- \n";
     fi
   fi

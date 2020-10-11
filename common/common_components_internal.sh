@@ -34,7 +34,7 @@ LOCAL_ROOTFS_COMMON_MOUNT_DIR=rootfs_common-temp
 
 mkdir -p $BASE_PWD/build/log/common
 
-if bash common/scripts/common_checks_internal.sh $LOCAL_PWD $SOURCE_PWD --true --false $COMPONENT_TARGET $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET  $CREATE_BASE_IMAGE_ONLY; then
+if bash common/scripts/common_checks_internal.sh $LOCAL_PWD $SOURCE_PWD $COMPONENT_TARGET $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
   echo “Preparing to build common components...”
 else
   echo “Failed to find needed dependencies, exit status: $?”
@@ -49,13 +49,13 @@ if [ -e $LOCAL_ROOTFS_COMMON.ext4 ]; then
   return 0;
 fi
 
-if [ ! -e $LOCAL_ROOTFS_BASE.ext4 ]; then
+if [ ! -e $LOCAL_PWD/images/$LOCAL_ROOTFS_BASE.ext4 ]; then
   echo "Base rootfs image doesn't exists. Please build it first."
   exit 1
 fi
 
 echo "Preparing rootfs images for building common components..."
-cp -rf $LOCAL_ROOTFS_BASE.ext4 $LOCAL_ROOTFS_COMMON.ext4
+cp -rf $LOCAL_PWD/images/$LOCAL_ROOTFS_BASE.ext4 $LOCAL_ROOTFS_COMMON.ext4
 if [ ! -e $LOCAL_ROOTFS_COMMON.lock ]; then
   echo "rootfs generated" > $LOCAL_ROOTFS_COMMON.lock
 fi
@@ -132,7 +132,7 @@ else
 fi
 }
 
-cd $LOCAL_PWD/images/
+cd $LOCAL_PWD/containers/
 #Generate rootfs for common components.
 destroy_component_rootfs_as_needed
 generate_component_rootfs
@@ -149,10 +149,6 @@ fi
 
 if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--drivers" ]; then
   building_component "--drivers"
-fi
-
-if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--demos" ]; then
-  building_component "--demos"
 fi
 
 cleanup_build_env

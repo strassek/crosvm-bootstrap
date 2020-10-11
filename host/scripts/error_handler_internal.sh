@@ -46,8 +46,8 @@ function exit_handler ()
         sudo umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR/log/host
       fi
 
-      if mount | grep $$LOCAL_ROOTFS_HOST_MOUNT_DIR/proc > /dev/null; then
-        sudo umount -l $$LOCAL_ROOTFS_HOST_MOUNT_DIR/proc
+      if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/proc > /dev/null; then
+        sudo umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR/proc
       fi
 
       if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/shm > /dev/null; then

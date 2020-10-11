@@ -32,7 +32,7 @@ LOCAL_ROOTFS_COMMON=rootfs_common
 
 mkdir -p $LOG_DIR
 
-if bash host/scripts/common_checks_internal.sh $LOCAL_PWD --true --false $COMPONENT_TARGET $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
+if bash host/scripts/common_checks_internal.sh $COMPONENT_TARGET $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
   echo “Preparing to build vm...”
 else
   echo “Failed to find needed dependencies, exit status: $?”
@@ -40,25 +40,6 @@ else
 fi
 
 source $SCRIPTS_DIR/error_handler_internal.sh $LOG_DIR host.log $LOCAL_PWD
-
-generate_host_rootfs() {
-if [ -e $LOCAL_ROOTFS_HOST.ext4 ]; then
-  echo "Host rootfs image already exists. Reusing it."
-  return 0;
-fi
-
-if [ ! -e $LOCAL_ROOTFS_COMMON.ext4 ]; then
-  echo "Common rootfs image doesn't exists. Please build it first."
-  exit 1
-fi
-
-echo "Preparing rootfs image for host..."
-cp -rf $LOCAL_ROOTFS_COMMON.ext4 $LOCAL_ROOTFS_HOST.ext4
-echo "Rootfs image for host is ready. Preparing to compile vm..."
-if [ ! -e $LOCAL_ROOTFS_HOST.lock ]; then
-  echo "rootfs generated" > $LOCAL_ROOTFS_HOST.lock
-fi
-}
 
 cleanup_build_env() {
 if [ -e $LOCAL_ROOTFS_HOST_MOUNT_DIR ]; then
@@ -74,8 +55,8 @@ if [ -e $LOCAL_ROOTFS_HOST_MOUNT_DIR ]; then
     sudo umount -l $LOCAL_ROOTFS_HOST_MOUNT_DIR
   fi
 
-  if mount | grep $$LOCAL_ROOTFS_HOST_MOUNT_DIR/proc > /dev/null; then
-    sudo umount -l $$LOCAL_ROOTFS_MOUNT_DIR/proc
+  if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/proc > /dev/null; then
+    sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/proc
   fi
 
   if mount | grep $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/shm > /dev/null; then
@@ -137,6 +118,30 @@ sudo mount -o bind /dev/pts $LOCAL_ROOTFS_HOST_MOUNT_DIR/dev/pts
 sudo mount --rbind $SOURCE_PWD $LOCAL_ROOTFS_HOST_MOUNT_DIR/build
 sudo mount --rbind $BASE_PWD/build/log/host $LOCAL_ROOTFS_HOST_MOUNT_DIR/log/host
 sudo cp $LOCAL_PWD/scripts/host/*.sh $LOCAL_ROOTFS_HOST_MOUNT_DIR/scripts/host/
+}
+
+generate_host_rootfs() {
+if [ -e $LOCAL_ROOTFS_HOST.ext4 ]; then
+  echo "Host rootfs image already exists. Reusing it."
+  return 0;
+fi
+
+if [ ! -e $LOCAL_PWD/images/$LOCAL_ROOTFS_COMMON.ext4 ]; then
+  echo "Common rootfs image doesn't exists. Please build it first."
+  exit 1
+fi
+
+echo "Preparing rootfs image for host..."
+cp -rf $LOCAL_PWD/images/$LOCAL_ROOTFS_COMMON.ext4 $LOCAL_ROOTFS_HOST.ext4
+
+setup_build_env
+sudo chroot $LOCAL_ROOTFS_HOST_MOUNT_DIR/ /bin/bash /scripts/host/system_packages_internal.sh
+cleanup_build_env
+
+echo "Rootfs image for host is ready. Preparing to compile vm..."
+if [ ! -e $LOCAL_ROOTFS_HOST.lock ]; then
+  echo "rootfs generated" > $LOCAL_ROOTFS_HOST.lock
+fi
 }
 
 # Handle base builds

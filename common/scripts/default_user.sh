@@ -42,8 +42,12 @@ if [ -e /etc/skel/ ]; then
   cp -RvT /etc/skel /home/$LOCAL_UNAME
 fi
 
-ls -a /home/$LOCAL_UNAME 
-
 chown $uid:$gid -R /home/$LOCAL_UNAME
+
+echo root:test0000 | chpasswd
+
+mkdir -p /etc/sudoers.d
+
+echo "127.0.1.1  game-fast" >> /etc/hosts
 
 echo "Default user setup.."

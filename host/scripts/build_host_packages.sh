@@ -57,7 +57,7 @@ export CARGO_HOME=/usr/local/cargo
 export C_INCLUDE_PATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm
 export CPLUS_INCLUDE_PATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm
 export CPATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm
-export PATH="$PATH:$CARGO_HOME:$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm:$LOCAL_CURRENT_WLD_PATH/bin:$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu"
+export PATH=/usr/local/cargo/bin:"$PATH:$CARGO_HOME:$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm:$LOCAL_CURRENT_WLD_PATH/bin:$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu"
 export ACLOCAL_PATH=$LOCAL_CURRENT_WLD_PATH/share/aclocal
 export ACLOCAL="aclocal -I $ACLOCAL_PATH"
 export PKG_CONFIG_PATH=$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu/pkgconfig:$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu/pkgconfig:$LOCAL_CURRENT_WLD_PATH/lib/pkgconfig:$LOCAL_CURRENT_WLD_PATH/share/pkgconfig:/lib/x86_64-linux-gnu/pkgconfig
@@ -66,7 +66,6 @@ export RUSTUP_HOME=/usr/local/rustup
 export RUST_VERSION=1.45.2
 export LD_LIBRARY_PATH=$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu:$LOCAL_CURRENT_WLD_PATH/lib:$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu:$LOCAL_CURRENT_WLD_PATH/lib
 
-source /usr/local/cargo/env
 # Set Working Build directory based on the channel.
 WORKING_DIR=/build/$LOCAL_CHANNEL/vm
 LOCAL_MINI_GBM_PC=$WORKING_DIR/minigbm/minigbm-$LOCAL_CHANNEL-$LOCAL_BUILD_TARGET.pc
@@ -119,9 +118,9 @@ if [[ ($BUILD_TYPE == "--clean" && -d $LOCAL_MESON_BUILD_DIR) ]]; then
   rm -rf $LOCAL_MESON_BUILD_DIR
 fi
 if [ $BUILD_TARGET == "--debug" ]; then
-  cargo build --target-dir $LOCAL_MESON_BUILD_DIR --features 'default-no-sandbox wl-dmabuf gpu x'
+  cargo build --target-dir $LOCAL_MESON_BUILD_DIR --features 'default-no-sandbox wl-dmabuf gpu x audio'
 else
-  cargo build --target-dir $LOCAL_MESON_BUILD_DIR --release --features 'default-no-sandbox wl-dmabuf gpu x'
+  cargo build --target-dir $LOCAL_MESON_BUILD_DIR --release --features 'default-no-sandbox wl-dmabuf gpu x audio'
 fi
 
 if [ -f $LOCAL_MESON_BUILD_DIR/$LOCAL_BUILD_TARGET/crosvm ]; then

@@ -153,3 +153,52 @@ cd $WORKING_DIR/libepoxy
 mesonclean_asneeded
 generate_compiler_settings
 meson setup $LOCAL_MESON_BUILD_DIR  --buildtype $LOCAL_BUILD_TARGET -Dprefix=$LOCAL_CURRENT_WLD_PATH  -Dglx=yes -Dx11=true -Degl=yes $LOCAL_MESON_COMPILER_OPTIONS && ninja -C $LOCAL_MESON_BUILD_DIR install
+
+if [ $BUILD_ARCH != "i386" ]; then
+  # Build libva
+  cd $WORKING_DIR/libva
+  mesonclean_asneeded
+  meson setup $LOCAL_MESON_BUILD_DIR  --buildtype $LOCAL_BUILD_TARGET -Dprefix=$LOCAL_CURRENT_WLD_PATH -Ddisable_drm=false -Dwith_x11=yes -Dwith_glx=yes -Dwith_wayland=yes && ninja -C $LOCAL_MESON_BUILD_DIR install
+  
+  # Build gmmlib
+  cd $WORKING_DIR/gmmlib
+  mesonclean_asneeded
+  cmake -S . -B $LOCAL_MESON_BUILD_DIR -DCMAKE_INSTALL_PREFIX=$LOCAL_CURRENT_WLD_PATH
+  cd $LOCAL_MESON_BUILD_DIR
+  make
+  make install
+  
+    # Build media-driver
+  cd $WORKING_DIR/media-driver
+  mesonclean_asneeded
+  cmake -S . -B $LOCAL_MESON_BUILD_DIR -DCMAKE_INSTALL_PREFIX=$LOCAL_CURRENT_WLD_PATH -DLIBVA_DRIVERS_PATH=$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu -DLIBVA_INSTALL_PATH=$LOCAL_CURRENT_WLD_PATH/include -DENABLE_PRODUCTION_KMD=ON -DLIBVA_LIBRARY_PATH=$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu
+  cd $LOCAL_MESON_BUILD_DIR
+  make -j4
+  make install
+
+  #libva-utils
+  cd /build/$LOCAL_CHANNEL/tests/libva-utils
+  mesonclean_asneeded 
+  meson setup $LOCAL_MESON_BUILD_DIR  --buildtype $LOCAL_BUILD_TARGET -Dprefix=$LOCAL_CURRENT_WLD_PATH -Ddrm=true -Dx11=true -Dwayland=true -Dtests=true && ninja -C $LOCAL_MESON_BUILD_DIR install
+  
+  # Build igc
+  echo "Building igc............"
+  cd $WORKING_DIR/compute/compiler
+  mesonclean_asneeded
+  
+  if [[ -e llvm-project/llvm/tools/ ]]; then
+    rm -rf llvm-project/llvm/tools/
+  fi
+  
+  if [[ -e llvm-project/clang  ]]; then
+    mkdir -p llvm-project/llvm/tools/
+    cp -rf llvm-project/clang/ llvm-project/llvm/tools/
+  fi
+  
+  mkdir -p $LOCAL_MESON_BUILD_DIR
+  cd $LOCAL_MESON_BUILD_DIR
+
+  #cmake ../igc/IGC -DCMAKE_INSTALL_PREFIX=$LOCAL_CURRENT_WLD_PATH
+  #make -j`nproc`
+  #make install
+fi

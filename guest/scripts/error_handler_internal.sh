@@ -43,12 +43,16 @@ function exit_handler ()
         sudo umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR/build
       fi
 
-      if mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR/log/guest > /dev/null; then
-        sudo umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR/log/guest
+      if mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR/log/rootfs_guest > /dev/null; then
+        sudo umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR/log/rootfs_guest
       fi
 
       if mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR > /dev/null; then
         sudo umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR
+      fi
+
+      if mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR/containers/game_fast > /dev/null; then
+        sudo umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR/containers/game_fast
       fi
 
       rm -rf $LOCAL_ROOTFS_GUEST_MOUNT_DIR

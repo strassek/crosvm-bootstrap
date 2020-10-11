@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# main.sh. Builds x11, wayland, drivers and demos.
+# main.sh. Builds x11, wayland and drivers.
 
 BUILD_TYPE=$1
 COMPONENT_ONLY_BUILDS=$2
@@ -17,7 +17,7 @@ SCRIPTS_DIR=/scripts/common/
 source $SCRIPTS_DIR/error_handler_internal.sh $LOG_DIR component_build_err.log --none
 
 echo "main: Recieved Arguments...."
-if bash $SCRIPTS_DIR/common_checks_internal.sh $LOCAL_DIRECTORY_PREFIX /build --true --true --none $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET --false; then
+if bash $SCRIPTS_DIR/common_checks_internal.sh $LOCAL_DIRECTORY_PREFIX /build --none $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
   echo “Preparing for build...”
 else
   echo “Invalid build options, exit status: $?”
@@ -132,45 +132,24 @@ if [ $COMPONENT_ONLY_BUILDS == "--drivers" ] || [ $COMPONENT_ONLY_BUILDS == "--a
 fi
 }
 
-build_demos() {
-if [ $COMPONENT_ONLY_BUILDS == "--demos" ] || [ $COMPONENT_ONLY_BUILDS == "--all" ]; then
-  build_target="${1}"
-  build_type="${2}"
-  channel="${3}"
-  arch="${4}"
-
-  if [ $LOCAL_BUILD_CHANNEL != $channel ] && [ $LOCAL_BUILD_CHANNEL != "--all" ]; then
-    return 0;
-  fi
-
-  if [ $LOCAL_BUILD_TARGET != $build_target ] && [ $LOCAL_BUILD_TARGET != "--all" ]; then
-  return 0;
-  fi
-
-  bash $SCRIPTS_DIR/build_demos.sh $build_target $build_type $channel $arch
-fi
-}
-
 # Build all UMD and user space libraries.
 #------------------------------------Dev Channel-----------"
 echo "Building User Mode Graphics Drivers..."
 #Debug
 build_x11 --debug $LOCAL_BUILD_TYPE --dev x86_64
-build_x11 --debug $LOCAL_BUILD_TYPE --dev i386
+#build_x11 --debug $LOCAL_BUILD_TYPE --dev i386
 build_wayland --debug $LOCAL_BUILD_TYPE --dev x86_64
-build_wayland --debug $LOCAL_BUILD_TYPE --dev i386
+#build_wayland --debug $LOCAL_BUILD_TYPE --dev i386
 build_drivers --debug $LOCAL_BUILD_TYPE --dev x86_64
-build_drivers --debug $LOCAL_BUILD_TYPE --dev i386
-build_demos --debug $LOCAL_BUILD_TYPE --dev x86_64
+#build_drivers --debug $LOCAL_BUILD_TYPE --dev i386
 
 # Release Builds.
 build_x11 --release $LOCAL_BUILD_TYPE --dev x86_64
-build_x11 --release $LOCAL_BUILD_TYPE --dev i386
+#build_x11 --release $LOCAL_BUILD_TYPE --dev i386
 build_wayland --release $LOCAL_BUILD_TYPE --dev x86_64
-build_wayland --release $LOCAL_BUILD_TYPE --dev i386
+#build_wayland --release $LOCAL_BUILD_TYPE --dev i386
 build_drivers --release $LOCAL_BUILD_TYPE --dev x86_64
-build_drivers --release $LOCAL_BUILD_TYPE --dev i386
-build_demos --release $LOCAL_BUILD_TYPE --dev x86_64
+#build_drivers --release $LOCAL_BUILD_TYPE --dev i386
 #----------------------------Dev Channel ends-----------------
 
 #------------------------------------Stable Channel-----------"
@@ -181,7 +160,6 @@ build_wayland --debug $LOCAL_BUILD_TYPE --stable x86_64
 build_wayland --debug $LOCAL_BUILD_TYPE --stable i386
 build_drivers --debug $LOCAL_BUILD_TYPE --stable x86_64
 build_drivers --debug $LOCAL_BUILD_TYPE --stable i386
-build_demos --debug $LOCAL_BUILD_TYPE --stable x86_64
 
 # Release Builds.
 build_x11 --release $LOCAL_BUILD_TYPE --stable x86_64
@@ -190,7 +168,6 @@ build_wayland --release $LOCAL_BUILD_TYPE --stable x86_64
 build_wayland --release $LOCAL_BUILD_TYPE --stable i386
 build_drivers --release $LOCAL_BUILD_TYPE --stable x86_64
 build_drivers --release $LOCAL_BUILD_TYPE --stable i386
-build_demos --release $LOCAL_BUILD_TYPE --stable x86_64
 #----------------------------stable Channel ends-----------------
 
 echo "Built all common libraries needed for host and guest!"
