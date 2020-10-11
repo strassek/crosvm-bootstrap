@@ -83,7 +83,7 @@ if [[ "$COMPONENT_TARGET" == "--host" ]] || [[ "$COMPONENT_TARGET" == "--rebuild
   if bash host/build_host_internal.sh $BASE_DIR $COMPONENT_TARGET $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
     echo “Built host rootfs.”
       echo "Preparing to create docker image...."
-  cd $BASE_DIR/build/containers
+  cd $BASE_DIR/build/images
   if [ ! -e rootfs_host.ext4 ]; then
     echo "Cannot find rootfs_host.ext4 file. Please check the build...."
     exit 1

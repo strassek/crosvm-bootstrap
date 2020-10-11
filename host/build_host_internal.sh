@@ -126,13 +126,13 @@ if [ -e $LOCAL_ROOTFS_HOST.ext4 ]; then
   return 0;
 fi
 
-if [ ! -e $LOCAL_PWD/images/$LOCAL_ROOTFS_COMMON.ext4 ]; then
+if [ ! -e $LOCAL_PWD/containers/$LOCAL_ROOTFS_COMMON.ext4 ]; then
   echo "Common rootfs image doesn't exists. Please build it first."
   exit 1
 fi
 
 echo "Preparing rootfs image for host..."
-cp -rf $LOCAL_PWD/images/$LOCAL_ROOTFS_COMMON.ext4 $LOCAL_ROOTFS_HOST.ext4
+cp -rf $LOCAL_PWD/containers/$LOCAL_ROOTFS_COMMON.ext4 $LOCAL_ROOTFS_HOST.ext4
 
 setup_build_env
 sudo chroot $LOCAL_ROOTFS_HOST_MOUNT_DIR/ /bin/bash /scripts/host/system_packages_internal.sh
