@@ -34,13 +34,22 @@ if [ $UPDATE_CONTAINERS == "--true" ]; then
   echo "Updating Containers---"
   mkdir -p $LOCAL_ROOTFS_GUEST_MOUNT_DIR
   sudo mount $LOCAL_ROOTFS_GUEST.ext4 $LOCAL_ROOTFS_GUEST_MOUNT_DIR/
-  sudo rm -rf $LOCAL_ROOTFS_GUEST_MOUNT_DIR/containers
-  sudo mkdir $LOCAL_ROOTFS_GUEST_MOUNT_DIR/containers
-  sudo cp -rf $LOCAL_PWD/scripts $LOCAL_ROOTFS_GUEST_MOUNT_DIR/
-  sudo cp $LOCAL_PWD/containers/rootfs_game_fast.ext4 $LOCAL_ROOTFS_GUEST_MOUNT_DIR/containers
-  sudo cp $LOCAL_PWD/containers/rootfs_common.ext4 $LOCAL_ROOTFS_GUEST_MOUNT_DIR/containers
-  sudo chroot $LOCAL_ROOTFS_GUEST_MOUNT_DIR/ /bin/bash /scripts/guest/create_containers.sh
-  sudo rm -rf $LOCAL_ROOTFS_GUEST_MOUNT_DIR/containers
+  sudo rm -rf $LOCAL_ROOTFS_GUEST_MOUNT_DIR/intel/containers
+  sudo mkdir $LOCAL_ROOTFS_GUEST_MOUNT_DIR/intel/containers
+
+  if [ -e $LOCAL_ROOTFS_GUEST_MOUNT_DIR/scripts/guest ]; then
+    sudo rm -rf $LOCAL_ROOTFS_GUEST_MOUNT_DIR/scripts/guest
+  fi
+
+  sudo mkdir -p $LOCAL_ROOTFS_GUEST_MOUNT_DIR/scripts/guest
+  sudo cp -rf $LOCAL_PWD/scripts/guest/*.* $LOCAL_ROOTFS_GUEST_MOUNT_DIR/scripts/guest/
+
+  sudo cp $LOCAL_PWD/containers/rootfs_game_fast.ext4 $LOCAL_ROOTFS_GUEST_MOUNT_DIR/intel/containers/
+  sudo cp $LOCAL_PWD/containers/rootfs_common.ext4 $LOCAL_ROOTFS_GUEST_MOUNT_DIR/intel/containers/
+
+  sudo chroot $LOCAL_ROOTFS_GUEST_MOUNT_DIR/ /bin/bash /scripts/guest/container_settings.sh
+
+  sudo rm -rf $LOCAL_ROOTFS_GUEST_MOUNT_DIR/scripts
   sudo umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR
   rm -rf $LOCAL_ROOTFS_GUEST_MOUNT_DIR
 fi

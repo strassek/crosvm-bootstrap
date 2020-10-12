@@ -75,7 +75,6 @@ fi
 echo "Building xserver............"
 cd $WORKING_DIR/xserver
 mesonclean_asneeded
-cp /build/stable/drivers/kernel/include/uapi/linux/virtwl.h $LOCAL_CURRENT_WLD_PATH/include/
 meson setup $LOCAL_MESON_BUILD_DIR -Dprefix=$LOCAL_CURRENT_WLD_PATH -Dxwayland=true -Dglx=true -Dglamor=true -Dhal=false -Dlinux_acpi=false -Dxnest=false -Dxorg=false -Dxquartz=false -Dxvfb=false -Dxwin=false --buildtype $LOCAL_BUILD_TARGET $LOCAL_MESON_COMPILER_OPTIONS && ninja -C $LOCAL_MESON_BUILD_DIR install
 
 echo "Building sommelier..."

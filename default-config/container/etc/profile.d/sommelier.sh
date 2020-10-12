@@ -1,32 +1,33 @@
-# Copyright 2019 The Chromium OS Authors. All rights reserved.
-# Use of this source code is governed by a BSD-style license that can be
-# found in the LICENSE file.
+#! /bin/bash
 
-# Not running under sommelier?
-if ! systemctl --user show-environment | grep -q ^SOMMELIER_VERSION=; then
-  return 0
+# # Launch Sommelier Deamon
+
+set -o pipefail  # trace ERR through pipes
+set -o errtrace  # trace ERR through 'time command' and other functions
+set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
+set -o errexit   ## set -e : exit the script if any statement returns a non-true return value
+
+LOCAL_USER=$(whoami)
+
+sudo chown -R $LOCAL_USER:$LOCAL_USER /home/$LOCAL_USER/..
+cp /intel/config/.bashrc /home/$LOCAL_USER/
+cp /intel/config/stable_release.env /home/$LOCAL_USER/.bash_env_settings
+source /home/$LOCAL_USER/.bash_env_settings
+
+if test -z "${XDG_RUNTIME_DIR}"; then
+  export XDG_RUNTIME_DIR=/tmp/${UID}-runtime-dir
+  if ! test -d "${XDG_RUNTIME_DIR}"; then
+    mkdir "${XDG_RUNTIME_DIR}"
+    chmod 0700 "${XDG_RUNTIME_DIR}"
+  fi
 fi
 
-# Helper function to export a variable if it isn't already set.
-__sommelier_export() {
-  local var="$1"
-  # We have to resort to eval as POSIX doesn't support ${!var} indirection.
-  if eval "[ -z \"\${${var}}\" ]"; then
-    local setting
-    # Only export the var if it's been defined.  This might be an account that
-    # the user has setup or modified.  No point in spewing errors.
-    if setting="$(systemctl --user show-environment | grep "^${var}=")"; then
-      export "${setting}"
-    fi
-  fi
-}
+export ENABLE_NATIVE_GPU=1
+export SOMMELIER_GLAMOR=1
+export SOMMELIER_DRM_DEVICE=/dev/dri/renderD128
+export WAYLAND_DISPLAY_VAR=WAYLAND_DISPLAY
 
-__sommelier_export DISPLAY
-__sommelier_export DISPLAY_LOW_DENSITY
-__sommelier_export XCURSOR_SIZE
-__sommelier_export XCURSOR_SIZE_LOW_DENSITY
-__sommelier_export WAYLAND_DISPLAY
-__sommelier_export WAYLAND_DISPLAY_LOW_DENSITY
+sommelier --glamor --drm-device=/dev/dri/renderD128 --master --socket=wayland-1 --no-exit-with-child &
+export ${WAYLAND_DISPLAY_VAR}=$${WAYLAND_DISPLAY}
 
-# No need to export this to the shell env.
-unset -f __sommelier_export
+echo "Launched Sommelier"

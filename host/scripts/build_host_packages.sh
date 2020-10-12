@@ -117,10 +117,12 @@ if [[ ($BUILD_TYPE == "--clean" && -d $LOCAL_MESON_BUILD_DIR) ]]; then
   cargo clean --target-dir $LOCAL_MESON_BUILD_DIR
   rm -rf $LOCAL_MESON_BUILD_DIR
 fi
+
+FEATURES='default-no-sandbox wl-dmabuf gpu x audio'
 if [ $BUILD_TARGET == "--debug" ]; then
-  cargo build --target-dir $LOCAL_MESON_BUILD_DIR --features 'default-no-sandbox wl-dmabuf gpu x audio'
+  cargo build --target-dir $LOCAL_MESON_BUILD_DIR --features "$FEATURES"
 else
-  cargo build --target-dir $LOCAL_MESON_BUILD_DIR --release --features 'default-no-sandbox wl-dmabuf gpu x audio'
+  cargo build --target-dir $LOCAL_MESON_BUILD_DIR --release --features "$FEATURES"
 fi
 
 if [ -f $LOCAL_MESON_BUILD_DIR/$LOCAL_BUILD_TARGET/crosvm ]; then

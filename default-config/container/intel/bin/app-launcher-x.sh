@@ -5,7 +5,9 @@ ENABLE_USERPTR=${2:-"--false"}
 DEBUG=${3:-"--false"}
 CHANNEL=${4:-"--stable"}
 BUILD_TARGET=${5:-"--release"}
-LOCAL_USER=$USER
+LOCAL_USER=$(whoami)
+
+sudo chown -R $LOCAL_USER:$LOCAL_USER /home/$LOCAL_USER/..
 
 if [[ "$CHANNEL" == "--stable" ]] && [[ "$BUILD_TARGET" == "--release" ]]; then
   cp /intel/config/stable_release.env /home/$LOCAL_USER/.bash_env_settings

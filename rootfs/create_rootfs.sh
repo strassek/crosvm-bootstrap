@@ -98,6 +98,7 @@ sudo cp -rvf $LOCAL_PWD/config/default-config/common/* $LOCAL_ROOTFS_MOUNT_DIR/
 
 if [[ "$COMPONENT_TARGET" == "guest" ]]; then
   sudo cp -rvf $LOCAL_PWD/config/default-config/guest/* $LOCAL_ROOTFS_MOUNT_DIR/
+  sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/$COMPONENT_TARGET/container_settings.sh
 fi
 
 echo "Rootfs ready..."

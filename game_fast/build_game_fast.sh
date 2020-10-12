@@ -66,6 +66,7 @@ sudo cp -rvf $LOCAL_PWD/config/default-config/container/* $LOCAL_ROOTFS_GAME_FAS
 
 echo "enabling needed services"
 sudo chroot $LOCAL_ROOTFS_GAME_FAST_MOUNT_DIR/ /bin/bash /scripts/game_fast/services_internal.sh
+sudo chroot $LOCAL_ROOTFS_GAME_FAST_MOUNT_DIR/ /bin/bash /scripts/game_fast/system_packages_internal.sh
 
 echo "Rootfs image for game_fast is ready. Preparing to compile game_fast packages..."
 sudo umount -l $LOCAL_ROOTFS_GAME_FAST_MOUNT_DIR
@@ -145,6 +146,12 @@ setup_build_env
 
 echo "Building packages..."
 if sudo chroot $LOCAL_ROOTFS_GAME_FAST_MOUNT_DIR/ /bin/bash /scripts/game_fast/main.sh $LOCAL_BUILD_TYPE --all $BUILD_CHANNEL $BUILD_TARGET; then
+  echo "Building demos."
+else
+  exit 1
+fi
+
+if sudo chroot $LOCAL_ROOTFS_GAME_FAST_MOUNT_DIR/ /bin/bash /scripts/game_fast/build_demos.sh $BUILD_TARGET $LOCAL_BUILD_TYPE $BUILD_CHANNEL; then
   echo "Game Fast Container Ready."
 else
   exit 1

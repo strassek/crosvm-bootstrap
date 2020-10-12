@@ -52,16 +52,14 @@ function exit_handler ()
         sudo umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR
       fi
 
-      if mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR/containers/game_fast > /dev/null; then
-        sudo umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR/containers/game_fast
+      if mount | grep $MOUNT_DIR/images/game_fast > /dev/null; then
+        sudo umount -l $MOUNT_DIR/images/game_fast
+        rm -rf $MOUNT_DIR/images/game_fast
       fi
 
-      if mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR/containers/intel_drivers > /dev/null; then
-        sudo umount -l $LOCAL_ROOTFS_GUEST_MOUNT_DIR/containers/intel_drivers
-      fi
-
-      if [ -e $LOCAL_ROOTFS_GUEST_MOUNT_DIR/containers ]; then
-        sudo rm -rf $LOCAL_ROOTFS_GUEST_MOUNT_DIR/containers
+      if mount | grep $MOUNT_DIR/images/intel_drivers > /dev/null; then
+        sudo umount -l $MOUNT_DIR/images/intel_drivers
+        rm -rf $MOUNT_DIR/images/intel_drivers
       fi
 
       if mount | grep $LOCAL_ROOTFS_GUEST_MOUNT_DIR > /dev/null; then

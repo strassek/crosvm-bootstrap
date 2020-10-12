@@ -118,7 +118,6 @@ else
 fi
 
 # Build glew.
-echo "Building demos............"
 echo "Building glew............"
 cd $WORKING_DIR/glew
 make extensions

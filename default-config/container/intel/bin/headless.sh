@@ -4,7 +4,7 @@ TARGET=$1
 DEBUG=${2:-"--false"}
 CHANNEL=${3:-"--stable"}
 BUILD_TARGET=${4:-"--release"}
-LOCAL_USER=$USER
+LOCAL_USER=$(whoami)
 
 if [[ "$CHANNEL" == "--stable" ]] && [[ "$BUILD_TARGET" == "--release" ]]; then
   cp /intel/config/stable_release.env /home/$LOCAL_USER/.bash_env_settings
