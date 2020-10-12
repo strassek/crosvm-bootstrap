@@ -45,7 +45,6 @@ if [ $UPDATE_CONTAINERS == "--true" ]; then
   sudo cp -rf $LOCAL_PWD/scripts/guest/*.* $LOCAL_ROOTFS_GUEST_MOUNT_DIR/scripts/guest/
 
   sudo cp $LOCAL_PWD/containers/rootfs_game_fast.ext4 $LOCAL_ROOTFS_GUEST_MOUNT_DIR/intel/containers/
-  sudo cp $LOCAL_PWD/containers/rootfs_common.ext4 $LOCAL_ROOTFS_GUEST_MOUNT_DIR/intel/containers/
 
   sudo chroot $LOCAL_ROOTFS_GUEST_MOUNT_DIR/ /bin/bash /scripts/guest/container_settings.sh
 
