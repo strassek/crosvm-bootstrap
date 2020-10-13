@@ -23,10 +23,27 @@ else
 fi
 }
 
+function install_package_i386() {
+package_name="${1}"
+if [ ! "$(dpkg -s $package_name:i386)" ]; then
+  echo "installing:" $package_name:i386 "----------------"
+  apt-mark unhold $package_name
+  apt-get install -y  --no-install-recommends --no-install-suggests $package_name:i386
+  apt-mark hold $package_name:i386
+  echo "---------------------"
+else
+  echo $package_name:i386 "is already installed."
+fi
+}
+
+apt update
+
 install_package xfonts-cyrillic
 install_package xfonts-100dpi
 install_package xfonts-75dpi
 install_package xfonts-base
 install_package xauth
+#install_package steam
+install_package_i386 libc.so
 
 apt autoremove -y

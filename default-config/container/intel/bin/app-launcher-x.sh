@@ -7,22 +7,23 @@ CHANNEL=${4:-"--stable"}
 BUILD_TARGET=${5:-"--release"}
 LOCAL_USER=$(whoami)
 
-sudo chown -R $LOCAL_USER:$LOCAL_USER /home/$LOCAL_USER/..
+cp /home/$LOCAL_USER/stable_release.env /home/$LOCAL_USER/.bash_env_settings
+source /home/$LOCAL_USER/.bash_env_settings
 
 if [[ "$CHANNEL" == "--stable" ]] && [[ "$BUILD_TARGET" == "--release" ]]; then
-  cp /intel/config/stable_release.env /home/$LOCAL_USER/.bash_env_settings
+  cp /home/$LOCAL_USER/stable_release.env /home/$LOCAL_USER/.bash_env_settings
 fi
 
 if [[ "$CHANNEL" == "--stable" ]] && [[ "$BUILD_TARGET" == "--debug" ]]; then
-  cp /intel/config/stable_debug.env /home/$LOCAL_USER/.bash_env_settings
+  cp /home/$LOCAL_USER/stable_debug.env /home/$LOCAL_USER/.bash_env_settings
 fi
 
 if [[ "$CHANNEL" == "--dev" ]] && [[ "$BUILD_TARGET" == "--release" ]]; then
-  cp /intel/config/dev_release.env /home/$LOCAL_USER/.bash_env_settings
+  cp /home/$LOCAL_USER/dev_release.env /home/$LOCAL_USER/.bash_env_settings
 fi
 
 if [[ "$CHANNEL" == "--dev" ]] && [[ "$BUILD_TARGET" == "--debug" ]]; then
-  cp /intel/config/dev_debug.env /home/$LOCAL_USER/.bash_env_settings
+  cp /home/$LOCAL_USER/dev_debug.env /home/$LOCAL_USER/.bash_env_settings
 fi
 
 source /home/$LOCAL_USER/.bash_env_settings
@@ -72,4 +73,5 @@ LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libxcb-dri3.so
 LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libxcb-dri2.so
 LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libX11.so
 
-sommelier --glamor --drm-device=/dev/dri/renderD128 -X --xwayland-path=$WLD_64/bin/Xwayland --xwayland-gl-driver-path=$WLD_64/lib/x86_64-linux-gnu/dri/ $1
+
+sommelier --glamor --drm-device=/dev/dri/renderD128 -X $1

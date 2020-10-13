@@ -11,14 +11,14 @@ set -o errexit   ## set -e : exit the script if any statement returns a non-true
 
 chmod +x /intel/bin/setup-containers.sh
 chmod +x /intel/bin/launch.sh
-if [ -z /intel/bin/update-containers ]; then
+if [[ ! -e /intel/bin/update-containers ]]; then
   echo "linking"
   ln -s /intel/bin/setup-containers.sh /intel/bin/update-containers
   chmod 0664 /intel/bin/setup-containers.sh
   chmod 0664 /intel/bin/update-containers
 fi
 
-if [ -z /intel/bin/launch ]; then
+if [[ ! -e /intel/bin/launch ]]; then
 echo "linking"
   ln -s /intel/bin/launch.sh /intel/bin/launch
   chmod 0664 /intel/bin/launch.sh
@@ -26,4 +26,5 @@ echo "linking"
 fi
 
 chown -R test:test /intel
+
 echo "containers created2"

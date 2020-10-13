@@ -8,26 +8,27 @@ set -o nounset   ## set -u : exit the script if you try to use an uninitialised 
 set -o errexit   ## set -e : exit the script if any statement returns a non-true return value
 
 LOCAL_USER=$(whoami)
-
-sudo chown -R $LOCAL_USER:$LOCAL_USER /home/$LOCAL_USER/..
-cp /intel/config/.bashrc /home/$LOCAL_USER/
-cp /intel/config/stable_release.env /home/$LOCAL_USER/.bash_env_settings
+cp /home/$LOCAL_USER/stable_release.env /home/$LOCAL_USER/.bash_env_settings
 source /home/$LOCAL_USER/.bash_env_settings
 
-if test -z "${XDG_RUNTIME_DIR}"; then
-  export XDG_RUNTIME_DIR=/tmp/${UID}-runtime-dir
-  if ! test -d "${XDG_RUNTIME_DIR}"; then
-    mkdir "${XDG_RUNTIME_DIR}"
-    chmod 0700 "${XDG_RUNTIME_DIR}"
-  fi
-fi
-
-export ENABLE_NATIVE_GPU=1
+export SOMMELIER_SCALE=1.0
 export SOMMELIER_GLAMOR=1
 export SOMMELIER_DRM_DEVICE=/dev/dri/renderD128
-export WAYLAND_DISPLAY_VAR=WAYLAND_DISPLAY
 
-sommelier --glamor --drm-device=/dev/dri/renderD128 --master --socket=wayland-1 --no-exit-with-child &
-export ${WAYLAND_DISPLAY_VAR}=$${WAYLAND_DISPLAY}
+export XDG_SESSION_TYPE=wayland
+export XDG_CONFIG_DIRS=/etc/xdg/xdg-fast-game:/etc/xdg
+export DESKTOP_SESSION=fast-game-wayland
+export XDG_SESSION_DESKTOP=fast-game-wayland
+export XAUTHORITY=/run/user/${UID}/.Xauthority
+export XDG_RUNTIME_DIR=/run/user/${UID}
+export XDG_DATA_DIRS=/usr/share/fast-game-wayland:/usr/local/share/:/usr/share/
+export GDMSESSION=fast-game-wayland
+export DISPLAY=:0
+export GNOME_SETUP_DISPLAY=:1
+export LESSOPEN=| /usr/bin/lesspipe %s
+export QT_QPA_PLATFORM=wayland
+export GDK_BACKEND=wayland
 
-echo "Launched Sommelier"
+sommelier --glamor --drm-device=/dev/dri/renderD128 --master --display=wayland-0 --socket=wayland-1  --no-exit-with-child &
+
+echo "Launched Sommelier."

@@ -81,4 +81,4 @@ echo "Building sommelier..."
 cd /build/$LOCAL_CHANNEL/vm/cros_vm/src/platform2/vm_tools/sommelier
 # Build Sommelier
 mesonclean_asneeded
-meson setup $LOCAL_MESON_BUILD_DIR -Dxwayland_path=$LOCAL_CURRENT_WLD_PATH/bin/XWayland -Dxwayland_gl_driver_path=$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu/dri -Dprefix=$LOCAL_CURRENT_WLD_PATH && ninja -C $LOCAL_MESON_BUILD_DIR install
+meson setup $LOCAL_MESON_BUILD_DIR -Dxwayland_path=$LOCAL_CURRENT_WLD_PATH/bin/Xwayland -Dxwayland_gl_driver_path=$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu/dri -Dprefix=$LOCAL_CURRENT_WLD_PATH && ninja -C $LOCAL_MESON_BUILD_DIR install

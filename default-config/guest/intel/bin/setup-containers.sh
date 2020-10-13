@@ -7,9 +7,7 @@ set -o errtrace  # trace ERR through 'time command' and other functions
 set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
 set -o errexit   ## set -e : exit the script if any statement returns a non-true return value
 
-
 name='game-fast-container'
-GRAPHICS_SETTINGS='-v /dev:/dev -e XDG_RUNTIME_DIR=/tmp -v /tmp/.X11-unix:/tmp/.X11-unix:rw -e DISPLAY=:0 -e PATH=/intel/bin:$PATH'
 cd /intel/containers
 if [[ $(docker ps -a -f "name=$name" --format '{{.Names}}') == $name ]]; then
   if [[ "$(docker images -q game-fast:latest 2> /dev/null)" != "" ]]; then
@@ -32,7 +30,7 @@ if [[ ! -e rootfs_common.ext4 ]] && [[ ! -e rootfs_game_fast.ext4 ]]; then
   fi
 
   echo "You are running the latest Game-Fast release."
-  exec docker run -t -i -d -e BASH_ENV=/etc/profile --name game-fast-container -e container=docker --privileged -h game-fast --storage-opt size=120G -u $(whoami) -v /dev:/dev -e XDG_RUNTIME_DIR=/tmp -v /tmp/.X11-unix:/tmp/.X11-unix:rw -e DISPLAY=:0 -e PATH=/intel/bin:$PATH game-fast:latest bash --login
+  exec docker run -t -i -d -e BASH_ENV=/etc/profile --name game-fast-container -e container=docker --privileged -h game-fast --storage-opt size=120G -u $(whoami) -v /dev:/dev -e XDG_RUNTIME_DIR=/run/user/${UID} -v /tmp/.X11-unix:/tmp/.X11-unix:rw -e DISPLAY=:0 -e PATH=/intel/bin:$PATH game-fast:latest bash --login
 else
 if [[ "$(docker images -q game-fast 2> /dev/null)" != "" ]]; then
   docker rmi -f game-fast:latest
@@ -54,7 +52,7 @@ sudo umount -l game_fast
 rm -rf game_fast
 rm *.ext4
 
-exec docker run -t -i -d -e BASH_ENV=/etc/profile --name game-fast-container -e container=docker --privileged -h game-fast --storage-opt size=120G -u $(whoami) -v /dev:/dev -e XDG_RUNTIME_DIR=/tmp -v /tmp/.X11-unix:/tmp/.X11-unix:rw -e DISPLAY=:0 -e PATH=/intel/bin:$PATH game-fast:latest bash --login
+exec docker run -t -i -d -e BASH_ENV=/etc/profile --name game-fast-container -e container=docker --privileged -h game-fast --storage-opt size=120G -u $(whoami) -v /dev:/dev -e XDG_RUNTIME_DIR=/run/user/${UID} -v /tmp/.X11-unix:/tmp/.X11-unix:rw -e DISPLAY=:0 -e PATH=/intel/bin:$PATH game-fast:latest bash --login
 fi
 
 if [[ "$(docker images -q game-fast:previous-tag 2> /dev/null)" != "" ]]; then

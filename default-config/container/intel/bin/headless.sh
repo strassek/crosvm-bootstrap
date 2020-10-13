@@ -7,19 +7,19 @@ BUILD_TARGET=${4:-"--release"}
 LOCAL_USER=$(whoami)
 
 if [[ "$CHANNEL" == "--stable" ]] && [[ "$BUILD_TARGET" == "--release" ]]; then
-  cp /intel/config/stable_release.env /home/$LOCAL_USER/.bash_env_settings
+  cp /home/$LOCAL_USER/stable_release.env /home/$LOCAL_USER/.bash_env_settings
 fi
 
 if [[ "$CHANNEL" == "--stable" ]] && [[ "$BUILD_TARGET" == "--debug" ]]; then
-  cp /intel/config/stable_debug.env /home/$LOCAL_USER/.bash_env_settings
+  cp /home/$LOCAL_USER/stable_debug.env /home/$LOCAL_USER/.bash_env_settings
 fi
 
 if [[ "$CHANNEL" == "--dev" ]] && [[ "$BUILD_TARGET" == "--release" ]]; then
-  cp /intel/config/dev_release.env /home/$LOCAL_USER/.bash_env_settings
+  cp /home/$LOCAL_USER/dev_release.env /home/$LOCAL_USER/.bash_env_settings
 fi
 
 if [[ "$CHANNEL" == "--dev" ]] && [[ "$BUILD_TARGET" == "--debug" ]]; then
-  cp /intel/config/dev_debug.env /home/$LOCAL_USER/.bash_env_settings
+  cp /home/$LOCAL_USER/dev_debug.env /home/$LOCAL_USER/.bash_env_settings
 fi
 
 source /home/$LOCAL_USER/.bash_env_settings
