@@ -7,7 +7,7 @@ CACHE=$(lspci -v | perl -anE '/VGA/i && $F[0] =~ /^[0-9a-f:.]+$/i && say $F[0]')
 
 is_discrete() {
 DEVICE_ID=${1}
-if [ $DEVICE_ID == "4905" ] || [ $DEVICE_ID == "4908" ]; then
+if [ $DEVICE_ID == "4905" ] || [ $DEVICE_ID == "4908" ] || [ $DEVICE_ID == "4907" ] || [ $DEVICE_ID == "4906" ]; then
   echo "Discrete."
 else
   echo "Integrated."

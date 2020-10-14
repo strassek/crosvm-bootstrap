@@ -43,25 +43,26 @@ WORKING_DIR=/build/$LOCAL_CHANNEL/x11
 if [ $BUILD_ARCH == "i386" ]; then
   LOCAL_CURRENT_WLD_PATH=/opt/$LOCAL_CHANNEL/$LOCAL_BUILD_TARGET/x86
   LOCAL_MESON_BUILD_DIR=build.$LOCAL_BUILD_TARGET.x86
-  LOCAL_COMPILER_OPTIONS="--host=i686-linux-gnu "CFLAGS=-m32" "CXXFLAGS=-m32" "LDFLAGS=-m32" --prefix=$LOCAL_CURRENT_WLD_PATH"
   CROSS_SETTINGS=meson-cross-i686-$LOCAL_CHANNEL-$LOCAL_BUILD_TARGET.ini
-  LOCAL_MESON_COMPILER_OPTIONS="--cross-file $CROSS_SETTINGS"
 
   # Export environment variables
   export C_INCLUDE_PATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm/
   export CPLUS_INCLUDE_PATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm/
   export CPATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm/
-  export PATH="$PATH:$LOCAL_CURRENT_WLD_PATH/include/:$LOCAL_CURRENT_WLD_PATH/include/libdrm/:$LOCAL_CURRENT_WLD_PATH/bin"
+  export PATH="$PATH:$LOCAL_CURRENT_WLD_PATH/include/:$LOCAL_CURRENT_WLD_PATH/include/libdrm/:$LOCAL_CURRENT_WLD_PATH/bin:/usr/bin:/usr/local/bin":/usr/share/wayland:/usr/share/wayland-protocols
   export ACLOCAL_PATH=$LOCAL_CURRENT_WLD_PATH/share/aclocal
   export ACLOCAL="aclocal -I $ACLOCAL_PATH"
-  export PKG_CONFIG_PATH=$LOCAL_CURRENT_WLD_PATH/lib/pkgconfig:$LOCAL_CURRENT_WLD_PATH/share/pkgconfig:/usr/lib/i386-linux-gnu/pkgconfig:/usr/lib/i386-linux-gnu/pkgconfig:/lib/i386-linux-gnu/pkgconfig
+  export PKG_CONFIG_PATH=$LOCAL_CURRENT_WLD_PATH/lib/pkgconfig:$LOCAL_CURRENT_WLD_PATH/share/pkgconfig:/usr/lib/i386-linux-gnu/pkgconfig:/lib/i386-linux-gnu/pkgconfig:/usr/share/pkgconfig
   export PKG_CONFIG_PATH_FOR_BUILD=$PKG_CONFIG_PATH
   export CC=/usr/bin/i686-linux-gnu-gcc
+
+  LOCAL_COMPILER_OPTIONS="--host=i686-linux-gnu "CFLAGS=-m32" "CXXFLAGS=-m32" "LDFLAGS=-m32" --prefix=$LOCAL_CURRENT_WLD_PATH"
+  LOCAL_MESON_COMPILER_OPTIONS="--cross-file $CROSS_SETTINGS"
 else
   LOCAL_CURRENT_WLD_PATH=/opt/$LOCAL_CHANNEL/$LOCAL_BUILD_TARGET/x86_64
   LOCAL_MESON_BUILD_DIR=build.$LOCAL_BUILD_TARGET.x86_64
-  LOCAL_MESON_COMPILER_OPTIONS=""
   LOCAL_COMPILER_OPTIONS=""
+  LOCAL_MESON_COMPILER_OPTIONS=""
 
   # Export environment variables
   export C_INCLUDE_PATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm/
@@ -70,7 +71,7 @@ else
   export PATH="$PATH:$LOCAL_CURRENT_WLD_PATH/include/:$LOCAL_CURRENT_WLD_PATH/include/libdrm/:$LOCAL_CURRENT_WLD_PATH/bin"
   export ACLOCAL_PATH=$LOCAL_CURRENT_WLD_PATH/share/aclocal
   export ACLOCAL="aclocal -I $ACLOCAL_PATH"
-  export PKG_CONFIG_PATH=$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu/pkgconfig:$LOCAL_CURRENT_WLD_PATH/lib/pkgconfig:$LOCAL_CURRENT_WLD_PATH/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/lib/x86_64-linux-gnu/pkgconfig
+  export PKG_CONFIG_PATH=$LOCAL_CURRENT_WLD_PATH/lib/pkgconfig:$LOCAL_CURRENT_WLD_PATH/share/pkgconfig:$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu/pkgconfig:/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig
 fi
 
 echo "Working Directory:" $WORKING_DIR
@@ -170,98 +171,8 @@ echo "Building libpciaccess............"
 cd $WORKING_DIR/libpciaccess
 autogen_build
 
-# Build pixman.
-cd $WORKING_DIR/pixman
-echo "Building pixman............"
-autogen_build
-
-# Build xcbproto
-cd $WORKING_DIR/xcbproto
-echo "Building xcbproto............"
-autogen_build
-
-# Build xorgproto
-echo "Building xorgproto............"
-cd $WORKING_DIR/xorgproto
-if [[ ($BUILD_TYPE == "--clean" && -d $LOCAL_MESON_BUILD_DIR) ]]; then
-  rm -rf $LOCAL_MESON_BUILD_DIR
-fi
-
-if [ $BUILD_ARCH == "i386" ]; then
-  generate_compiler_settings
-fi
-
-meson setup $LOCAL_MESON_BUILD_DIR -Dprefix=$LOCAL_CURRENT_WLD_PATH $LOCAL_MESON_COMPILER_OPTIONS && ninja -C $LOCAL_MESON_BUILD_DIR install
-
-# Build libxau
-echo "Building libxau............"
-cd $WORKING_DIR/libxau
-autogen_build
-
-# Build libxcb
-cd $WORKING_DIR/libxcb
-echo "Building libxcb............"
-autogen_build
-
-# Build xorg-libxtrans
-cd $WORKING_DIR/libxtrans
-echo "Building libxtrans............"
-autogen_build
-
-# Build xorg-libX11
-cd $WORKING_DIR/libX11
-echo "Building libX11............"
-autogen_build
-
-# Build libxkbfile
-cd $WORKING_DIR/libxkbfile
-echo "Building libxkbfile............"
-autogen_build
-
-# Build libxfont
-echo "Building libxfont............"
-cd $WORKING_DIR/libxfont
-autogen_build
-
-# Build libxext
-echo "Building libxext............"
-cd $WORKING_DIR/libxext
-autogen_build
-
-# Build libxfixes
-echo "Building libxfixes............"
-cd $WORKING_DIR/libxfixes
-autogen_build
-
-# Build libxdamage
-echo "Building libxdamage............"
-cd $WORKING_DIR/libxdamage
-autogen_build
-
-# Build libxshmfence
-echo "Building libxshmfence............"
-cd $WORKING_DIR/libxshmfence
-autogen_build
-
-# Build libxxf86vm
-echo "Building libxxf86vm............"
-cd $WORKING_DIR/libxxf86vm
-autogen_build
-
-# Build libxrender
-echo "Building libxrender............"
-cd $WORKING_DIR/libxrender
-autogen_build
-
-# Build libxrandr
-echo "Building libxrandr............"
-cd $WORKING_DIR/libxrandr
-autogen_build
-
-# Build libxxf86vm
-echo "Building libxdmcp............"
-cd $WORKING_DIR/libxdmcp
-autogen_build
+apt install -y libxkbfile-dev
+apt install -y libxkbfile-dev:i386
 
 # Build font util
 echo "Building util............"
@@ -276,14 +187,4 @@ autogen_build
 # Build xkeyboard-config
 echo "Building xkeyboard-config............"
 cd $WORKING_DIR/xkeyboard-config
-autogen_build
-
-# Build libXi
-echo "Building libXi............"
-cd $WORKING_DIR/libXi
-autogen_build
-
-# Build xtst
-echo "Building xtst............"
-cd $WORKING_DIR/xtst
 autogen_build

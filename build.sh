@@ -140,8 +140,13 @@ if [[ "$UPDATE_CONTAINER" == "--true" ]] || [[ "$COMPONENT_TARGET" == "--guest" 
 
   mkdir -p $BASE_DIR/build/scripts/guest
   cp -rf $BASE_DIR/guest/scripts/*.* $BASE_DIR/build/scripts/guest/
+  RECREATE_GUEST_ROOTFS=0
+  
+  if [[ "$BUILD_TYPE" == "--really-clean" ]] && [[ "$COMPONENT_TARGET" == "--guest" ]]; then
+    RECREATE_GUEST_ROOTFS=1
+  fi
 
-  if [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]] || [[ "$BUILD_TYPE" == "--really-clean" ]] || [[ ! -e $BASE_DIR/build/images/rootfs_guest.ext4 ]]; then
+  if [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]] || [[ $RECREATE_GUEST_ROOTFS == '1' ]] || [[ ! -e $BASE_DIR/build/images/rootfs_guest.ext4 ]]; then
     if bash rootfs/create_rootfs.sh $BASE_DIR 'guest' '--really-clean' '30000'; then
       echo “Built guest with default usersetup.”
     else

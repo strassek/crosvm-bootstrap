@@ -42,10 +42,10 @@ if [ $BUILD_ARCH == "i386" ]; then
   export C_INCLUDE_PATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm/
   export CPLUS_INCLUDE_PATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm/
   export CPATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm/
-  export PATH="$PATH:$LOCAL_CURRENT_WLD_PATH/include/:$LOCAL_CURRENT_WLD_PATH/include/libdrm/:$LOCAL_CURRENT_WLD_PATH/bin:/usr/bin:/usr/local/bin"
+  export PATH="$PATH:$LOCAL_CURRENT_WLD_PATH/include/:$LOCAL_CURRENT_WLD_PATH/include/libdrm/:$LOCAL_CURRENT_WLD_PATH/bin:/usr/bin:/usr/local/bin":/usr/share/wayland:/usr/share/wayland-protocols
   export ACLOCAL_PATH=$LOCAL_CURRENT_WLD_PATH/share/aclocal
   export ACLOCAL="aclocal -I $ACLOCAL_PATH"
-  export PKG_CONFIG_PATH=$LOCAL_CURRENT_WLD_PATH/lib/pkgconfig:$LOCAL_CURRENT_WLD_PATH/share/pkgconfig:/usr/lib/i386-linux-gnu/pkgconfig:/lib/i386-linux-gnu/pkgconfig
+  export PKG_CONFIG_PATH=$LOCAL_CURRENT_WLD_PATH/lib/pkgconfig:$LOCAL_CURRENT_WLD_PATH/share/pkgconfig:/usr/lib/i386-linux-gnu/pkgconfig:/lib/i386-linux-gnu/pkgconfig:/usr/share/pkgconfig
   export PKG_CONFIG_PATH_FOR_BUILD=$PKG_CONFIG_PATH
   export CC=/usr/bin/i686-linux-gnu-gcc
 
@@ -64,7 +64,7 @@ else
   export PATH="$PATH:$LOCAL_CURRENT_WLD_PATH/include/:$LOCAL_CURRENT_WLD_PATH/include/libdrm/:$LOCAL_CURRENT_WLD_PATH/bin"
   export ACLOCAL_PATH=$LOCAL_CURRENT_WLD_PATH/share/aclocal
   export ACLOCAL="aclocal -I $ACLOCAL_PATH"
-  export PKG_CONFIG_PATH=$LOCAL_CURRENT_WLD_PATH/lib/pkgconfig:$LOCAL_CURRENT_WLD_PATH/share/pkgconfig:$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu/pkgconfig:/lib/x86_64-linux-gnu/pkgconfig
+  export PKG_CONFIG_PATH=$LOCAL_CURRENT_WLD_PATH/lib/pkgconfig:$LOCAL_CURRENT_WLD_PATH/share/pkgconfig:$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu/pkgconfig:/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig
 fi
 
 # Set Working Build directory based on the channel.
@@ -181,24 +181,15 @@ if [ $BUILD_ARCH != "i386" ]; then
   mesonclean_asneeded 
   meson setup $LOCAL_MESON_BUILD_DIR  --buildtype $LOCAL_BUILD_TARGET -Dprefix=$LOCAL_CURRENT_WLD_PATH -Ddrm=true -Dx11=true -Dwayland=true -Dtests=true && ninja -C $LOCAL_MESON_BUILD_DIR install
   
-  # Build igc
-  echo "Building igc............"
-  cd $WORKING_DIR/compute/compiler
-  mesonclean_asneeded
-  
-  if [[ -e llvm-project/llvm/tools/ ]]; then
-    rm -rf llvm-project/llvm/tools/
-  fi
-  
-  if [[ -e llvm-project/clang  ]]; then
-    mkdir -p llvm-project/llvm/tools/
-    cp -rf llvm-project/clang/ llvm-project/llvm/tools/
-  fi
-  
-  mkdir -p $LOCAL_MESON_BUILD_DIR
-  cd $LOCAL_MESON_BUILD_DIR
-
-  #cmake ../igc/IGC -DCMAKE_INSTALL_PREFIX=$LOCAL_CURRENT_WLD_PATH
+  # FIXME: ADD IGC Build.
+  # Build Neo
+  #echo "Building Neo............"
+  #cd $WORKING_DIR/compute/neo
+  #mesonclean_asneeded
+  #mkdir -p $LOCAL_MESON_BUILD_DIR
+  #cmake -S . -B $LOCAL_MESON_BUILD_DIR -DCMAKE_INSTALL_PREFIX=$LOCAL_CURRENT_WLD_PATH -DCMAKE_BUILD_TYPE=Release -DSKIP_UNIT_TESTS=1
+  #cd $LOCAL_MESON_BUILD_DIR
+  #echo "cmake config done, starting make"
   #make -j`nproc`
   #make install
 fi

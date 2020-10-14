@@ -2,9 +2,10 @@
 
 TARGET=$1
 ENABLE_USERPTR=${2:-"--false"}
-DEBUG=${3:-"--false"}
-CHANNEL=${4:-"--stable"}
-BUILD_TARGET=${5:-"--release"}
+ENABLE_NATIVE_GPU=${3:-"--false"}
+DEBUG=${4:-"--false"}
+CHANNEL=${5:-"--stable"}
+BUILD_TARGET=${6:-"--release"}
 LOCAL_USER=$(whoami)
 
 cp /home/$LOCAL_USER/stable_release.env /home/$LOCAL_USER/.bash_env_settings
@@ -27,7 +28,6 @@ if [[ "$CHANNEL" == "--dev" ]] && [[ "$BUILD_TARGET" == "--debug" ]]; then
 fi
 
 source /home/$LOCAL_USER/.bash_env_settings
-export ENABLE_NATIVE_GPU=1
 
 if [[ "$DEBUG" == "--true" ]]; then
   export MESA_DEBUG=1
@@ -40,16 +40,25 @@ if [[ "$ENABLE_USERPTR" == "--true" ]]; then
   export ENABLE_USERPTR=1
 fi
 
-LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libdrm.so
-LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libdrm_intel.so
-LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/dri/iris_dri.so
-LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libGLESv2.so
-LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libGLESv1_CM.so
-LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libGL.so
-LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libEGL.so
-LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libvulkan_intel.so
-LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libepoxy.so
-LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libgbm.so
+if [[ "$ENABLE_NATIVE_GPU" == "--true" ]]; then
+  export ENABLE_NATIVE_GPU=1
+fi
 
+export SOMMELIER_SCALE=1.0
+export SOMMELIER_GLAMOR=1
+export SOMMELIER_DRM_DEVICE=/dev/dri/renderD128
+export SOMMELIER_VIRTWL_DEVICE=/dev/wl0
+export XDG_SESSION_TYPE=wayland
+export XDG_CONFIG_DIRS=/etc/xdg/xdg-fast-game:/etc/xdg
+export DESKTOP_SESSION=fast-game-wayland
+export XDG_SESSION_DESKTOP=fast-game-wayland
+export XAUTHORITY=/run/user/${UID}/.Xauthority
+export XDG_RUNTIME_DIR=/run/user/${UID}
+export XDG_DATA_DIRS=/usr/share/fast-game-wayland:/usr/local/share/:/usr/share/
+export GDMSESSION=fast-game-wayland
+export DISPLAY=:0
+export GNOME_SETUP_DISPLAY=:1
+export LESSOPEN=| /usr/bin/lesspipe %s
+export GDK_BACKEND=wayland
 
 sommelier --glamor --drm-device=/dev/dri/renderD128 $1

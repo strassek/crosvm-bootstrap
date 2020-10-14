@@ -30,6 +30,9 @@ LOCAL_ROOTFS_GAME_FAST=rootfs_game_fast
 LOCAL_ROOTFS_GAME_FAST_MOUNT_DIR=rootfs_game_fast-temp
 LOCAL_ROOTFS_COMMON=rootfs_common
 
+#user
+LOCAL_USER=test
+
 mkdir -p $LOG_DIR
 
 if bash game_fast/scripts/common_checks_internal.sh $COMPONENT_TARGET $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
@@ -61,12 +64,15 @@ sudo mkdir -p $LOCAL_ROOTFS_GAME_FAST_MOUNT_DIR/scripts/game_fast/
 sudo cp $LOCAL_PWD/scripts/game_fast/*.sh $LOCAL_ROOTFS_GAME_FAST_MOUNT_DIR/scripts/game_fast/
 
 sudo cp -rvf $LOCAL_PWD/config/default-config/common/* $LOCAL_ROOTFS_GAME_FAST_MOUNT_DIR/
-sudo cp -rvf $LOCAL_PWD/config/default-config/guest/* $LOCAL_ROOTFS_GAME_FAST_MOUNT_DIR/
 sudo cp -rvf $LOCAL_PWD/config/default-config/container/* $LOCAL_ROOTFS_GAME_FAST_MOUNT_DIR/
+sudo rm $LOCAL_ROOTFS_GAME_FAST_MOUNT_DIR/etc/profile.d/system-compositor.sh
 
 echo "enabling needed services"
-sudo chroot $LOCAL_ROOTFS_GAME_FAST_MOUNT_DIR/ /bin/bash /scripts/game_fast/services_internal.sh
-sudo chroot $LOCAL_ROOTFS_GAME_FAST_MOUNT_DIR/ /bin/bash /scripts/game_fast/system_packages_internal.sh
+sudo chroot $LOCAL_ROOTFS_GAME_FAST_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/game_fast/system_packages_internal.sh"
+
+sudo chroot $LOCAL_ROOTFS_GAME_FAST_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/game_fast/services_internal.sh"
+
+sudo cp -rvf $LOCAL_PWD/config/default-config/container/etc/profile.d/system-compositor.sh $LOCAL_ROOTFS_GAME_FAST_MOUNT_DIR/etc/profile.d/
 
 echo "Rootfs image for game_fast is ready. Preparing to compile game_fast packages..."
 sudo umount -l $LOCAL_ROOTFS_GAME_FAST_MOUNT_DIR
