@@ -197,6 +197,7 @@ install_package libpixman-1-dev
 install_package libexpat1-dev
 install_package libcairo2
 install_package libcairo2-dev
+install_package libxkbfile-dev
 #install_package libigc-dev 
 
 echo "Installing needed i386 system packages..."
@@ -238,6 +239,7 @@ install_package_i386 libpixman-1-0
 install_package_i386 libpixman-1-dev
 install_package_i386 libxcb-xkb1
 install_package_i386 libxcb-xkb-dev
+install_package_i386 libxkbfile-dev:i386
 
 apt autoremove -y
 

@@ -171,9 +171,6 @@ echo "Building libpciaccess............"
 cd $WORKING_DIR/libpciaccess
 autogen_build
 
-apt install -y libxkbfile-dev
-apt install -y libxkbfile-dev:i386
-
 # Build font util
 echo "Building util............"
 cd $WORKING_DIR/util
