@@ -9,7 +9,7 @@ A collection of scripts and dockerfiles to generate Docker images meant to host
 3. Run `./build.sh --rebuild-all` to kick off the build of the container and generate
 a rootfs image using the default settings.
 4. Run ./launcher.sh $XDG_RUNTIME_DIR $WAYLAND_DISPLAY $DISPLAY to launch the vm.
-5. Once inside VM, call setup-containers.sh everytime you re-build containers.
+5. Once inside VM, call setup-containers.sh everytime you re-build containers/re-launched VM.
 6. Inside VM: Call launch.sh will start the container.
 7. Once inside container you can run demo application using launch i.e. es2gears_wayland. For X11: launch-x es2gears_wayland
 
