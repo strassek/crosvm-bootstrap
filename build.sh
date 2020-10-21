@@ -62,7 +62,7 @@ if [ $COMPONENT_TARGET == "--rootfs" ] || [ $COMPONENT_TARGET == "--rebuild-all"
 fi
 
 if [ $COMPONENT_TARGET == "--common-libraries" ] || [ $COMPONENT_TARGET == "--rebuild-all" ]; then
-  if bash common/common_components_internal.sh $BASE_DIR $COMPONENT_TARGET $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET --false; then
+  if bash common/common_components_internal.sh $BASE_DIR 'common-libraries' $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
     echo “Built all common libraries to be used by host and guest”
     LOCAL_REGENERATE='--rebuild-all'
   else
@@ -115,16 +115,37 @@ if [[ "$COMPONENT_TARGET" == "--guest" ]]; then
   UPDATE_CONTAINER='--true'
 fi
 
-if [[ "$COMPONENT_TARGET" == "--game-fast" ]] || [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]]; then
+if [[ "$COMPONENT_TARGET" == "--game-fast" ]] || [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]] || [[ "$BUILD_TYPE" == "--really-clean" ]]; then
   if [ -e $BASE_DIR/build/scripts/game_fast ]; then
     rm -rf $BASE_DIR/build/scripts/game_fast
   fi
 
-  mkdir -p $BASE_DIR/build/scripts/game_fast
-  cp -rf $BASE_DIR/game_fast/scripts/*.* $BASE_DIR/build/scripts/game_fast
+  LOCAL_BUILD_TYPE=$BUILD_TYPE
+
+  mkdir -p $BASE_DIR/build/scripts/game-fast
+  cp -rf $BASE_DIR/game_fast/scripts/*.* $BASE_DIR/build/scripts/game-fast
+
+  if [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$BUILD_TYPE" == "--really-clean" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]] ||  [[ ! -e  "$BASE_DIR/build/containers/rootfs_game_fast.ext4" ]]; then
+    # Create Base image. This will be used for Host and cloning source code.
+    if bash rootfs/create_rootfs.sh $BASE_DIR 'game-fast' '--really-clean'; then
+      LOCAL_REGENERATE='--rebuild-all'
+      LOCAL_BUILD_TYPE='--clean'
+      echo “Built rootfs with default usersetup.”
+    else
+      echo “Failed to built rootfs with default usersetup, exit status: $?”
+      exit 1
+    fi
+  fi
+
+    if bash common/common_components_internal.sh $BASE_DIR 'game-fast' $LOCAL_BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
+       echo “Built all common libraries to be used by game-fast container.”
+    else
+      echo “Failed to build common libraries to be used by game-fast container. exit status: $?”
+      exit 1
+    fi
 
   # Create Base image. This will be used for Host and cloning source code.
-  if bash game_fast/build_game_fast.sh $BASE_DIR $LOCAL_REGENERATE $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
+  if bash game_fast/build_game_fast.sh $BASE_DIR $LOCAL_REGENERATE $LOCAL_BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
     echo “Built Game Fast.”
     UPDATE_CONTAINER='--true'
   else

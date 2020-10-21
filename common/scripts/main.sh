@@ -3,9 +3,10 @@
 # main.sh. Builds x11, wayland and drivers.
 
 BUILD_TYPE=$1
-COMPONENT_ONLY_BUILDS=$2
-BUILD_CHANNEL=$3
-BUILD_TARGET=$4
+COMPONENT_TARGET=$2
+COMPONENT_ONLY_BUILDS=$3
+BUILD_CHANNEL=$4
+BUILD_TARGET=$5
 
 LOCAL_DIRECTORY_PREFIX=/build
 LOCAL_BUILD_CHANNEL="--dev"
@@ -16,8 +17,8 @@ SCRIPTS_DIR=/scripts/common/
 
 source $SCRIPTS_DIR/error_handler_internal.sh $LOG_DIR component_build_err.log --none
 
-echo "main: Recieved Arguments...."
-if bash $SCRIPTS_DIR/common_checks_internal.sh $LOCAL_DIRECTORY_PREFIX /build --none $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
+echo "main: Recieved Arguments...."$COMPONENT_TARGET $COMPONENT_ONLY_BUILDS
+if bash $SCRIPTS_DIR/common_checks_internal.sh $LOCAL_DIRECTORY_PREFIX /build $COMPONENT_TARGET $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
   echo “Preparing for build...”
 else
   echo “Invalid build options, exit status: $?”

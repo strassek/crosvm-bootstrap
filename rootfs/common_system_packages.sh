@@ -46,6 +46,8 @@ else
 fi
 }
 
+install_package libxkbfile1
+install_package libxkbfile-dev
 install_package kmod
 install_package protobuf-compiler
 install_package g++
@@ -63,6 +65,8 @@ install_package pkg-config
 install_package libatomic-ops-dev
 install_package python3-setuptools
 install_package python3-certifi
+install_package libpixman-1-0
+install_package libpixman-1-dev
 install_package gpgv2
 install_package libffi-dev
 install_package bison
@@ -96,11 +100,6 @@ install_package libtool-bin
 install_package libxml2-dev
 install_package libc6
 install_package libc6-dev
-install_package xfonts-utils
-install_package xfonts-cyrillic
-install_package xfonts-100dpi
-install_package xfonts-75dpi
-install_package xfonts-base
 install_package zlib1g
 install_package xauth
 install_package x11proto-dev
@@ -140,9 +139,6 @@ install_package libx11-6
 install_package libx11-xcb1
 install_package libx11-xcb-dev
 install_package libx11-dev
-install_package libxkbfile1
-install_package libxkbfile-dev
-install_package libxfont2
 install_package libxext6
 install_package libxfixes3
 install_package libxdamage1
@@ -159,15 +155,24 @@ install_package libxtst6
 install_package libxi6
 install_package libxss1
 install_package xterm
-install_package libpixman-1-0
-install_package libpixman-1-dev
 install_package libexpat1-dev
 install_package libcairo2
 install_package libcairo2-dev
-install_package libxkbfile-dev
 #install_package libigc-dev 
+install_package libxcb-composite0-dev
+install_package libxtst-dev
+install_package libxfont-dev
+install_package libpixman-1-0
+install_package libpixman-1-dev
+install_package xfonts-utils
+install_package xfonts-cyrillic
+install_package xfonts-100dpi
+install_package xfonts-75dpi
+install_package xfonts-base
 
 echo "Installing needed i386 system packages..."
+install_package_i386 libxkbfile1
+install_package_i386 libxkbfile-dev
 install_package_i386 libunwind-dev
 install_package_i386 libsensors4-dev
 install_package_i386 libelf-dev
@@ -202,12 +207,10 @@ install_package_i386 libxcb-dri2-0
 install_package_i386 libxcb-dri2-0-dev
 install_package_i386 libxcb-dri3-0
 install_package_i386 libxcb-dri3-dev
-install_package_i386 libpixman-1-0
-install_package_i386 libpixman-1-dev
 install_package_i386 libxcb-xkb1
 install_package_i386 libxcb-xkb-dev
-install_package_i386 libxkbfile-dev
 install_package_i386 libcairo2
 install_package_i386 libcairo2-dev
 
 sudo apt autoremove -y
+

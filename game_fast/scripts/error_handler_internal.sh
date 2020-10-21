@@ -26,7 +26,7 @@ echo "--------------------------"
 
 exec 2>"$stderr_log"
 LOCAL_ROOTFS_GAME_FAST=rootfs_game_fast
-LOCAL_ROOTFS_GAME_FAST_MOUNT_DIR=$MOUNT_DIR/images/rootfs_game_fast-temp
+LOCAL_ROOTFS_GAME_FAST_MOUNT_DIR=$MOUNT_DIR/containers/rootfs_game_fast-temp
 
 
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##

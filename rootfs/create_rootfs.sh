@@ -32,6 +32,11 @@ if [[ "$COMPONENT_TARGET" == "guest" ]]; then
   LOCAL_ROOTFS_MOUNT_DIR=rootfs_guest-temp
 fi
 
+if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
+  LOCAL_ROOTFS_BASE=rootfs_game_fast
+  LOCAL_ROOTFS_MOUNT_DIR=rootfs_game_fast-temp
+fi
+
 mkdir -p $BASE_PWD/build/images
 mkdir -p $BASE_PWD/build/log/$COMPONENT_TARGET
 
@@ -82,7 +87,12 @@ mkfs.ext4 $LOCAL_ROOTFS_BASE.ext4
 mkdir $LOCAL_ROOTFS_MOUNT_DIR/
 
 sudo mount $LOCAL_ROOTFS_BASE.ext4 $LOCAL_ROOTFS_MOUNT_DIR/
-sudo $LOCAL_PWD/rootfs/debootstrap-debian --arch=amd64 --unpack-tarball=$LOCAL_PWD/rootfs/rootfs_base.tar buster $LOCAL_ROOTFS_MOUNT_DIR/
+if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
+  sudo $LOCAL_PWD/rootfs/debootstrap-ubuntu --arch=amd64 --unpack-tarball=$LOCAL_PWD/rootfs/rootfs_container.tar focal $LOCAL_ROOTFS_MOUNT_DIR/
+else
+  sudo $LOCAL_PWD/rootfs/debootstrap-debian --arch=amd64 --unpack-tarball=$LOCAL_PWD/rootfs/rootfs_base.tar buster $LOCAL_ROOTFS_MOUNT_DIR/
+fi
+
 sudo mount -t proc /proc $LOCAL_ROOTFS_MOUNT_DIR/proc
 sudo mount -o bind /dev/shm $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
 sudo mount -o bind /dev/pts $LOCAL_ROOTFS_MOUNT_DIR/dev/pts
@@ -92,16 +102,36 @@ sudo mkdir -p $LOCAL_ROOTFS_MOUNT_DIR/scripts/rootfs
 sudo cp $LOCAL_PWD/scripts/$COMPONENT_TARGET/*.sh $LOCAL_ROOTFS_MOUNT_DIR/scripts/$COMPONENT_TARGET/
 sudo cp $BASE_PWD/rootfs/*.sh $LOCAL_ROOTFS_MOUNT_DIR/scripts/rootfs/
 
-sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/rootfs/basic_setup.sh
+if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
+  sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/rootfs/basic_setup.sh 'ubuntu'
+else
+  sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/rootfs/basic_setup.sh 'debian'
+fi
 
-echo "Installing needed system packages for host and vm"
-sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/$COMPONENT_TARGET/system_packages_internal.sh"
+if [[ "$COMPONENT_TARGET" != "guest" ]]; then
+echo "Installing needed system packages...."
+sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/rootfs/common_system_packages.sh"
+fi
+
+if [[ "$COMPONENT_TARGET" == "guest" ]] ||  [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
+  sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/$COMPONENT_TARGET/system_packages_internal.sh"
+fi
 
 sudo cp -rvf $LOCAL_PWD/config/default-config/common/* $LOCAL_ROOTFS_MOUNT_DIR/
 
 if [[ "$COMPONENT_TARGET" == "guest" ]]; then
   sudo cp -rvf $LOCAL_PWD/config/default-config/guest/* $LOCAL_ROOTFS_MOUNT_DIR/
   sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/$COMPONENT_TARGET/container_settings.sh
+fi
+
+if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
+  sudo cp -rvf $LOCAL_PWD/config/default-config/container/* $LOCAL_ROOTFS_MOUNT_DIR/
+  sudo rm $LOCAL_ROOTFS_MOUNT_DIR/etc/profile.d/system-compositor.sh
+
+  echo "enabling needed services"
+  sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/$COMPONENT_TARGET/services_internal.sh"
+
+  sudo cp -rvf $LOCAL_PWD/config/default-config/container/etc/profile.d/system-compositor.sh $LOCAL_ROOTFS_MOUNT_DIR/etc/profile.d/
 fi
 
 echo "Rootfs ready..."
@@ -122,7 +152,11 @@ fi
 rm -rf $LOCAL_ROOTFS_MOUNT_DIR
 }
 
-cd $LOCAL_PWD/images/
+if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
+  cd $LOCAL_PWD/containers/
+else
+  cd $LOCAL_PWD/images/
+fi
 
 destroy_base_rootfs_as_needed
 generate_base_rootfs

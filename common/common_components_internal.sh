@@ -13,18 +13,17 @@ set -o nounset
 set -o pipefail
 
 BASE_PWD=${1}
-COMPONENT_TARGET=${2:-"--none"}
+COMPONENT_TARGET=${2:-"none"}
 BUILD_TYPE=${3:-"--clean"} # Possible values: --clean, --incremental --really-clean
 COMPONENT_ONLY_BUILDS=${4:-"--all"}
 BUILD_CHANNEL=${5:-"--stable"} # Possible values: --dev, --stable, --all
 BUILD_TARGET=${6:-"--release"} # Possible values: --release, --debug, --all
-CREATE_BASE_IMAGE_ONLY=${7:-"--false"} # Possible values: --false, --true
 
 LOCAL_PWD=$BASE_PWD/build
 SOURCE_PWD=$BASE_PWD/source
 LOCAL_BUILD_TYPE=$BUILD_TYPE
 LOCAL_COMPONENT_ONLY_BUILDS=$COMPONENT_ONLY_BUILDS
-LOG_DIR=$BASE_PWD/build/log/common
+LOG_DIR=$BASE_PWD/build/log/$COMPONENT_TARGET
 SCRIPTS_DIR=$LOCAL_PWD/scripts
 
 # Rootfs Names
@@ -32,18 +31,29 @@ LOCAL_ROOTFS_BASE=rootfs_base
 LOCAL_ROOTFS_COMMON=rootfs_common
 LOCAL_ROOTFS_COMMON_MOUNT_DIR=rootfs_common-temp
 
-mkdir -p $BASE_PWD/build/log/common
+if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
+  LOCAL_ROOTFS_COMMON=rootfs_game_fast
+  LOCAL_ROOTFS_COMMON_MOUNT_DIR=$LOCAL_ROOTFS_COMMON-temp
+fi
+
+mkdir -p $LOG_DIR
+
+source $SCRIPTS_DIR/common/error_handler_internal.sh $LOG_DIR $COMPONENT_TARGET.log $LOCAL_PWD $COMPONENT_TARGET
 
 if bash common/scripts/common_checks_internal.sh $LOCAL_PWD $SOURCE_PWD $COMPONENT_TARGET $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
-  echo “Preparing to build common components...”
+  echo “Preparing to build dependencies for $COMPONENT_TARGET...”
 else
   echo “Failed to find needed dependencies, exit status: $?”
   exit 1
 fi
 
-source $SCRIPTS_DIR/common/error_handler_internal.sh $LOG_DIR common_component_setup.log $LOCAL_PWD
-
 generate_component_rootfs() {
+if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
+    echo "game-fast container rootfs image already exists. Reusing it."
+    return 0;
+fi
+
+
 if [ -e $LOCAL_ROOTFS_COMMON.ext4 ]; then
   echo "Component rootfs image already exists. Reusing it."
   return 0;
@@ -80,6 +90,10 @@ fi
 }
 
 destroy_component_rootfs_as_needed() {
+if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
+  return 0;
+fi
+
 cleanup_build_env
 
 if [ $BUILD_TYPE == "--really-clean" ]; then
@@ -114,18 +128,19 @@ if [ -e $LOCAL_ROOTFS_COMMON_MOUNT_DIR/scripts/common ]; then
 fi
 
 sudo mkdir -p $LOCAL_ROOTFS_COMMON_MOUNT_DIR/scripts/common
+echo "COpying--------------------" $LOCAL_ROOTFS_COMMON_MOUNT_DIR
 sudo cp -v $LOCAL_PWD/scripts/common/*.sh $LOCAL_ROOTFS_COMMON_MOUNT_DIR/scripts/common/
 
 sudo mkdir -p $LOCAL_ROOTFS_COMMON_MOUNT_DIR/build
 sudo mkdir -p $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common
 sudo mount --rbind $SOURCE_PWD $LOCAL_ROOTFS_COMMON_MOUNT_DIR/build
-sudo mount --rbind $BASE_PWD/build/log/common $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common
+sudo mount --rbind $BASE_PWD/build/log/$COMPONENT_TARGET $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common
 }
 
 building_component() {
 component="${1}"
 ls -a $LOCAL_ROOTFS_COMMON_MOUNT_DIR/scripts/common/
-if sudo chroot $LOCAL_ROOTFS_COMMON_MOUNT_DIR/ /bin/bash /scripts/common/main.sh $LOCAL_BUILD_TYPE $component $BUILD_CHANNEL $BUILD_TARGET; then
+if sudo chroot $LOCAL_ROOTFS_COMMON_MOUNT_DIR/ /bin/bash /scripts/common/main.sh $LOCAL_BUILD_TYPE $COMPONENT_TARGET $component $BUILD_CHANNEL $BUILD_TARGET; then
   echo "Built------------" $component
 else
   exit 1
@@ -139,15 +154,15 @@ generate_component_rootfs
 setup_build_env
 
 echo "Building components."
-if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--x11" ]; then
-  building_component "--x11"
-fi
+  if [[ "$LOCAL_COMPONENT_ONLY_BUILDS" == "--all" ]] || [[ "$LOCAL_COMPONENT_ONLY_BUILDS" == "--x11" ]]; then
+    building_component "--x11"
+  fi
 
-if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--wayland" ]; then
-  building_component "--wayland"
-fi
+  if [[ "$LOCAL_COMPONENT_ONLY_BUILDS" == "--all" ]] || [[ "$LOCAL_COMPONENT_ONLY_BUILDS" == "--wayland" ]]; then
+    building_component "--wayland"
+  fi
 
-if [ $LOCAL_COMPONENT_ONLY_BUILDS == "--all" ] || [ $LOCAL_COMPONENT_ONLY_BUILDS == "--drivers" ]; then
+if [[ "$LOCAL_COMPONENT_ONLY_BUILDS" == "--all" ]] || [[ "$LOCAL_COMPONENT_ONLY_BUILDS" == "--drivers" ]]; then
   building_component "--drivers"
 fi
 

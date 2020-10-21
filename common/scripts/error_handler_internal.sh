@@ -11,6 +11,7 @@ lib_name='error_handler_internal'
 LOG_DIR=${1}
 ERR_LOG_NAME=${2}
 MOUNT_DIR=${3}
+TARGET_COMPONENT=${4:-"none"}
 
 echo "error_handler_internal: Recieved Arguments...."
 echo "LOG_DIR:" $LOG_DIR
@@ -28,6 +29,11 @@ LOCAL_ROOTFS_BASE=rootfs_base
 LOCAL_ROOTFS_MOUNT_DIR=$MOUNT_DIR/images/rootfs_base-temp
 LOCAL_ROOTFS_COMMON=rootfs_common
 LOCAL_ROOTFS_COMMON_MOUNT_DIR=$MOUNT_DIR/images/rootfs_common-temp
+
+if [[ "$TARGET_COMPONENT" == "game-fast" ]]; then
+  LOCAL_ROOTFS_COMMON=rootfs_game_fast
+  LOCAL_ROOTFS_COMMON_MOUNT_DIR=$MOUNT_DIR/containers/$LOCAL_ROOTFS_COMMON-temp
+fi
 
 echo "error_handler_internal: Using Arguments...."
 echo "LOG_DIR:" $LOG_DIR
