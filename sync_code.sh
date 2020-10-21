@@ -57,6 +57,6 @@ if [ $CHANNEL == "--dev" ] || [ $CHANNEL == "--all" ]; then
   repo sync $LOCAL_SYNC_PARAM
 fi
 
-if [[ -e "internal_sync_code.sh" ]]
+if [[ -e "internal_sync_code.sh" ]]; then
   source internal_sync_code.sh
 fi
