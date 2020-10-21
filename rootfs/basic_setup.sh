@@ -110,7 +110,7 @@ chmod 0440 /etc/sudoers.d/$LOCAL_UNAME
 chown $uid:$gid -R /home/$LOCAL_UNAME
 export uid=$LOCAL_uid gid=$LOCAL_gid
 echo "adding groups"
-usermod -aG sudo,audio,video,input,render,lp,docker $LOCAL_UNAME
+usermod -aG sudo,audio,video,input,render,lp $LOCAL_UNAME
 #loginctl enable-linger $UNAME
 echo "bash_aliases"
 

@@ -82,7 +82,7 @@ mkfs.ext4 $LOCAL_ROOTFS_BASE.ext4
 mkdir $LOCAL_ROOTFS_MOUNT_DIR/
 
 sudo mount $LOCAL_ROOTFS_BASE.ext4 $LOCAL_ROOTFS_MOUNT_DIR/
-sudo $LOCAL_PWD/rootfs/debootstrap --arch=amd64 --unpack-tarball=$LOCAL_PWD/rootfs/rootfs_base.tar buster $LOCAL_ROOTFS_MOUNT_DIR/
+sudo $LOCAL_PWD/rootfs/debootstrap-debian --arch=amd64 --unpack-tarball=$LOCAL_PWD/rootfs/rootfs_base.tar buster $LOCAL_ROOTFS_MOUNT_DIR/
 sudo mount -t proc /proc $LOCAL_ROOTFS_MOUNT_DIR/proc
 sudo mount -o bind /dev/shm $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
 sudo mount -o bind /dev/pts $LOCAL_ROOTFS_MOUNT_DIR/dev/pts
