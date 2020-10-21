@@ -56,3 +56,7 @@ if [ $CHANNEL == "--dev" ] || [ $CHANNEL == "--all" ]; then
   repo init -u  https://github.com/kalyankondapally/manifest.git -m dev.xml
   repo sync $LOCAL_SYNC_PARAM
 fi
+
+if [[ -e "internal_sync_code.sh" ]]
+  source internal_sync_code.sh
+fi
