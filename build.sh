@@ -60,6 +60,10 @@ if [[ "$COMPONENT_TARGET" == "--host" ]] || [[ "$COMPONENT_TARGET" == "--rebuild
   if [ -e $BASE_DIR/build/scripts/host ]; then
     rm -rf $BASE_DIR/build/scripts/host
   fi
+  
+  if [[ "$(docker images -q intel_host 2> /dev/null)" != "" ]]; then
+	docker rmi -f intel_host:latest
+  fi
 
   mkdir -p $BASE_DIR/build/scripts/host
   cp -rf $BASE_DIR/host/scripts/*.* $BASE_DIR/build/scripts/host
@@ -201,16 +205,18 @@ if [ -e $BASE_DIR/build/launch ]; then
   rm -rf $BASE_DIR/build/launch
 fi
 
-if [[ -e $BASE_DIR/build/containers/rootfs_host.ext4 ]] && [[ -e $BASE_DIR/build/containers/game_fast.ext4 ]] && [[ -e $BASE_DIR/build/images/rootfs_guest.ext4 ]] && [[ -e $BASE_DIR/build/images/vmlinux ]]; then
+if [[ -e "$BASE_DIR/build/containers/rootfs_host.ext4" ]] && [[ -e "$BASE_DIR/build/containers/rootfs_game_fast.ext4" ]] && [[ -e "$BASE_DIR/build/images/rootfs_guest.ext4" ]] && [[ -e "$BASE_DIR/build/images/vmlinux" ]]; then
 	mkdir -p $BASE_DIR/build/launch
 	mkdir -p $BASE_DIR/build/launch/images
+	mkdir -p $BASE_DIR/build/launch/docker/
 	cd $BASE_DIR/build/launch
 	cp $BASE_DIR/launcher.sh .
 	cp -rf $BASE_DIR/launch .
-	mv $BASE_DIR/launch/docker/start.dockerfile $BASE_DIR/launch/docker/Dockerfile-start
-	mv $BASE_DIR/launch/docker/stop.dockerfile $BASE_DIR/launch/docker/Dockerfile-stop
+	cp $BASE_DIR/launch/docker/start.dockerfile $BASE_DIR/build/launch/docker/Dockerfile-start
+	cp $BASE_DIR/launch/docker/stop.dockerfile $BASE_DIR/build/launch/docker/Dockerfile-stop
 	cp $BASE_DIR/tools/*.sh $BASE_DIR/launch/scripts/
 	cp $BASE_DIR/build/containers/rootfs_host.ext4 images/
-	cp $BASE_DIR/build/containers/game_fast.ext4 images/
+	cp $BASE_DIR/build/containers/rootfs_game_fast.ext4 images/
 	cp $BASE_DIR/build/images/rootfs_guest.ext4 images/
+	cp $BASE_DIR/build/images/vmlinux images/
 fi

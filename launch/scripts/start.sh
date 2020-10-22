@@ -107,7 +107,7 @@ if [ $num -eq $EXIT_CHOICE ]; then
 fi 
 
 if [ $num -lt $VIRTIO_CHOICE ]; then
-  LOCAL_SERIAL_ID=$(/bin/bash /scripts/exec/setup_gpu_passthrough.sh bind $num)
+  LOCAL_SERIAL_ID=$(/bin/bash /scripts/setup_gpu_passthrough.sh bind $num)
   ACCELERATION_OPTION="--vfio /sys/bus/pci/devices/$LOCAL_SERIAL_ID"
 else
   if [ $num -eq $VIRTIO_CHOICE ]; then
@@ -120,7 +120,7 @@ else
 fi 
 }
 
-/bin/bash /scripts/exec/ip_tables.sh eth0 vmtap0
+/bin/bash /scripts/ip_tables.sh eth0 vmtap0
 
 # Handle PCI Passthrough checks.
 enable_gpu_acceleration
@@ -133,5 +133,5 @@ export EGL_LOG_LEVEL=debug
 EGL_LOG_LEVEL=debug MESA_LOG_LEVEL=debug MESA_LOADER_DRIVER_OVERRIDE=iris LD_LIBRARY_PATH=$LOCAL_LIBRARY_PATH $LOCAL_EXEC_DIRECTORY/crosvm run --disable-sandbox $ACCELERATION_OPTION --rwdisk /images/rootfs_guest.ext4 -s /images/crosvm.sock -m 10240 --cpus 4 -p "root=/dev/vda" -p "intel_iommu=on" --host_ip 10.0.0.1 --netmask 255.255.255.0 --mac $(genMAC) --wayland-sock=/tmp/$WAYLAND_DISPLAY --wayland-dmabuf --x-display=$DISPLAY /images/vmlinux
 
 if [[ -z $LOCAL_SERIAL_ID ]]; then
-  /bin/bash /scripts/exec/setup_gpu_passthrough.sh unbind $LOCAL_SERIAL_ID
+  /bin/bash /scripts/setup_gpu_passthrough.sh unbind $LOCAL_SERIAL_ID
 fi

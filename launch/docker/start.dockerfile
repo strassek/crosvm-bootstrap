@@ -1,3 +1,3 @@
 FROM intel_host
 
-ENTRYPOINT [ "/bin/bash", "/scripts/exec/start.sh" ]
+ENTRYPOINT [ "/bin/bash", "/scripts/start.sh" ]
