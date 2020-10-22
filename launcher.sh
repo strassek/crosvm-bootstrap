@@ -14,7 +14,7 @@ CHANNEL=${4:-"--stable"}
 TARGET=${5:-"--release"}
 ACTION=${6:-"--run"}
 
-BASE_DIRECTORY=$PWD/build
+BASE_DIRECTORY=$PWD
 LOCAL_KERNEL_CMD_OPTIONS=""
 LOCAL_BUILD_TARGET=release
 LOCAL_CHANNEL=stable
@@ -31,27 +31,6 @@ if [ $LOCAL_CHANNEL == "--dev" ]; then
   LOCAL_CHANNEL=dev
 fi
 
-if [ -e $BASE_DIRECTORY/docker/exec/ ]; then
-  sudo rm -rf $BASE_DIRECTORY/docker/exec/
-fi
-
-mkdir -p $BASE_DIRECTORY/docker/exec/
-
-if [ -e $BASE_DIRECTORY/scripts/exec/ ]; then
-  sudo rm -rf $BASE_DIRECTORY/scripts/exec/
-fi
-
-cp launch/docker/start.dockerfile $BASE_DIRECTORY/docker/exec/Dockerfile-start
-cp launch/docker/stop.dockerfile $BASE_DIRECTORY/docker/exec/Dockerfile-stop
-
-if [ -e $BASE_DIRECTORY/scripts/exec/ ]; then
-  sudo rm -rf $BASE_DIRECTORY/scripts/exec/
-fi
-
-mkdir -p $BASE_DIRECTORY/scripts/exec/
-cp launch/scripts/*.sh $BASE_DIRECTORY/scripts/exec/
-cp tools/*.sh $BASE_DIRECTORY/scripts/exec/
-
 if [ $ACTION == "--run" ]; then
 
 if [[ "$(sudo docker images -q intel_host:latest 2> /dev/null)" != "" ]]; then
@@ -61,7 +40,28 @@ else
   exit 1
 fi
 
-cd $BASE_DIRECTORY/docker/exec/
+echo "Preparing to create docker image...."
+if [ ! -e $PWD/rootfs_host.ext4 ]; then
+	echo "Cannot find rootfs_host.ext4 file. Please check the build...."
+	exit 1
+fi
+
+if [[ "$(docker images -q intel_host 2> /dev/null)" != "" ]]; then
+	docker rmi -f intel_host:latest
+fi
+  
+if mount | grep intel_host > /dev/null; then
+	sudo umount -l intel_host
+fi
+
+rm -rf intel_host
+mkdir intel_host
+sudo mount rootfs_host.ext4 intel_host
+sudo tar -C intel_host -c . | sudo docker import - intel_host
+sudo umount -l intel_host
+rm -rf intel_host
+
+cd $BASE_DIRECTORY/launch/docker/
 sudo docker build -t intel-vm-launch:latest -f Dockerfile-start .
 exec sudo docker run -it --rm --privileged \
     --ipc=host \
@@ -83,7 +83,7 @@ if [ $ACTION == "--stop" ]; then
     sudo docker rmi -f intel-vm-stop:latest
   fi
 
-  cd $BASE_DIRECTORY/docker/exec/
+  cd $BASE_DIRECTORY/launch/docker/
   sudo docker build -t intel-vm-stop:latest -f Dockerfile-stop .
   exec sudo docker run -it --cap-add net_admin \
       --ipc=host \

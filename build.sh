@@ -85,26 +85,6 @@ if [[ "$COMPONENT_TARGET" == "--host" ]] || [[ "$COMPONENT_TARGET" == "--rebuild
   # Create Base image. This will be used for Host and cloning source code.
   if bash host/build_host_internal.sh $BASE_DIR $LOCAL_REGENERATE $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
     echo “Built host rootfs.”
-      echo "Preparing to create docker image...."
-  cd $BASE_DIR/build/containers
-  if [ ! -e rootfs_host.ext4 ]; then
-    echo "Cannot find rootfs_host.ext4 file. Please check the build...."
-    exit 1
-  fi
-
-  if [[ "$(docker images -q intel_host 2> /dev/null)" != "" ]]; then
-    docker rmi -f intel_host:latest
-  fi
-  
-  if mount | grep intel_host > /dev/null; then
-    sudo umount -l intel_host
-  fi
-  rm -rf intel_host
-  mkdir intel_host
-  sudo mount rootfs_host.ext4 intel_host
-  sudo tar -C intel_host -c . | sudo docker import - intel_host
-  sudo umount -l intel_host
-  rm -rf intel_host
   else
     echo “Failed to build host rootfs. exit status: $?”
     exit 1
@@ -215,4 +195,22 @@ if [[ "$COMPONENT_TARGET" == "--kernel" ]] || [[ "$COMPONENT_TARGET" == "--rebui
 
     mv vmlinux $BASE_DIR/build/images/
   fi
+fi
+
+if [ -e $BASE_DIR/build/launch ]; then
+  rm -rf $BASE_DIR/build/launch
+fi
+
+if [[ -e $BASE_DIR/build/containers/rootfs_host.ext4 ]] && [[ -e $BASE_DIR/build/containers/game_fast.ext4 ]] && [[ -e $BASE_DIR/build/images/rootfs_guest.ext4 ]] && [[ -e $BASE_DIR/build/images/vmlinux ]]; then
+	mkdir -p $BASE_DIR/build/launch
+	mkdir -p $BASE_DIR/build/launch/images
+	cd $BASE_DIR/build/launch
+	cp $BASE_DIR/launcher.sh .
+	cp -rf $BASE_DIR/launch .
+	mv $BASE_DIR/launch/docker/start.dockerfile $BASE_DIR/launch/docker/Dockerfile-start
+	mv $BASE_DIR/launch/docker/stop.dockerfile $BASE_DIR/launch/docker/Dockerfile-stop
+	cp $BASE_DIR/tools/*.sh $BASE_DIR/launch/scripts/
+	cp $BASE_DIR/build/containers/rootfs_host.ext4 images/
+	cp $BASE_DIR/build/containers/game_fast.ext4 images/
+	cp $BASE_DIR/build/images/rootfs_guest.ext4 images/
 fi
