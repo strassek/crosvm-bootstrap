@@ -109,6 +109,14 @@ make install
 CUSTOM_APP_OPTIONS=""
 }
 
+function mesonclean_asneeded() {
+if [ $BUILD_TYPE == "--clean" ]; then
+  if [ -d $LOCAL_MESON_BUILD_DIR ]; then
+    rm -rf $LOCAL_MESON_BUILD_DIR
+  fi
+fi
+}
+
 echo "checking " $LOCAL_CURRENT_WLD_PATH/share/aclocal
 mkdir -p $LOCAL_CURRENT_WLD_PATH/share/aclocal
 if [ ! -d "$LOCAL_CURRENT_WLD_PATH/share/aclocal" ]; then
@@ -135,3 +143,7 @@ autogen_build
 echo "Building xdpyinfo............"
 cd $WORKING_DIR/xdpyinfo
 autogen_build
+
+cd $WORKING_DIR/igt
+mesonclean_asneeded
+meson setup $LOCAL_MESON_BUILD_DIR -Dprefix=$LOCAL_CURRENT_WLD_PATH -Doverlay=disabled -Dtests=disabled -Ddocs=disabled -Dman=disabled -Drunner=disabled -Dassembler=disabled  && ninja -C $LOCAL_MESON_BUILD_DIR install
