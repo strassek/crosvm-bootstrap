@@ -51,7 +51,12 @@ fi
 mkdir -p $BASE_DIR/build/scripts/common
 cp -rf $BASE_DIR/common/scripts/*.* $BASE_DIR/build/scripts/common
 
-if [[ "$COMPONENT_TARGET" == "--host" ]] || [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$BUILD_TYPE" == "--really-clean" ]]; then
+LOCAL_BUILD_HOST="false"
+if [[ "$COMPONENT_TARGET" == "--host" ]] && [[ "$BUILD_TYPE" == "--really-clean" ]]; then
+  LOCAL_BUILD_HOST="true"
+fi
+
+if [[ "$COMPONENT_TARGET" == "--host" ]] || [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$LOCAL_BUILD_HOST" == "true" ]]; then
   if [ -e $BASE_DIR/build/scripts/host ]; then
     rm -rf $BASE_DIR/build/scripts/host
   fi
@@ -113,7 +118,12 @@ if [[ "$COMPONENT_TARGET" == "--guest" ]]; then
   UPDATE_CONTAINER='--true'
 fi
 
-if [[ "$COMPONENT_TARGET" == "--game-fast" ]] || [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]] || [[ "$BUILD_TYPE" == "--really-clean" ]]; then
+LOCAL_BUILD_GUEST="false"
+if [[ "$COMPONENT_TARGET" == "--guest" ]] && [[ "$BUILD_TYPE" == "--really-clean" ]]; then
+  LOCAL_BUILD_GUEST="true"
+fi
+
+if [[ "$COMPONENT_TARGET" == "--game-fast" ]] || [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]] || [[ "$LOCAL_BUILD_GUEST" == "true" ]]; then
   if [ -e $BASE_DIR/build/scripts/game_fast ]; then
     rm -rf $BASE_DIR/build/scripts/game_fast
   fi
@@ -124,17 +134,17 @@ if [[ "$COMPONENT_TARGET" == "--game-fast" ]] || [[ "$COMPONENT_TARGET" == "--re
   cp -rf $BASE_DIR/game_fast/scripts/*.* $BASE_DIR/build/scripts/game-fast
 
   if [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$BUILD_TYPE" == "--really-clean" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]] ||  [[ ! -e  "$BASE_DIR/build/containers/rootfs_game_fast.ext4" ]]; then
+    LOCAL_REGENERATE="--rebuild-all"
+    LOCAL_BUILD_TYPE="--clean"
     # Create Base image. This will be used for Host and cloning source code.
     if bash rootfs/create_rootfs.sh $BASE_DIR 'game-fast' '--really-clean'; then
-      LOCAL_REGENERATE='--rebuild-all'
-      LOCAL_BUILD_TYPE='--clean'
       echo “Built rootfs with default usersetup.”
     else
       echo “Failed to built rootfs with default usersetup, exit status: $?”
       exit 1
     fi
   fi
-
+  echo "LOCAL_BUILD_TYPE" $LOCAL_BUILD_TYPE
     if bash common/common_components_internal.sh $BASE_DIR 'game-fast' $LOCAL_BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
        echo “Built all common libraries to be used by game-fast container.”
     else

@@ -36,6 +36,10 @@ if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
   LOCAL_ROOTFS_COMMON_MOUNT_DIR=$LOCAL_ROOTFS_COMMON-temp
 fi
 
+if [[ "$LOCAL_BUILD_TYPE" == "--really-clean" ]]; then
+  LOCAL_BUILD_TYPE="--clean"
+fi
+
 mkdir -p $LOG_DIR
 
 source $SCRIPTS_DIR/common/error_handler_internal.sh $LOG_DIR $COMPONENT_TARGET.log $LOCAL_PWD $COMPONENT_TARGET
