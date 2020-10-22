@@ -48,13 +48,12 @@ sudo apt update
 sudo ldconfig
 sudo ldconfig -p
 
-wget http://archive.ubuntu.com/ubuntu/pool/main/p/procps/libprocps6_3.3.12-3ubuntu1.2_amd64.deb
-apt install ./libprocps6_3.3.12-3ubuntu1.2_amd64.deb
 wget http://archive.ubuntu.com/ubuntu/pool/main/j/json-c/libjson-c3_0.12.1-1.3ubuntu0.3_amd64.deb
 apt install ./libjson-c3_0.12.1-1.3ubuntu0.3_amd64.deb
+install_package libprocps-dev
 install_package libkmod-dev
 install_package libgsl-dev
-install_package libasound-dev
+install_package libasound2-dev
 install_package libxmlrpc-c++8-dev
 install_package libdw-dev
 install_package gedit
@@ -65,6 +64,8 @@ install_package libqt5waylandcompositor5
 install_package qtwayland5
 #install_package gnome-session-wayland
 install_package qtcreator
+
+ln -s /usr/lib/x86_64-linux-gnu/libprocps.so.8 /usr/lib/x86_64-linux-gnu/libprocps.so.6
 
 sudo ldconfig
 sudo ldconfig -p
