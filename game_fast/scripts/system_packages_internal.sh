@@ -48,6 +48,9 @@ sudo apt update
 sudo ldconfig
 sudo ldconfig -p
 
+install_package libkmod-dev
+install_package libprocps-dev
+install_package libdw-dev
 install_package gedit
 install_package steam
 install_package firefox
