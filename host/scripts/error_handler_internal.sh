@@ -25,7 +25,7 @@ echo "--------------------------"
 
 exec 2>"$stderr_log"
 LOCAL_ROOTFS_HOST=rootfs_host
-LOCAL_ROOTFS_HOST_MOUNT_DIR=$MOUNT_DIR/images/rootfs_host-temp
+LOCAL_ROOTFS_HOST_MOUNT_DIR=$MOUNT_DIR/containers/rootfs_host-temp
 
 
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##

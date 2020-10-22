@@ -24,8 +24,8 @@ SCRIPTS_DIR=$LOCAL_PWD/scripts
 LOCAL_USER=test
 
 # Rootfs Names
-LOCAL_ROOTFS_BASE=rootfs_base
-LOCAL_ROOTFS_MOUNT_DIR=rootfs_base-temp
+LOCAL_ROOTFS_BASE=rootfs_host
+LOCAL_ROOTFS_MOUNT_DIR=rootfs_host-temp
 
 if [[ "$COMPONENT_TARGET" == "guest" ]]; then
   LOCAL_ROOTFS_BASE=rootfs_guest
@@ -113,9 +113,7 @@ echo "Installing needed system packages...."
 sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/rootfs/common_system_packages.sh"
 fi
 
-if [[ "$COMPONENT_TARGET" == "guest" ]] ||  [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
-  sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/$COMPONENT_TARGET/system_packages_internal.sh"
-fi
+sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/$COMPONENT_TARGET/system_packages_internal.sh
 
 sudo cp -rvf $LOCAL_PWD/config/default-config/common/* $LOCAL_ROOTFS_MOUNT_DIR/
 
@@ -152,7 +150,7 @@ fi
 rm -rf $LOCAL_ROOTFS_MOUNT_DIR
 }
 
-if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
+if [[ "$COMPONENT_TARGET" == "game-fast" ]] || [[ "$COMPONENT_TARGET" == "host" ]]; then
   cd $LOCAL_PWD/containers/
 else
   cd $LOCAL_PWD/images/

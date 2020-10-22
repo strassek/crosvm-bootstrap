@@ -51,27 +51,7 @@ fi
 mkdir -p $BASE_DIR/build/scripts/common
 cp -rf $BASE_DIR/common/scripts/*.* $BASE_DIR/build/scripts/common
 
-if [ $COMPONENT_TARGET == "--rootfs" ] || [ $COMPONENT_TARGET == "--rebuild-all" ]; then
-  # Create Base image. This will be used for Host and cloning source code.
-  if bash rootfs/create_rootfs.sh $BASE_DIR 'common' '--really-clean'; then
-    echo “Built rootfs with default usersetup.”
-  else
-    echo “Failed to built rootfs with default usersetup, exit status: $?”
-    exit 1
-  fi
-fi
-
-if [ $COMPONENT_TARGET == "--common-libraries" ] || [ $COMPONENT_TARGET == "--rebuild-all" ]; then
-  if bash common/common_components_internal.sh $BASE_DIR 'common-libraries' $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
-    echo “Built all common libraries to be used by host and guest”
-    LOCAL_REGENERATE='--rebuild-all'
-  else
-    echo “Failed to build common libraries to be used by host and guest. exit status: $?”
-    exit 1
-  fi
-fi
-
-if [[ "$COMPONENT_TARGET" == "--host" ]] || [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]]; then
+if [[ "$COMPONENT_TARGET" == "--host" ]] || [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$BUILD_TYPE" == "--really-clean" ]]; then
   if [ -e $BASE_DIR/build/scripts/host ]; then
     rm -rf $BASE_DIR/build/scripts/host
   fi
@@ -79,11 +59,29 @@ if [[ "$COMPONENT_TARGET" == "--host" ]] || [[ "$COMPONENT_TARGET" == "--rebuild
   mkdir -p $BASE_DIR/build/scripts/host
   cp -rf $BASE_DIR/host/scripts/*.* $BASE_DIR/build/scripts/host
 
+  if [ $COMPONENT_TARGET == "--rebuild-all" ] || [[ "$BUILD_TYPE" == "--really-clean" ]]; then
+    # Create Base image. This will be used for Host and cloning source code.
+    if bash rootfs/create_rootfs.sh $BASE_DIR 'host' '--really-clean'; then
+      echo “Built rootfs with default usersetup.”
+    else
+      echo “Failed to built rootfs with default usersetup, exit status: $?”
+      exit 1
+    fi
+  fi
+
+  if bash common/common_components_internal.sh $BASE_DIR 'common-libraries' $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
+    echo “Built all common libraries to be used by host and guest”
+    LOCAL_REGENERATE='--rebuild-all'
+  else
+    echo “Failed to build common libraries to be used by host and guest. exit status: $?”
+    exit 1
+  fi
+
   # Create Base image. This will be used for Host and cloning source code.
   if bash host/build_host_internal.sh $BASE_DIR $LOCAL_REGENERATE $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
     echo “Built host rootfs.”
       echo "Preparing to create docker image...."
-  cd $BASE_DIR/build/images
+  cd $BASE_DIR/build/containers
   if [ ! -e rootfs_host.ext4 ]; then
     echo "Cannot find rootfs_host.ext4 file. Please check the build...."
     exit 1

@@ -27,9 +27,9 @@ LOG_DIR=$BASE_PWD/build/log/$COMPONENT_TARGET
 SCRIPTS_DIR=$LOCAL_PWD/scripts
 
 # Rootfs Names
-LOCAL_ROOTFS_BASE=rootfs_base
-LOCAL_ROOTFS_COMMON=rootfs_common
-LOCAL_ROOTFS_COMMON_MOUNT_DIR=rootfs_common-temp
+LOCAL_ROOTFS_COMMON=rootfs_host
+LOCAL_ROOTFS_COMMON_MOUNT_DIR=rootfs_host-temp
+
 
 if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
   LOCAL_ROOTFS_COMMON=rootfs_game_fast
@@ -47,30 +47,6 @@ else
   exit 1
 fi
 
-generate_component_rootfs() {
-if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
-    echo "game-fast container rootfs image already exists. Reusing it."
-    return 0;
-fi
-
-
-if [ -e $LOCAL_ROOTFS_COMMON.ext4 ]; then
-  echo "Component rootfs image already exists. Reusing it."
-  return 0;
-fi
-
-if [ ! -e $LOCAL_PWD/images/$LOCAL_ROOTFS_BASE.ext4 ]; then
-  echo "Base rootfs image doesn't exists. Please build it first."
-  exit 1
-fi
-
-echo "Preparing rootfs images for building common components..."
-cp -rf $LOCAL_PWD/images/$LOCAL_ROOTFS_BASE.ext4 $LOCAL_ROOTFS_COMMON.ext4
-if [ ! -e $LOCAL_ROOTFS_COMMON.lock ]; then
-  echo "rootfs generated" > $LOCAL_ROOTFS_COMMON.lock
-fi
-}
-
 cleanup_build_env() {
 if [ -e $LOCAL_ROOTFS_COMMON_MOUNT_DIR ]; then
   if mount | grep $LOCAL_ROOTFS_COMMON_MOUNT_DIR/build > /dev/null; then
@@ -86,27 +62,6 @@ if [ -e $LOCAL_ROOTFS_COMMON_MOUNT_DIR ]; then
   fi
 
   rm -rf $LOCAL_ROOTFS_COMMON_MOUNT_DIR
-fi
-}
-
-destroy_component_rootfs_as_needed() {
-if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
-  return 0;
-fi
-
-cleanup_build_env
-
-if [ $BUILD_TYPE == "--really-clean" ]; then
-  if [ -e $LOCAL_ROOTFS_COMMON.lock ]; then
-    rm $LOCAL_ROOTFS_COMMON.lock
-  fi
-
-  if [ -e $LOCAL_ROOTFS_COMMON.ext4 ]; then
-    rm  $LOCAL_ROOTFS_COMMON.ext4
-  fi
-
-  LOCAL_BUILD_TYPE=--clean
-  LOCAL_COMPONENT_ONLY_BUILDS=--all
 fi
 }
 
@@ -148,9 +103,6 @@ fi
 }
 
 cd $LOCAL_PWD/containers/
-#Generate rootfs for common components.
-destroy_component_rootfs_as_needed
-generate_component_rootfs
 setup_build_env
 
 echo "Building components."

@@ -22,7 +22,6 @@ SCRIPTS_DIR=$LOCAL_PWD/scripts/guest
 # Rootfs Names
 LOCAL_ROOTFS_GUEST=rootfs_guest
 LOCAL_ROOTFS_GUEST_MOUNT_DIR=rootfs_guest-temp
-LOCAL_ROOTFS_BASE=rootfs_base
 LOCAL_ROOTFS_GAME_FAST_CONTAINER=rootfs_game_fast
 
 mkdir -p $LOG_DIR

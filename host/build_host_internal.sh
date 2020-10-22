@@ -71,22 +71,6 @@ if [ -e $LOCAL_ROOTFS_HOST_MOUNT_DIR ]; then
 fi
 }
 
-destroy_host_rootfs_as_needed() {
-cleanup_build_env
-
-if [ $BUILD_TYPE == "--really-clean" ]; then
-  if [ -e $LOCAL_ROOTFS_HOST.lock ]; then
-    rm $LOCAL_ROOTFS_HOST.lock
-  fi
-
-  if [ -e $LOCAL_PWD/images/$LOCAL_ROOTFS_HOST.ext4 ]; then
-    rm  $LOCAL_PWD/images/$LOCAL_ROOTFS_HOST.ext4
-  fi
-
-  LOCAL_BUILD_TYPE=--clean
-fi
-}
-
 setup_build_env() {
 if [ ! -e $LOCAL_ROOTFS_HOST.ext4 ]; then
   echo "Cannot find chroot..."
@@ -120,37 +104,9 @@ sudo mount --rbind $BASE_PWD/build/log/host $LOCAL_ROOTFS_HOST_MOUNT_DIR/log/hos
 sudo cp $LOCAL_PWD/scripts/host/*.sh $LOCAL_ROOTFS_HOST_MOUNT_DIR/scripts/host/
 }
 
-generate_host_rootfs() {
-if [ -e $LOCAL_ROOTFS_HOST.ext4 ]; then
-  echo "Host rootfs image already exists. Reusing it."
-  return 0;
-fi
-
-if [ ! -e $LOCAL_PWD/containers/$LOCAL_ROOTFS_COMMON.ext4 ]; then
-  echo "Common rootfs image doesn't exists. Please build it first."
-  exit 1
-fi
-
-echo "Preparing rootfs image for host..."
-cp -rf $LOCAL_PWD/containers/$LOCAL_ROOTFS_COMMON.ext4 $LOCAL_ROOTFS_HOST.ext4
-
-setup_build_env
-sudo chroot $LOCAL_ROOTFS_HOST_MOUNT_DIR/ /bin/bash /scripts/host/system_packages_internal.sh
-cleanup_build_env
-
-echo "Rootfs image for host is ready. Preparing to compile vm..."
-if [ ! -e $LOCAL_ROOTFS_HOST.lock ]; then
-  echo "rootfs generated" > $LOCAL_ROOTFS_HOST.lock
-fi
-}
-
 # Handle base builds
-mkdir -p $LOCAL_PWD/images
-cd $LOCAL_PWD/images
-destroy_host_rootfs_as_needed
-
-# Generate rootfs if needed
-generate_host_rootfs
+mkdir -p $LOCAL_PWD/containers
+cd $LOCAL_PWD/containers
 
 setup_build_env
 
