@@ -486,7 +486,7 @@ igt@gem_exec_balancer@indices
 igt@gem_exec_balancer@individual
 igt@gem_exec_balancer@invalid-balancer
 igt@gem_exec_balancer@invalid-bonds
-igt@gem_exec_balancer@nop
+#igt@gem_exec_balancer@nop
 igt@gem_exec_balancer@semaphore
 igt@gem_exec_balancer@smoke
 igt@gem_exec_basic@basic
@@ -946,7 +946,7 @@ igt@gem_lmem_swapping@heavy-verify-random
 igt@gem_lmem_swapping@parallel-multi
 igt@gem_lmem_swapping@parallel-random
 igt@gem_lmem_swapping@parallel-random-engines
-igt@gem_lmem_swapping@parallel-random-verify
+#igt@gem_lmem_swapping@parallel-random-verify
 igt@gem_lmem_swapping@random
 igt@gem_lmem_swapping@random-engines
 igt@gem_lmem_swapping@smem-oom
