@@ -98,16 +98,12 @@ fi
 cd $BASE_DIR/
 UPDATE_CONTAINER='--false'
 
-if [[ "$COMPONENT_TARGET" == "--guest" ]]; then
-  UPDATE_CONTAINER='--true'
+LOCAL_BUILD_GAME_FAST="false"
+if [[ "$COMPONENT_TARGET" == "--game-fast" ]] && [[ "$BUILD_TYPE" == "--really-clean" ]]; then
+  LOCAL_BUILD_GAME_FAST="true"
 fi
 
-LOCAL_BUILD_GUEST="false"
-if [[ "$COMPONENT_TARGET" == "--guest" ]] && [[ "$BUILD_TYPE" == "--really-clean" ]]; then
-  LOCAL_BUILD_GUEST="true"
-fi
-
-if [[ "$COMPONENT_TARGET" == "--game-fast" ]] || [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]] || [[ "$LOCAL_BUILD_GUEST" == "true" ]]; then
+if [[ "$COMPONENT_TARGET" == "--game-fast" ]] || [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]] || [[ "$LOCAL_BUILD_GAME_FAST" == "true" ]]; then
   if [ -e $BASE_DIR/build/scripts/game_fast ]; then
     rm -rf $BASE_DIR/build/scripts/game_fast
   fi
@@ -146,7 +142,16 @@ if [[ "$COMPONENT_TARGET" == "--game-fast" ]] || [[ "$COMPONENT_TARGET" == "--re
   fi
 fi
 
-if [[ "$UPDATE_CONTAINER" == "--true" ]] || [[ "$COMPONENT_TARGET" == "--guest" ]] || [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]]; then
+LOCAL_BUILD_GUEST="false"
+if [[ "$COMPONENT_TARGET" == "--guest" ]] && [[ "$BUILD_TYPE" == "--really-clean" ]]; then
+  LOCAL_BUILD_GUEST="true"
+fi
+
+if [[ "$COMPONENT_TARGET" == "--guest" ]]; then
+  UPDATE_CONTAINER='--true'
+fi
+
+if [[ "$UPDATE_CONTAINER" == "--true" ]] || [[ "$COMPONENT_TARGET" == "--guest" ]] || [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]] || [[ "$LOCAL_BUILD_GUEST" == "true" ]]; then
   if [ -e $BASE_DIR/build/scripts/guest ]; then
     rm -rf $BASE_DIR/build/scripts/guest
   fi
