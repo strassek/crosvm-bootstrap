@@ -3473,8 +3473,6 @@ igt@perf@blocking-parameterized
 igt@perf@buffer-fill
 igt@perf@counters-64bit
 igt@perf@create-destroy-userspace-config
-igt@perf@dg2-mi-rpc-format-1
-igt@perf@dg2-mi-rpc-format-2
 igt@perf@disabled-read-error
 igt@perf@enable-disable
 igt@perf@gen12-invalid-class-instance

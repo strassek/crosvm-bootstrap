@@ -52,7 +52,7 @@ sudo umount -l game_fast
 rm -rf game_fast
 rm *.ext4
 
-exec docker run -t -i -d -e BASH_ENV=/etc/profile --name game-fast-container -e container=docker --privileged -h game-fast --storage-opt size=120G -u $(whoami) -v /dev:/dev -e XDG_RUNTIME_DIR=/run/user/${UID} -v /tmp/.X11-unix:/tmp/.X11-unix:rw -e DISPLAY=:0 -e PATH=/intel/bin:$PATH game-fast:latest bash --login
+exec docker run -t -i -d -e BASH_ENV=/etc/profile --name game-fast-container -e container=docker --privileged -h game-fast --storage-opt size=120G -u $(whoami) -v /dev:/dev -e XDG_RUNTIME_DIR=/run/user/${UID} -v /tmp/.X11-unix:/tmp/.X11-unix:rw --mount type=bind,source=/shared,target=/shared -e DISPLAY=:0 -e PATH=/intel/bin:$PATH game-fast:latest bash --login
 fi
 
 if [[ "$(docker images -q game-fast:previous-tag 2> /dev/null)" != "" ]]; then
