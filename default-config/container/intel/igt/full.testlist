@@ -219,7 +219,7 @@ igt@gem_ctx_isolation@bcs0-none
 igt@gem_ctx_isolation@bcs0-nonpriv
 igt@gem_ctx_isolation@bcs0-nonpriv-switch
 igt@gem_ctx_isolation@bcs0-reset
-igt@gem_ctx_isolation@bcs0-s3
+#igt@gem_ctx_isolation@bcs0-s3
 igt@gem_ctx_isolation@bcs1-clean
 igt@gem_ctx_isolation@bcs1-dirty-create
 igt@gem_ctx_isolation@bcs1-dirty-switch
@@ -227,7 +227,7 @@ igt@gem_ctx_isolation@bcs1-none
 igt@gem_ctx_isolation@bcs1-nonpriv
 igt@gem_ctx_isolation@bcs1-nonpriv-switch
 igt@gem_ctx_isolation@bcs1-reset
-igt@gem_ctx_isolation@bcs1-s3
+#igt@gem_ctx_isolation@bcs1-s3
 igt@gem_ctx_isolation@ccs0-clean
 igt@gem_ctx_isolation@ccs0-dirty-create
 igt@gem_ctx_isolation@ccs0-dirty-switch
@@ -235,7 +235,7 @@ igt@gem_ctx_isolation@ccs0-none
 igt@gem_ctx_isolation@ccs0-nonpriv
 igt@gem_ctx_isolation@ccs0-nonpriv-switch
 igt@gem_ctx_isolation@ccs0-reset
-igt@gem_ctx_isolation@ccs0-s3
+#igt@gem_ctx_isolation@ccs0-s3
 igt@gem_ctx_isolation@ccs1-clean
 igt@gem_ctx_isolation@ccs1-dirty-create
 igt@gem_ctx_isolation@ccs1-dirty-switch
@@ -243,7 +243,7 @@ igt@gem_ctx_isolation@ccs1-none
 igt@gem_ctx_isolation@ccs1-nonpriv
 igt@gem_ctx_isolation@ccs1-nonpriv-switch
 igt@gem_ctx_isolation@ccs1-reset
-igt@gem_ctx_isolation@ccs1-s3
+#igt@gem_ctx_isolation@ccs1-s3
 igt@gem_ctx_isolation@ccs2-clean
 igt@gem_ctx_isolation@ccs2-dirty-create
 igt@gem_ctx_isolation@ccs2-dirty-switch
@@ -252,14 +252,14 @@ igt@gem_ctx_isolation@ccs2-nonpriv
 igt@gem_ctx_isolation@ccs2-nonpriv-switch
 igt@gem_ctx_isolation@ccs2-reset
 igt@gem_ctx_isolation@ccs2-s3
-igt@gem_ctx_isolation@ccs3-clean
+#igt@gem_ctx_isolation@ccs3-clean
 igt@gem_ctx_isolation@ccs3-dirty-create
 igt@gem_ctx_isolation@ccs3-dirty-switch
 igt@gem_ctx_isolation@ccs3-none
 igt@gem_ctx_isolation@ccs3-nonpriv
 igt@gem_ctx_isolation@ccs3-nonpriv-switch
 igt@gem_ctx_isolation@ccs3-reset
-igt@gem_ctx_isolation@ccs3-s3
+#igt@gem_ctx_isolation@ccs3-s3
 igt@gem_ctx_isolation@rcs0-clean
 igt@gem_ctx_isolation@rcs0-dirty-create
 igt@gem_ctx_isolation@rcs0-dirty-switch
@@ -267,7 +267,7 @@ igt@gem_ctx_isolation@rcs0-none
 igt@gem_ctx_isolation@rcs0-nonpriv
 igt@gem_ctx_isolation@rcs0-nonpriv-switch
 igt@gem_ctx_isolation@rcs0-reset
-igt@gem_ctx_isolation@rcs0-s3
+#igt@gem_ctx_isolation@rcs0-s3
 igt@gem_ctx_isolation@rcs1-clean
 igt@gem_ctx_isolation@rcs1-dirty-create
 igt@gem_ctx_isolation@rcs1-dirty-switch
@@ -275,7 +275,7 @@ igt@gem_ctx_isolation@rcs1-none
 igt@gem_ctx_isolation@rcs1-nonpriv
 igt@gem_ctx_isolation@rcs1-nonpriv-switch
 igt@gem_ctx_isolation@rcs1-reset
-igt@gem_ctx_isolation@rcs1-s3
+#igt@gem_ctx_isolation@rcs1-s3
 igt@gem_ctx_isolation@vcs0-clean
 igt@gem_ctx_isolation@vcs0-dirty-create
 igt@gem_ctx_isolation@vcs0-dirty-switch
@@ -283,7 +283,7 @@ igt@gem_ctx_isolation@vcs0-none
 igt@gem_ctx_isolation@vcs0-nonpriv
 igt@gem_ctx_isolation@vcs0-nonpriv-switch
 igt@gem_ctx_isolation@vcs0-reset
-igt@gem_ctx_isolation@vcs0-s3
+#igt@gem_ctx_isolation@vcs0-s3
 igt@gem_ctx_isolation@vcs1-clean
 igt@gem_ctx_isolation@vcs1-dirty-create
 igt@gem_ctx_isolation@vcs1-dirty-switch
@@ -291,7 +291,7 @@ igt@gem_ctx_isolation@vcs1-none
 igt@gem_ctx_isolation@vcs1-nonpriv
 igt@gem_ctx_isolation@vcs1-nonpriv-switch
 igt@gem_ctx_isolation@vcs1-reset
-igt@gem_ctx_isolation@vcs1-s3
+#igt@gem_ctx_isolation@vcs1-s3
 igt@gem_ctx_isolation@vcs2-clean
 igt@gem_ctx_isolation@vcs2-dirty-create
 igt@gem_ctx_isolation@vcs2-dirty-switch
@@ -299,7 +299,7 @@ igt@gem_ctx_isolation@vcs2-none
 igt@gem_ctx_isolation@vcs2-nonpriv
 igt@gem_ctx_isolation@vcs2-nonpriv-switch
 igt@gem_ctx_isolation@vcs2-reset
-igt@gem_ctx_isolation@vcs2-s3
+#igt@gem_ctx_isolation@vcs2-s3
 igt@gem_ctx_isolation@vcs3-clean
 igt@gem_ctx_isolation@vcs3-dirty-create
 igt@gem_ctx_isolation@vcs3-dirty-switch
@@ -307,7 +307,7 @@ igt@gem_ctx_isolation@vcs3-none
 igt@gem_ctx_isolation@vcs3-nonpriv
 igt@gem_ctx_isolation@vcs3-nonpriv-switch
 igt@gem_ctx_isolation@vcs3-reset
-igt@gem_ctx_isolation@vcs3-s3
+#igt@gem_ctx_isolation@vcs3-s3
 igt@gem_ctx_isolation@vcs4-clean
 igt@gem_ctx_isolation@vcs4-dirty-create
 igt@gem_ctx_isolation@vcs4-dirty-switch
@@ -315,7 +315,7 @@ igt@gem_ctx_isolation@vcs4-none
 igt@gem_ctx_isolation@vcs4-nonpriv
 igt@gem_ctx_isolation@vcs4-nonpriv-switch
 igt@gem_ctx_isolation@vcs4-reset
-igt@gem_ctx_isolation@vcs4-s3
+#igt@gem_ctx_isolation@vcs4-s3
 igt@gem_ctx_isolation@vcs5-clean
 igt@gem_ctx_isolation@vcs5-dirty-create
 igt@gem_ctx_isolation@vcs5-dirty-switch
@@ -323,7 +323,7 @@ igt@gem_ctx_isolation@vcs5-none
 igt@gem_ctx_isolation@vcs5-nonpriv
 igt@gem_ctx_isolation@vcs5-nonpriv-switch
 igt@gem_ctx_isolation@vcs5-reset
-igt@gem_ctx_isolation@vcs5-s3
+#igt@gem_ctx_isolation@vcs5-s3
 igt@gem_ctx_isolation@vcs6-clean
 igt@gem_ctx_isolation@vcs6-dirty-create
 igt@gem_ctx_isolation@vcs6-dirty-switch
@@ -331,7 +331,7 @@ igt@gem_ctx_isolation@vcs6-none
 igt@gem_ctx_isolation@vcs6-nonpriv
 igt@gem_ctx_isolation@vcs6-nonpriv-switch
 igt@gem_ctx_isolation@vcs6-reset
-igt@gem_ctx_isolation@vcs6-s3
+#igt@gem_ctx_isolation@vcs6-s3
 igt@gem_ctx_isolation@vcs7-clean
 igt@gem_ctx_isolation@vcs7-dirty-create
 igt@gem_ctx_isolation@vcs7-dirty-switch
@@ -339,7 +339,7 @@ igt@gem_ctx_isolation@vcs7-none
 igt@gem_ctx_isolation@vcs7-nonpriv
 igt@gem_ctx_isolation@vcs7-nonpriv-switch
 igt@gem_ctx_isolation@vcs7-reset
-igt@gem_ctx_isolation@vcs7-s3
+#igt@gem_ctx_isolation@vcs7-s3
 igt@gem_ctx_isolation@vecs0-clean
 igt@gem_ctx_isolation@vecs0-dirty-create
 igt@gem_ctx_isolation@vecs0-dirty-switch
@@ -347,7 +347,7 @@ igt@gem_ctx_isolation@vecs0-none
 igt@gem_ctx_isolation@vecs0-nonpriv
 igt@gem_ctx_isolation@vecs0-nonpriv-switch
 igt@gem_ctx_isolation@vecs0-reset
-igt@gem_ctx_isolation@vecs0-s3
+#igt@gem_ctx_isolation@vecs0-s3
 igt@gem_ctx_isolation@vecs1-clean
 igt@gem_ctx_isolation@vecs1-dirty-create
 igt@gem_ctx_isolation@vecs1-dirty-switch
@@ -355,7 +355,7 @@ igt@gem_ctx_isolation@vecs1-none
 igt@gem_ctx_isolation@vecs1-nonpriv
 igt@gem_ctx_isolation@vecs1-nonpriv-switch
 igt@gem_ctx_isolation@vecs1-reset
-igt@gem_ctx_isolation@vecs1-s3
+#igt@gem_ctx_isolation@vecs1-s3
 igt@gem_ctx_isolation@vecs2-clean
 igt@gem_ctx_isolation@vecs2-dirty-create
 igt@gem_ctx_isolation@vecs2-dirty-switch
@@ -363,7 +363,7 @@ igt@gem_ctx_isolation@vecs2-none
 igt@gem_ctx_isolation@vecs2-nonpriv
 igt@gem_ctx_isolation@vecs2-nonpriv-switch
 igt@gem_ctx_isolation@vecs2-reset
-igt@gem_ctx_isolation@vecs2-s3
+#igt@gem_ctx_isolation@vecs2-s3
 igt@gem_ctx_isolation@vecs3-clean
 igt@gem_ctx_isolation@vecs3-dirty-create
 igt@gem_ctx_isolation@vecs3-dirty-switch
@@ -371,7 +371,7 @@ igt@gem_ctx_isolation@vecs3-none
 igt@gem_ctx_isolation@vecs3-nonpriv
 igt@gem_ctx_isolation@vecs3-nonpriv-switch
 igt@gem_ctx_isolation@vecs3-reset
-igt@gem_ctx_isolation@vecs3-s3
+#igt@gem_ctx_isolation@vecs3-s3
 igt@gem_ctx_param@basic
 igt@gem_ctx_param@basic-default
 igt@gem_ctx_param@get-priority-new-ctx
@@ -1139,7 +1139,7 @@ igt@gem_softpin@evict-snoop-interruptible
 igt@gem_softpin@invalid
 igt@gem_softpin@noreloc
 igt@gem_softpin@noreloc-interruptible
-igt@gem_softpin@noreloc-s3
+#igt@gem_softpin@noreloc-s3
 igt@gem_softpin@overlap
 igt@gem_softpin@reverse
 igt@gem_softpin@softpin
