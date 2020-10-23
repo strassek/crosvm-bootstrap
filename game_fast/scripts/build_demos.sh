@@ -147,3 +147,8 @@ autogen_build
 cd $WORKING_DIR/igt
 mesonclean_asneeded
 meson setup $LOCAL_MESON_BUILD_DIR -Dprefix=$LOCAL_CURRENT_WLD_PATH -Drunner=enabled && ninja -C $LOCAL_MESON_BUILD_DIR install
+
+#libva-utils
+cd $WORKING_DIR/libva-utils
+mesonclean_asneeded
+meson setup $LOCAL_MESON_BUILD_DIR  --buildtype $LOCAL_BUILD_TARGET -Dprefix=$LOCAL_CURRENT_WLD_PATH -Ddrm=true -Dx11=true -Dwayland=true -Dtests=true && ninja -C $LOCAL_MESON_BUILD_DIR install

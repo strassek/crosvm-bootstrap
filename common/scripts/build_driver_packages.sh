@@ -175,11 +175,6 @@ if [ $BUILD_ARCH != "i386" ]; then
   cd $LOCAL_MESON_BUILD_DIR
   make -j4
   make install
-
-  #libva-utils
-  cd /build/$LOCAL_CHANNEL/tests/libva-utils
-  mesonclean_asneeded 
-  meson setup $LOCAL_MESON_BUILD_DIR  --buildtype $LOCAL_BUILD_TARGET -Dprefix=$LOCAL_CURRENT_WLD_PATH -Ddrm=true -Dx11=true -Dwayland=true -Dtests=true && ninja -C $LOCAL_MESON_BUILD_DIR install
   
   # FIXME: ADD IGC Build.
   # Build Neo
