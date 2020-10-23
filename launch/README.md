@@ -34,4 +34,9 @@ Launch Wayland applications needing Display within container.
 
 Headless Applications
 
-1)Just use application name. $<app_name>
+1)launch-h $<app_name>
+
+IGT Tests
+1) Run Full igt tests: igt_run full
+2) Run Headless related fast feedback igt tests: igt_run fast-feedback headless
+3) Run Display related fast feedback igt tests (Note: This also runs tests part of headless list): igt_run fast-feedback display 
