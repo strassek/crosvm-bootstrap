@@ -36,4 +36,4 @@ LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libva-drm.so
 LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libva-wayland.so
 LD_PRELOAD=$WLD_64/lib/x86_64-linux-gnu/libva-x11.so
 
-$1
+"$@"
