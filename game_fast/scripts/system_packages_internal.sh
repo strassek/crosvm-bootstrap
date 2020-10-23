@@ -54,7 +54,10 @@ install_package libprocps-dev
 install_package libkmod-dev
 install_package libgsl-dev
 install_package libasound2-dev
+install_package liboping-dev
+install_package libxmlrpc-core-c3
 install_package libxmlrpc-c++8-dev
+install_package libjson-c-dev
 install_package libdw-dev
 install_package gedit
 install_package steam
