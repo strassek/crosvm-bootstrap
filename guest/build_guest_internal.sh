@@ -60,7 +60,7 @@ cd $LOCAL_PWD/images
 echo $UPDATE_CONTAINERS
 
 # Generate Containers.
-update_containers
+#update_containers
 
 
 

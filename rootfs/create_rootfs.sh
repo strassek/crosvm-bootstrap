@@ -99,8 +99,8 @@ sudo mount -o bind /dev/pts $LOCAL_ROOTFS_MOUNT_DIR/dev/pts
 
 sudo mkdir -p $LOCAL_ROOTFS_MOUNT_DIR/scripts/$COMPONENT_TARGET
 sudo mkdir -p $LOCAL_ROOTFS_MOUNT_DIR/scripts/rootfs
-sudo cp $LOCAL_PWD/scripts/$COMPONENT_TARGET/*.sh $LOCAL_ROOTFS_MOUNT_DIR/scripts/$COMPONENT_TARGET/
-sudo cp $BASE_PWD/rootfs/*.sh $LOCAL_ROOTFS_MOUNT_DIR/scripts/rootfs/
+sudo cp -rpvf $LOCAL_PWD/scripts/$COMPONENT_TARGET/*.sh $LOCAL_ROOTFS_MOUNT_DIR/scripts/$COMPONENT_TARGET/
+sudo cp -rpvf $BASE_PWD/rootfs/*.sh $LOCAL_ROOTFS_MOUNT_DIR/scripts/rootfs/
 
 if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
   sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/rootfs/basic_setup.sh 'ubuntu'
@@ -115,21 +115,21 @@ fi
 
 sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/$COMPONENT_TARGET/system_packages_internal.sh
 
-sudo cp -rvf $LOCAL_PWD/config/default-config/common/* $LOCAL_ROOTFS_MOUNT_DIR/
+sudo cp -rpvf $LOCAL_PWD/config/default-config/common/* $LOCAL_ROOTFS_MOUNT_DIR/
 
 if [[ "$COMPONENT_TARGET" == "guest" ]]; then
-  sudo cp -rvf $LOCAL_PWD/config/default-config/guest/* $LOCAL_ROOTFS_MOUNT_DIR/
+  sudo cp -rpvf $LOCAL_PWD/config/default-config/guest/* $LOCAL_ROOTFS_MOUNT_DIR/
   sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/$COMPONENT_TARGET/container_settings.sh
 fi
 
 if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
-  sudo cp -rvf $LOCAL_PWD/config/default-config/container/* $LOCAL_ROOTFS_MOUNT_DIR/
+  sudo cp -rpvf $LOCAL_PWD/config/default-config/container/* $LOCAL_ROOTFS_MOUNT_DIR/
   sudo rm $LOCAL_ROOTFS_MOUNT_DIR/etc/profile.d/system-compositor.sh
 
   echo "enabling needed services"
   sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/$COMPONENT_TARGET/services_internal.sh"
 
-  sudo cp -rvf $LOCAL_PWD/config/default-config/container/etc/profile.d/system-compositor.sh $LOCAL_ROOTFS_MOUNT_DIR/etc/profile.d/
+  sudo cp -rpvf $LOCAL_PWD/config/default-config/container/etc/profile.d/system-compositor.sh $LOCAL_ROOTFS_MOUNT_DIR/etc/profile.d/
 fi
 
 echo "Rootfs ready..."

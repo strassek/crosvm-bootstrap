@@ -26,6 +26,5 @@ echo "linking"
 fi
 
 chown -R test:test /intel
-mkdir -p /shared
 
 echo "containers created2"

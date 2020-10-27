@@ -10,6 +10,8 @@ set -o nounset   ## set -u : exit the script if you try to use an uninitialised 
 set -o errexit   ## set -e : exit the script if any statement returns a non-true return value
 
 
+cd /intel/shared-host/containers
+
 docker exec -it game-fast-container  /bin/bash
 
 if [[ "$(docker images -q game-fast:latest 2> /dev/null)" != "" ]]; then
@@ -18,4 +20,10 @@ fi
 
 echo "commiting game-fast"
 docker commit game-fast-container game-fast:latest
+
+if [[ -e game-fast-container.gz ]]; then
+  rm game-fast-container.gz
+fi
+
+docker export game-fast:latest | gzip > game-fast-container.gz
 

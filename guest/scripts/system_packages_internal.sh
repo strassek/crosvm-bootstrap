@@ -16,4 +16,5 @@ LOCAL_UNAME=test
 sudo apt-get install -y  --no-install-recommends --no-install-suggests docker
 sudo apt-get install -y  --no-install-recommends --no-install-suggests docker.io
 sudo apt-get install -y  --no-install-recommends --no-install-suggests docker-compose
+sudo apt-get install -y  --no-install-recommends --no-install-suggests gzip
 sudo usermod -aG sudo,audio,video,input,render,lp,docker $LOCAL_UNAME

@@ -65,6 +65,7 @@ exec sudo docker run -it --rm --privileged \
     -e container=docker \
     --mount type=bind,source=$BASE_DIRECTORY/images,target=/images \
     --mount type=bind,source=$BASE_DIRECTORY/launch/scripts,target=/scripts \
+    --mount type=bind,source=$BASE_DIRECTORY/shared,target=/shared-host \
     intel-vm-launch:latest \
     $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $LOCAL_KERNEL_CMD_OPTIONS
 
@@ -86,7 +87,7 @@ if [ $ACTION == "--stop" ]; then
       -v /$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/tmp/$WAYLAND_DISPLAY:rw \
       --mount type=bind,source=$BASE_DIRECTORY/images,target=/images \
       --mount type=bind,source=$BASE_DIRECTORY/launch/scripts,target=/scripts \
-      --device /dev/vfio:/dev/vfio \
+      --mount type=bind,source=$BASE_DIRECTORY/shared,target=/shared-host \
       intel-vm-stop:latest \
       $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $LOCAL_KERNEL_CMD_OPTIONS
 

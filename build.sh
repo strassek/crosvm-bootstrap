@@ -164,21 +164,13 @@ if [[ "$UPDATE_CONTAINER" == "--true" ]] || [[ "$COMPONENT_TARGET" == "--guest" 
     RECREATE_GUEST_ROOTFS=1
   fi
 
-  if [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]] || [[ $RECREATE_GUEST_ROOTFS == '1' ]] || [[ ! -e $BASE_DIR/build/images/rootfs_guest.ext4 ]]; then
-    if bash rootfs/create_rootfs.sh $BASE_DIR 'guest' '--really-clean' '30000'; then
+  if [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]] || [[ $RECREATE_GUEST_ROOTFS == "1" ]] || [[ ! -e $BASE_DIR/build/images/rootfs_guest.ext4 ]]; then
+    if bash rootfs/create_rootfs.sh $BASE_DIR 'guest' '--really-clean' '10000'; then
       echo “Built guest with default usersetup.”
     else
       echo “Failed to built rootfs with default usersetup, exit status: $?”
       exit 1
     fi
-  fi
-
-  # Create Base image. This will be used for Host and cloning source code.
-  if bash guest/build_guest_internal.sh $BASE_DIR $BUILD_TYPE $UPDATE_CONTAINER; then
-    echo “Updated containers in guest rootfs.”
-  else
-    echo “Failed to build guest rootfs. exit status: $?”
-    exit 1
   fi
 fi
 
@@ -214,14 +206,18 @@ if [[ -e "$BASE_DIR/build/containers/rootfs_host.ext4" ]] && [[ -e "$BASE_DIR/bu
 	mkdir -p $BASE_DIR/build/launch
 	mkdir -p $BASE_DIR/build/launch/images
 	mkdir -p $BASE_DIR/build/launch/docker/
+	mkdir -p $BASE_DIR/build/launch/shared/
+	mkdir -p $BASE_DIR/build/launch/shared/containers
+	mkdir -p $BASE_DIR/build/launch/shared/guest
+	mkdir -p $BASE_DIR/build/launch/shared/guest/igt
 	cd $BASE_DIR/build/launch
 	cp $BASE_DIR/launcher.sh .
-	cp -rf $BASE_DIR/launch .
+	cp -rpvf $BASE_DIR/launch .
 	cp $BASE_DIR/launch/docker/start.dockerfile $BASE_DIR/build/launch/docker/Dockerfile-start
 	cp $BASE_DIR/launch/docker/stop.dockerfile $BASE_DIR/build/launch/docker/Dockerfile-stop
-	cp $BASE_DIR/tools/*.sh $BASE_DIR/launch/scripts/
+	cp -rpvf $BASE_DIR/tools/*.sh $BASE_DIR/launch/scripts/
 	cp $BASE_DIR/build/containers/rootfs_host.ext4 images/
-	cp $BASE_DIR/build/containers/rootfs_game_fast.ext4 images/
+	cp $BASE_DIR/build/containers/rootfs_game_fast.ext4 $BASE_DIR/build/launch/shared/containers/
 	cp $BASE_DIR/build/images/rootfs_guest.ext4 images/
 	cp $BASE_DIR/build/images/vmlinux images/
 fi
