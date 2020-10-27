@@ -58,5 +58,6 @@ if [ $CHANNEL == "--dev" ] || [ $CHANNEL == "--all" ]; then
 fi
 
 if [[ -e "internal_sync_code.sh" ]]; then
-  source internal_sync_code.sh
+	CD $PWD_DIR
+	source internal_sync_code.sh
 fi
