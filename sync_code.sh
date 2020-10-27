@@ -57,7 +57,7 @@ if [ $CHANNEL == "--dev" ] || [ $CHANNEL == "--all" ]; then
   repo sync $LOCAL_SYNC_PARAM
 fi
 
-if [[ -e "internal_sync_code.sh" ]]; then
-	CD $PWD_DIR
-	source internal_sync_code.sh
+if [[ -e "$PWD_DIR/internal_sync_code.sh" ]]; then
+	cd $PWD_DIR
+	source $PWD_DIR/internal_sync_code.sh
 fi
