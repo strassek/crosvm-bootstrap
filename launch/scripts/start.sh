@@ -130,7 +130,7 @@ export MESA_LOG_LEVEL=debug
 export EGL_LOG_LEVEL=debug 
 #drm.debug=255 debug loglevel=8
 
-EGL_LOG_LEVEL=debug MESA_LOG_LEVEL=debug MESA_LOADER_DRIVER_OVERRIDE=iris LD_LIBRARY_PATH=$LOCAL_LIBRARY_PATH $LOCAL_EXEC_DIRECTORY/crosvm run --disable-sandbox $ACCELERATION_OPTION --rwdisk /images/rootfs_guest.ext4 -s /images/crosvm.sock -m 10240 --cpus 4 -p "root=/dev/vda" -p "intel_iommu=on" --host_ip 10.0.0.1 --netmask 255.255.255.0 --mac $(genMAC) --wayland-sock=/tmp/$WAYLAND_DISPLAY --wayland-dmabuf --x-display=$DISPLAY /images/vmlinux
+EGL_LOG_LEVEL=debug MESA_LOG_LEVEL=debug MESA_LOADER_DRIVER_OVERRIDE=iris LD_LIBRARY_PATH=$LOCAL_LIBRARY_PATH $LOCAL_EXEC_DIRECTORY/crosvm run --disable-sandbox $ACCELERATION_OPTION --rwdisk /images/rootfs_guest.ext4 -s /images/crosvm.sock -m 10240 --cpus 4 -p "root=/dev/vda" -p "intel_iommu=on" --host_ip 10.0.0.1 --serial type=stdout,hardware=virtio-console,num=1,console=true,earlycon=false,stdin=true --netmask 255.255.255.0 --mac $(genMAC) --wayland-sock=/tmp/$WAYLAND_DISPLAY --wayland-dmabuf --x-display=$DISPLAY /images/vmlinux
 
 if [[ -z $LOCAL_SERIAL_ID ]]; then
   /bin/bash /scripts/setup_gpu_passthrough.sh unbind $LOCAL_SERIAL_ID
