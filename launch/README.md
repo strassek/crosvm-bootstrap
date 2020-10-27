@@ -42,7 +42,7 @@ IGT Tests
 3) Run Display related fast feedback igt tests (Note: This also runs tests part of headless list): igt_run fast-feedback display 
 
 Browse IGT Results:
-1) IGT Test results are saved in /shared folder of rootfs_guest.ext4 (Found at build/launch/images)
+1) IGT Test results are saved in launch/shared/guest/igt on host. Test results can also be found at /shared/igt/ in container.
 2) Mount rootfs_guest.ext4.
 3) Navigate to shared/ folder. We should have respective test result folders i.e. BAT-FAST-FEEDBACK, BAT-FULL
 4) Run piglit summary html <test report name> result.json
