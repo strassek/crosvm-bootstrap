@@ -25,5 +25,5 @@ if [[ -e game-fast-container.gz ]]; then
   rm game-fast-container.gz
 fi
 
-docker export game-fast:latest | gzip > game-fast-container.gz
+docker export game-fast-container | gzip > game-fast-container.gz
 
