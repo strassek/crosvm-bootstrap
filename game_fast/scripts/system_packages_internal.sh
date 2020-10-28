@@ -67,6 +67,7 @@ install_package libqt5waylandcompositor5
 install_package qtwayland5
 #install_package gnome-session-wayland
 install_package qtcreator
+install_package gdb
 
 ln -s /usr/lib/x86_64-linux-gnu/libprocps.so.8 /usr/lib/x86_64-linux-gnu/libprocps.so.6
 

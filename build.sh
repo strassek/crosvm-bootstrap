@@ -95,6 +95,7 @@ if [[ "$COMPONENT_TARGET" == "--host" ]] || [[ "$COMPONENT_TARGET" == "--rebuild
   fi
 fi
 
+LOCAL_REGENERATE=$COMPONENT_TARGET
 cd $BASE_DIR/
 UPDATE_CONTAINER='--false'
 
