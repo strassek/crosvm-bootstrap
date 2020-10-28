@@ -4,15 +4,38 @@ A collection of scripts and dockerfiles to generate Docker images meant to host
 [crosvm](https://chromium.googlesource.com/chromiumos/platform/crosvm/).
 
 ## Quickstart
-1. Run ./tools/install_system_dependencies.sh to install all system dependencies.
-2. Run ./sync_code.sh to fetch the code.
-3. Run `./build.sh --rebuild-all` to kick off the build of the container and generate
-a rootfs image using the default settings.
-4. Run ./launcher.sh $XDG_RUNTIME_DIR $WAYLAND_DISPLAY $DISPLAY to launch the vm.
-5. Once inside VM, call setup-containers.sh everytime you re-build containers/re-launched VM.
-6. Inside VM: Call launch.sh will start the container.
-7. Once inside container you can run demo application using launch i.e. es2gears_wayland. For X11: launch-x es2gears_wayland
+To build your system, you will need to follow these instructions:
 
+1. Install all system dependencies:
+```bash
+./tools/install_system_dependencies.sh
+```
+2. Fetch the code:
+```bash
+./sync_code.sh
+```
+3. Kick off the build of the container and generate
+a rootfs image using the default settings. 
+```bash
+./build.sh --rebuild-all
+```
+4. Launch the vm (XDG_RUNTIME_DIR and WAYLAND_DISPLAY are set during a previous step):
+```bash
+./launcher.sh $XDG_RUNTIME_DIR $WAYLAND_DISPLAY $DISPLAY
+```
+5. Once inside VM, call the following everytime you re-build containers or re-launch the VM
+```bash
+./setup-containers.sh 
+```
+6. Inside VM, star the container via: 
+```bash
+./launch.sh
+```
+7. Once inside container you can run demo application using the launch statment such as
+the following for X11:
+```bash
+./launch-x es2gears_wayland
+```
 
 ## How to customize
 Edit files in `default-config/` to change the default settings for the images 
