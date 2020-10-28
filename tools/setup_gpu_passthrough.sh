@@ -2,6 +2,7 @@
 
 BIND_DEVICE=${1}
 OPTION=${2}
+IOMMU_GROUP=0
 
 CACHE=$(lspci -v | perl -anE '/VGA/i && $F[0] =~ /^[0-9a-f:.]+$/i && say $F[0]')
 
@@ -41,15 +42,11 @@ for g in /sys/kernel/iommu_groups/*; do
   found_group=false
   for d in $g/devices/*; do
     local DEVICE_SERIAL_NO=$(lspci -nns ${d##*/} | perl -anE '/VGA/i && $F[0] =~ /^[0-9a-f:.]+$/i && say $F[0]')
-    if [ "$SERIAL_NO" == "$DEVICE_SERIAL_NO" ]; then
-      found_group=true
-    else
-      found_group=false
-    fi
-    
-    if [ $found_group == "true" ]; then
-      break
-    fi
+     if [ "$SERIAL_NO" == "$DEVICE_SERIAL_NO" ]; then
+                IOMMU_GROUP=$n
+                found_group=true
+                break
+     fi
   done
   if [ $found_group == "true" ]; then
     echo $n
@@ -86,29 +83,25 @@ for g in /sys/kernel/iommu_groups/*; do
     fi
     
     for d in $g/devices/*; do
-      if [ -e /sys/bus/pci/drivers/vfio-pci ]; then
-        local serial_no=$(lspci -nns ${d##*/} | perl -anE '$F[0] =~ /^[0-9a-f:.]+$/i && say $F[0]')
+	local serial_no=${d##*/}
+        local bdf_serial_no=$(lspci -nns ${d##*/} | perl -anE '$F[0] =~ /^[0-9a-f:.]+$/i && say $F[0]')
         local vfio_id=$(lspci -nns ${d##*/} | perl -anE '$F[0] =~ /^[0-9a-f:.]+$/i && say $F[8]')
         vfio_id=${vfio_id#?};
         vfio_id=$(echo $vfio_id | cut -f1 -d":")
         local read_link=$(readlink /sys/bus/pci/devices/"$serial_no"/driver)
         local current_driver=$(basename $read_link)
-        if [[ $current_driver == "vfio-pci" ]]; then
-          continue;
-        fi
-  
-        echo "current_driver" $current_driver
-        local pci_id=$(get_device_id ${serial_no})
+        local pci_id=$(get_device_id ${bdf_serial_no})
         if [ -z $pci_id ]; then
           continue;
         fi
           
+	if [ -e /sys/bus/pci/drivers/vfio-pci ]; then
+		echo "$vfio_id" "$pci_id" > /sys/bus/pci/drivers/vfio-pci/new_id
+		echo -n "$serial_no" > /sys/bus/pci/devices/"$serial_no"/driver/unbind
+	fi
         echo -e "Hiding \t$(lspci -nns ${d##*/})"
-        echo "$vfio_id" "$pci_id" > /sys/bus/pci/drivers/vfio-pci/new_id
-        echo "vfio-pci" > /sys/bus/pci/devices/"$serial_no"/driver_override
-        echo "$serial_no" > /sys/bus/pci/drivers/vfio-pci/bind
-        break;
-      fi
+        echo -n "$serial_no" > /sys/bus/pci/drivers/vfio-pci/bind
+	break;
     done
     break;
   fi
@@ -128,17 +121,15 @@ for g in /sys/kernel/iommu_groups/*; do
     for d in $g/devices/*; do
       if [ -e /sys/bus/pci/drivers/vfio-pci ]; then
         echo -e "Unbinding \t$(lspci -nns ${d##*/})"
-        local serial_no=$(lspci -nns ${d##*/} | perl -anE '$F[0] =~ /^[0-9a-f:.]+$/i && say $F[0]')
+	local serial_no=${d##*/}
+        local bdf_serial_no=$(lspci -nns ${d##*/} | perl -anE '$F[0] =~ /^[0-9a-f:.]+$/i && say $F[0]')
         local read_link=$(readlink /sys/bus/pci/devices/"$serial_no"/driver)
         local current_driver=$(basename $read_link)
-        if [[ $current_driver != "vfio-pci" ]]; then
-          continue;
-        fi
         
         local vfio_id=$(lspci -nns ${d##*/} | perl -anE '$F[0] =~ /^[0-9a-f:.]+$/i && say $F[8]')
         vfio_id=${vfio_id#?};
         vfio_id=$(echo $vfio_id | cut -f1 -d":")
-        local pci_id=$(get_device_id ${serial_no})
+        local pci_id=$(get_device_id ${bdf_serial_no})
         if [ -z $pci_id ]; then
           continue;
         fi
@@ -153,32 +144,15 @@ done
 }
 
 unbind_virtio_devices() {
-IOMMU_GROUP=$(find_iommu_group $OPTION)
+IOMMU_GROUP=0
+find_iommu_group $OPTION
 unbind_iommu_group $IOMMU_GROUP
 }
 
 bind_vifio_devices() {
-TEMP_DEVICE_NO=0
-for g in $CACHE; do
-  vendor=$(get_vendor ${g})
-  if [ $vendor != "Intel" ]; then
-    continue;
-  fi
-  TEMP_DEVICE_NO=$((TEMP_DEVICE_NO+1))
-  
-  if [ $TEMP_DEVICE_NO != $OPTION ]; then
-    continue;
-  else
-    PCI_ID=$(get_device_id ${g})
-    DEVICE_TYPE=$(is_discrete $PCI_ID)
-    is_busy=$(is_bound ${g})
-    IOMMU_GROUP=$(find_iommu_group ${g})
-    bind_iommu_group $IOMMU_GROUP
-    SERIALNO=$(lspci -nns ${d##*/} | perl -anE '$F[0] =~ /^[0-9a-f:.]+$/i && say $F[0]')
-    echo $SERIALNO
-    break;
-  fi
-done
+IOMMU_GROUP=0
+find_iommu_group $OPTION
+bind_iommu_group $IOMMU_GROUP
 }
 
 if [ $BIND_DEVICE == "unbind" ]; then

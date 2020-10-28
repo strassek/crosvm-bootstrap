@@ -35,10 +35,10 @@ genMAC () {
 
 is_discrete() {
 DEVICE_ID=${1}
-if [ $DEVICE_ID == "4905" ]; then
-  echo "Discrete."
+if [ $DEVICE_ID == "4905" ] || [ $DEVICE_ID == "4906" ] || [ $DEVICE_ID == "4907" ] || [$DEVICE_ID == "4908" ]; then
+  echo "Discrete"
 else
-  echo "Integrated."
+  echo "Integrated"
 fi
 }
 
@@ -64,60 +64,27 @@ fi
 
 enable_gpu_acceleration() {
 local DEVICE_NO=0
+local serial_no=0
 echo "Supported Options on this platform:"
 for g in $LOCAL_PCI_CACHE; do
   PCI_ID=$(get_device_id ${g})
   DEVICE_TYPE=$(is_discrete $PCI_ID)
   is_busy=$(is_bound ${g})
   vendor=$(get_vendor ${g})
-  if [ $vendor != "Intel" ]; then
-    echo "Skipping device with PCI ID: $PCI_ID" $vendor
-    continue;
-  fi
-  
-  if [ -z $PCI_ID ]; then
-    continue;
-  fi
-  
   DEVICE_NO=$((DEVICE_NO+1))
-  echo "$DEVICE_NO) PCI ID: $PCI_ID Device Type: $DEVICE_TYPE Vendor: $vendor Used by Host: $is_busy"
-done;
-
-VIRTIO_CHOICE=0
-EXIT_CHOICE=0
-if [ $DEVICE_NO != 0 ] && [ $DEVICE_NO != 1 ]; then
-DEVICE_NO=$((DEVICE_NO+1))
-VIRTIO_CHOICE=$DEVICE_NO
-echo "$DEVICE_NO) Accelerated rendering support using Virtio."
-DEVICE_NO=$((DEVICE_NO+1))
-echo "$DEVICE_NO) Software rendering support using Virtio."
-DEVICE_NO=$((DEVICE_NO+1))
-EXIT_CHOICE=$DEVICE_NO
-echo "$DEVICE_NO) Exit."
-fi
-
-read -p 'Choose between [1-$DEVICE_NO] followed by [ENTER]: ' num
-if [ $num -gt $DEVICE_NO ] || [ $num -le 0 ]; then
-  echo "Invalid Option."
-  exit 0;
-fi 
-
-if [ $num -eq $EXIT_CHOICE ]; then
-  exit 0;
-fi 
-
-if [ $num -lt $VIRTIO_CHOICE ]; then
-  LOCAL_SERIAL_ID=$(/bin/bash /scripts/setup_gpu_passthrough.sh bind $num)
-  ACCELERATION_OPTION="--vfio /sys/bus/pci/devices/$LOCAL_SERIAL_ID"
-else
-  if [ $num -eq $VIRTIO_CHOICE ]; then
-    ACCELERATION_OPTION="--gpu egl=true,glx=true,gles=true"
-    LOCAL_SERIAL_ID=""
+  if [ $vendor == "Intel" ] && [ $DEVICE_TYPE == "Discrete" ]; then
+	  if [ ${g:0:5} == "0000:" ]; then
+		serial_no =${g:5}
+	  else
+		serial_no = $g
+	  fi
+	  echo "$DEVICE_NO) PCI ID: $PCI_ID Device Type: $DEVICE_TYPE Vendor: $vendor Used by Host: $is_busy"
+	  /bin/bash  /scripts/setup_gpu_passthrough.sh bind $serial_no
+	  ACCELERATION_OPTION="--vfio /sys/bus/pci/devices/0000:$serial_no"
   else
-    ACCELERATION_OPTION=""
-    LOCAL_SERIAL_ID=""
-  fi 
-fi 
+	  echo "None of the PCI devices are Intel & Discrete"
+  fi
+done;
 }
 
 /bin/bash /scripts/ip_tables.sh eth0 vmtap0
