@@ -199,7 +199,7 @@ if [[ "$COMPONENT_TARGET" == "--kernel" ]] || [[ "$COMPONENT_TARGET" == "--rebui
 fi
 
 if [ -e $BASE_DIR/build/launch ]; then
-  rm -rf $BASE_DIR/build/launch
+  sudo rm -rf $BASE_DIR/build/launch
 fi
 
 if [[ -e "$BASE_DIR/build/containers/rootfs_host.ext4" ]] && [[ -e "$BASE_DIR/build/containers/rootfs_game_fast.ext4" ]] && [[ -e "$BASE_DIR/build/images/rootfs_guest.ext4" ]] && [[ -e "$BASE_DIR/build/images/vmlinux" ]]; then
