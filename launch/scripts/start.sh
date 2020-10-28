@@ -74,9 +74,9 @@ for g in $LOCAL_PCI_CACHE; do
   DEVICE_NO=$((DEVICE_NO+1))
   if [ $vendor == "Intel" ] && [ $DEVICE_TYPE == "Discrete" ]; then
 	  if [ ${g:0:5} == "0000:" ]; then
-		serial_no =${g:5}
+		serial_no=${g:5}
 	  else
-		serial_no = $g
+		serial_no=$g
 	  fi
 	  echo "$DEVICE_NO) PCI ID: $PCI_ID Device Type: $DEVICE_TYPE Vendor: $vendor Used by Host: $is_busy"
 	  /bin/bash  /scripts/setup_gpu_passthrough.sh bind $serial_no

@@ -216,7 +216,7 @@ if [[ -e "$BASE_DIR/build/containers/rootfs_host.ext4" ]] && [[ -e "$BASE_DIR/bu
 	cp -rpvf $BASE_DIR/launch .
 	cp $BASE_DIR/launch/docker/start.dockerfile $BASE_DIR/build/launch/docker/Dockerfile-start
 	cp $BASE_DIR/launch/docker/stop.dockerfile $BASE_DIR/build/launch/docker/Dockerfile-stop
-	cp -rpvf $BASE_DIR/tools/*.sh $BASE_DIR/launch/scripts/
+	cp -rpvf $BASE_DIR/tools/*.sh $BASE_DIR/build/launch/launch/scripts/
 	cp $BASE_DIR/build/containers/rootfs_host.ext4 images/
 	cp $BASE_DIR/build/containers/rootfs_game_fast.ext4 $BASE_DIR/build/launch/shared/containers/
 	cp $BASE_DIR/build/images/rootfs_guest.ext4 images/
