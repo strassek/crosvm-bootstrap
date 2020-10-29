@@ -3,6 +3,12 @@
 A collection of scripts and dockerfiles to generate Docker images meant to host
 [crosvm](https://chromium.googlesource.com/chromiumos/platform/crosvm/).
 
+# Enable Wayland on Ubuntu
+Execute below steps on Ubuntu Desktop but not via remote ssh
+Open /etc/gdm3/custom.conf and ensure WaylandEnable=false is commented.
+Logout and click on the gear button and select option "Ubuntu on Wayland"
+once booted to desktop, make sure "echo $WAYLAND_DISPLAY" = wayland-0.
+
 ## Quickstart
 To build your system, you will need to follow these instructions:
 
