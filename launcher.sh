@@ -10,9 +10,10 @@ set -ex
 XDG_RUNTIME_DIR=${1}
 WAYLAND_DISPLAY=${2}
 DISPLAY=${3}
-CHANNEL=${4:-"--stable"}
-TARGET=${5:-"--release"}
-ACTION=${6:-"--run"}
+GPU_PASSTHROUGH=${4:-"--false"}
+CHANNEL=${5:-"--stable"}
+TARGET=${6:-"--release"}
+ACTION=${7:-"--run"}
 
 BASE_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 LOCAL_KERNEL_CMD_OPTIONS=""
@@ -89,7 +90,7 @@ if [ $ACTION == "--stop" ]; then
       --mount type=bind,source=$BASE_DIRECTORY/launch/scripts,target=/scripts \
       --mount type=bind,source=$BASE_DIRECTORY/shared,target=/shared-host \
       intel-vm-stop:latest \
-      $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $LOCAL_KERNEL_CMD_OPTIONS
+      $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $LOCAL_KERNEL_CMD_OPTIONS $GPU_PASSTHROUGH
 
   sudo docker rmi -f intel-vm-stop:latest
 fi
