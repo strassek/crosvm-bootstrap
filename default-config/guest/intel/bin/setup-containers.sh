@@ -52,12 +52,12 @@ if mount | grep game_fast > /dev/null; then
   sudo umount -l game_fast
 fi
 
-rm -rf game_fast || true
-mkdir game_fast
+sudo rm -rf game_fast || true
+sudo mkdir game_fast
 sudo mount rootfs_game_fast.ext4 game_fast
 sudo tar -C game_fast -c . | docker import - game-fast:latest
 sudo umount -l game_fast
-rm -rf game_fast
+sudo rm -rf game_fast
 
 exec docker run -t -i -d -e BASH_ENV=/etc/profile --name game-fast-container -e container=docker --privileged -h game-fast --storage-opt size=120G -u $(whoami) -v /dev:/dev -e XDG_RUNTIME_DIR=/run/user/${UID} -v /tmp/.X11-unix:/tmp/.X11-unix:rw --mount type=bind,source=/intel/shared-host/guest,target=/shared -e DISPLAY=:0 -e PATH=/intel/bin:$PATH game-fast:latest bash --login
 fi

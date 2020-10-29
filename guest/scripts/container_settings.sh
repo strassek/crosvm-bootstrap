@@ -9,8 +9,6 @@ set -o errtrace  # trace ERR through 'time command' and other functions
 set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
 set -o errexit   ## set -e : exit the script if any statement returns a non-true return value
 
-chmod +x /intel/bin/setup-containers.sh
-chmod +x /intel/bin/launch.sh
 if [[ ! -e /intel/bin/update-containers ]]; then
   echo "linking"
   ln -s /intel/bin/setup-containers.sh /intel/bin/update-containers
@@ -19,7 +17,7 @@ if [[ ! -e /intel/bin/update-containers ]]; then
 fi
 
 if [[ ! -e /intel/bin/launch ]]; then
-echo "linking"
+  echo "linking"
   ln -s /intel/bin/launch.sh /intel/bin/launch
   chmod 0664 /intel/bin/launch.sh
   chmod 0664 /intel/bin/launch

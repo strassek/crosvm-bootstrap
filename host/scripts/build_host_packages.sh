@@ -134,3 +134,28 @@ else
   ls -a $LOCAL_MESON_BUILD_DIR/$LOCAL_BUILD_TARGET
   exit 1
 fi
+
+# Build DPTF
+echo "Building 64 bit DPTF............"
+cd $WORKING_DIR/dptf/DPTF/Linux/build
+cmake ..
+make -j`nproc`
+
+cd $WORKING_DIR/dptf/DPTF/Linux/build/x64/release
+sudo mkdir -p /usr/share/dptf/ufx64
+sudo cp Dptf*.so /usr/share/dptf/ufx64
+sudo mkdir -p /etc/dptf
+sudo cp $WORKING_DIR/dptf/ESIF/Packages/DSP/dsp.dv /etc/dptf
+
+cd  $WORKING_DIR/dptf/ESIF/Products/ESIF_UF/Linux
+make
+
+sudo cp esif_ufd /usr/bin
+
+cd  $WORKING_DIR/dptf/ESIF/Products/ESIF_CMP/Linux
+make
+cp esif_cmp.so /usr/share/dptf/ufx64
+
+cd  $WORKING_DIR/dptf/ESIF/Products/ESIF_WS/Linux
+make
+cp esif_ws.so /usr/share/dptf/ufx64

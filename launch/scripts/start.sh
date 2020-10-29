@@ -88,6 +88,8 @@ done;
 }
 
 /bin/bash /scripts/ip_tables.sh eth0 vmtap0
+systemctl start dptf.service
+echo "DPTF Service started"
 
 # Handle PCI Passthrough checks.
 enable_gpu_acceleration
@@ -102,3 +104,5 @@ EGL_LOG_LEVEL=debug MESA_LOG_LEVEL=debug MESA_LOADER_DRIVER_OVERRIDE=iris LD_LIB
 if [[ -z $LOCAL_SERIAL_ID ]]; then
   /bin/bash /scripts/setup_gpu_passthrough.sh unbind $LOCAL_SERIAL_ID
 fi
+
+systemctl stop dptf.service
