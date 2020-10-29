@@ -7,10 +7,10 @@ set -o errexit   ## set -e : exit the script if any statement returns a non-true
 
 set -ex
 
-XDG_RUNTIME_DIR=${1:-$XDG_RUNTIME_DIR}
-WAYLAND_DISPLAY=${2:-$WAYLAND_DISPLAY}
-DISPLAY=${3:-$DISPLAY}
-GPU_PASSTHROUGH=${4:-"--false"}
+GPU_PASSTHROUGH=${1:-"--false"}
+XDG_RUNTIME_DIR=${2:-$XDG_RUNTIME_DIR}
+WAYLAND_DISPLAY=${3:-$WAYLAND_DISPLAY}
+DISPLAY=${4:-$DISPLAY}
 CHANNEL=${5:-"--stable"}
 TARGET=${6:-"--release"}
 ACTION=${7:-"--run"}
