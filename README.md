@@ -27,7 +27,8 @@ a rootfs image using the default settings.
 ```
 4. Launch the vm (XDG_RUNTIME_DIR and WAYLAND_DISPLAY are set during a previous step):
 ```bash
-./launcher.sh $XDG_RUNTIME_DIR $WAYLAND_DISPLAY $DISPLAY
+cd build/launch
+./launcher.sh
 ```
 5. Once inside VM, call the following everytime you re-build containers or re-launch the VM
 ```bash
