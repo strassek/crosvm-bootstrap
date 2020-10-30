@@ -29,6 +29,8 @@ a rootfs image using the default settings.
 ```bash
 cd build/launch
 ./launcher.sh
+To enable GPU pass through support:
+./launcher.sh --true
 ```
 5. Once inside VM, call the following everytime you re-build containers or re-launch the VM
 ```bash
