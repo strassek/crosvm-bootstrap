@@ -68,7 +68,7 @@ exec sudo docker run -it --rm --privileged \
     --mount type=bind,source=$BASE_DIRECTORY/launch/scripts,target=/scripts \
     --mount type=bind,source=$BASE_DIRECTORY/shared,target=/shared-host \
     intel-vm-launch:latest \
-    $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $LOCAL_KERNEL_CMD_OPTIONS
+    $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $GPU_PASSTHROUGH $LOCAL_KERNEL_CMD_OPTIONS
 
 sudo docker rmi -f intel-vm-launch:latest
 else
@@ -90,7 +90,7 @@ if [ $ACTION == "--stop" ]; then
       --mount type=bind,source=$BASE_DIRECTORY/launch/scripts,target=/scripts \
       --mount type=bind,source=$BASE_DIRECTORY/shared,target=/shared-host \
       intel-vm-stop:latest \
-      $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $LOCAL_KERNEL_CMD_OPTIONS $GPU_PASSTHROUGH
+      $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $GPU_PASSTHROUGH $LOCAL_KERNEL_CMD_OPTIONS
 
   sudo docker rmi -f intel-vm-stop:latest
 fi

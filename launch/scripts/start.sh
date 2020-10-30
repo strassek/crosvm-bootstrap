@@ -7,8 +7,8 @@ set -o errexit   ## set -e : exit the script if any statement returns a non-true
 
 CHANNEL=${1}
 TARGET=${2}
-KERNEL_CMD_OPTIONS=${3}
-ENABLE_GPU_PASSTHROUGH=${4}
+ENABLE_GPU_PASSTHROUGH=${3}
+KERNEL_CMD_OPTIONS=${4}
 
 LOCAL_EXEC_DIRECTORY=/opt/$CHANNEL/$TARGET/x86_64/bin
 LOCAL_PCI_CACHE=$(lspci -v | perl -anE '/VGA/i && $F[0] =~ /^[0-9a-f:.]+$/i && say $F[0]')
@@ -16,6 +16,8 @@ LOCAL_SERIAL_ID=""
 ACCELERATION_OPTION="--gpu egl=true,glx=true,gles=true"
 
 pwd="${PWD}"
+
+echo "ENABLE_GPU_PASSTHROUGH" $ENABLE_GPU_PASSTHROUGH
 
 GPU="width=1024,height=768,backend=2d,glx=true --x-display=:0.0"
 echo "X Display:" $DISPLAY

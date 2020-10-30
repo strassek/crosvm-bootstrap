@@ -1,5 +1,10 @@
 sudo mkdir -p /mnt/shared-host
 sudo mount -t 9p shared-host /mnt/shared-host
+
+if [[ -e /intel/shared-host ]]; then
+  sudo unlink /intel/shared-host
+fi
+
 sudo ln -s /mnt/shared-host /intel/
 
 cd /intel/bin
