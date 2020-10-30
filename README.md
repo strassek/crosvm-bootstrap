@@ -25,21 +25,20 @@ a rootfs image using the default settings.
 ```bash
 ./build.sh --rebuild-all
 ```
-4. Launch the vm (XDG_RUNTIME_DIR and WAYLAND_DISPLAY are set during a previous step):
+4. Launch the vm and Guest Container:
 ```bash
 cd build/launch
 ./launcher.sh
+To enable GPU pass through support:
+./launcher.sh --true
 ```
-5. Once inside VM, call the following everytime you re-build containers or re-launch the VM
-```bash
-./setup-containers.sh 
-```
-6. Inside VM, star the container via: 
-```bash
-./launch.sh
-```
-7. Once inside container you can run demo application using the launch statment such as
+5. Once inside container you can run demo application using the launch statment such as
 the following for X11:
 ```bash
-./launch-x es2gears_wayland
+launch-x es2gears_wayland
+```
+6. Re-launch Container within container: 
+This is really needed only if you need to exit the container within the VM for any reason.
+```bash
+launch
 ```
