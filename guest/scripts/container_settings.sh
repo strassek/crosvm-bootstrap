@@ -16,12 +16,17 @@ if [[ ! -e /intel/bin/update-containers ]]; then
   chmod 0664 /intel/bin/update-containers
 fi
 
-if [[ ! -e /intel/bin/launch ]]; then
+if [[ ! -e /intel/bin/launch-container ]]; then
   echo "linking"
-  ln -s /intel/bin/launch.sh /intel/bin/launch
-  chmod 0664 /intel/bin/launch.sh
-  chmod 0664 /intel/bin/launch
+  ln -s /intel/bin/launch-container.sh /intel/bin/launch-container
+  chmod 0664 /intel/bin/launch-container.sh
+  chmod 0664 /intel/bin/launch-container
 fi
+
+sudo ln -s /intel/bin/container/app-launcher.sh /intel/bin/container/launch
+sudo ln -s /intel/bin/container/app-launcher-x.sh /intel/bin/container/launch-x
+sudo ln -s /intel/bin/container/headless.sh /intel/bin/container/launch-h
+sudo ln -s /intel/bin/container/igt_run.sh /intel/bin/container/igt_run
 
 chown -R test:test /intel
 

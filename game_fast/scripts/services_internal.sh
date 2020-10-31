@@ -12,11 +12,6 @@ set -o pipefail
 
 echo "services internal 2"
 
-sudo ln -s /intel/bin/app-launcher.sh /intel/bin/launch
-sudo ln -s /intel/bin/app-launcher-x.sh /intel/bin/launch-x
-sudo ln -s /intel/bin/headless.sh /intel/bin/launch-h
-sudo ln -s /intel/bin/igt_run.sh /intel/bin/igt_run
-
 sudo mkdir -p /etc/xdg/xdg-fast-game
 sudo mkdir -p /usr/share/fast-game-wayland
 

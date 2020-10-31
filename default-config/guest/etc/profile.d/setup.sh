@@ -10,6 +10,9 @@ sudo ln -s /mnt/shared-host /intel/
 cd /intel/bin
 sudo chmod +x *.sh
 cd -
+cd /intel/bin/container
+sudo chmod +x *.sh
+cd -
 
 echo "Setting up environment........."
 source /home/test/.bashrc

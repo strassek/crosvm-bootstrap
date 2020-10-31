@@ -10,7 +10,6 @@ set -o nounset
 # bail on failing commands before last pipe
 set -o pipefail
 
-LINUX_FLAVOUR=${1:-"debian"}
 LOCAL_UNAME=test
 LOCAL_PASSWORD=test0000
 LOCAL_uid=1000
@@ -21,10 +20,8 @@ echo "Checking if 32 bit and 64 bit architecture is supported ..."
 dpkg --add-architecture i386
 dpkg --configure -a
 
-if [[ $LINUX_FLAVOUR != "debian" ]]; then
-  apt-get install -y software-properties-common
-  add-apt-repository multiverse
-fi
+apt-get install -y software-properties-common
+add-apt-repository multiverse
 
 echo "Setting up locales"
 export LANGUAGE=en_US.UTF-8
@@ -75,10 +72,7 @@ install_package apt-utils
 install_package wget
 install_package iptables
 install_package ca-certificates
-
-if [[ $LINUX_FLAVOUR != "debian" ]]; then
-  install_package lsb-core
-fi
+install_package lsb-core
 
 apt autoremove -y
 
@@ -117,7 +111,7 @@ echo "bash_aliases"
 echo "if [ -f /home/$LOCAL_UNAME/.bash_env_settings ]; then" > /home/$LOCAL_UNAME/.bash_aliases
 echo "  . /home/$LOCAL_UNAME/.bash_env_settings" >> /home/$LOCAL_UNAME/.bash_aliases
 echo "fi"  >> /home/$LOCAL_UNAME/.bash_aliases
-echo "export PATH=/intel/bin:$PATH" >> /home/$LOCAL_UNAME/.bash_aliases
+echo "export PATH=/intel/bin:/intel/bin/container:$PATH" >> /home/$LOCAL_UNAME/.bash_aliases
 
 chmod 0664 /home/$LOCAL_UNAME/.bash_aliases
 
