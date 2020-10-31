@@ -19,7 +19,7 @@ BASE_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd 
 LOCAL_BUILD_TARGET=release
 LOCAL_CHANNEL=stable
 LOCAL_PCI_CACHE=$(lspci -v | perl -anE '/VGA/i && $F[0] =~ /^[0-9a-f:.]+$/i && say $F[0]')
-LOCAL_SERIAL_ID=" "
+LOCAL_SERIAL_ID="0000"
 
 if [ $TARGET == "--release" ]; then
   LOCAL_BUILD_TARGET=release
@@ -100,7 +100,7 @@ if [[ "$(sudo docker images -q intel-vm-start:latest 2> /dev/null)" == "" ]]; th
 	
 		echo "Preparing to create docker image...."
 		if [ ! -e $BASE_DIRECTORY/images/rootfs_host.ext4 ]; then
-			echo "Cannot find rootfs_host.ext4 file. Please check the build...."
+			echo "Cannot find rootfs_host.ext4 file. Please check the environment...."
 			exit 1
 		fi
 
