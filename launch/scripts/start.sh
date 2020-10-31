@@ -38,10 +38,10 @@ genMAC () {
 
 is_discrete() {
 DEVICE_ID=${1}
-if [ $DEVICE_ID == "4905" ] || [ $DEVICE_ID == "4906" ] || [ $DEVICE_ID == "4907" ] || [$DEVICE_ID == "4908" ]; then
-  echo "Discrete"
+if [[ "$DEVICE_ID" -eq "4905" ]] || [[ "$DEVICE_ID" -eq "4906" ]] || [[ "$DEVICE_ID" -eq "4907" ]] || [[ "$DEVICE_ID" -eq "4908" ]]; then
+	echo "Discrete"
 else
-  echo "Integrated"
+	echo "Integrated"
 fi
 }
 
@@ -74,8 +74,8 @@ for g in $LOCAL_PCI_CACHE; do
   DEVICE_TYPE=$(is_discrete $PCI_ID)
   is_busy=$(is_bound ${g})
   vendor=$(get_vendor ${g})
-  DEVICE_NO=$((DEVICE_NO+1))
-  if [ $vendor == "Intel" ] && [ $DEVICE_TYPE == "Discrete" ]; then
+  if [[ "$PCI_ID" -eq "4905" ]] || [[ "$PCI_ID" -eq "4906" ]] || [[ "$PCI_ID" -eq "4907" ]] || [[ "$PCI_ID" -eq "4908" ]]; then
+  	  DEVICE_NO=$((DEVICE_NO+1))
 	  if [ ${g:0:5} == "0000:" ]; then
 		serial_no=${g:5}
 	  else
@@ -84,10 +84,8 @@ for g in $LOCAL_PCI_CACHE; do
 	  echo "$DEVICE_NO) PCI ID: $PCI_ID Device Type: $DEVICE_TYPE Vendor: $vendor Used by Host: $is_busy"
 	  /bin/bash  /scripts/setup_gpu_passthrough.sh bind $serial_no
 	  ACCELERATION_OPTION="--vfio /sys/bus/pci/devices/0000:$serial_no"
-  else
-	  echo "None of the PCI devices are Intel & Discrete"
   fi
-done;
+done;	
 }
 
 /bin/bash /scripts/ip_tables.sh eth0 vmtap0

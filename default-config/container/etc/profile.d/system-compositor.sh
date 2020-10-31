@@ -15,18 +15,6 @@ export SOMMELIER_SCALE=1.0
 export SOMMELIER_GLAMOR=1
 export SOMMELIER_DRM_DEVICE=/dev/dri/renderD128
 export SOMMELIER_VIRTWL_DEVICE=/dev/wl0
-export XDG_SESSION_TYPE=wayland
-export XDG_CONFIG_DIRS=/etc/xdg/xdg-fast-game:/etc/xdg
-export DESKTOP_SESSION=fast-game-wayland
-export XDG_SESSION_DESKTOP=fast-game-wayland
-export XAUTHORITY=/run/user/${UID}/.Xauthority
-export XDG_RUNTIME_DIR=/run/user/${UID}
-export XDG_DATA_DIRS=/usr/share/fast-game-wayland:/usr/local/share/:/usr/share/
-export GDMSESSION=fast-game-wayland
-export DISPLAY=:0
-export GNOME_SETUP_DISPLAY=:1
-export LESSOPEN=| /usr/bin/lesspipe %s
-export GDK_BACKEND=wayland
 else
 LOCAL_USER=$(whoami)
 cp /home/$LOCAL_USER/stable_release.env /home/$LOCAL_USER/.bash_env_settings
