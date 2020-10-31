@@ -5,21 +5,22 @@ DEBUG=${2:-"--false"}
 CHANNEL=${3:-"--stable"}
 BUILD_TARGET=${4:-"--release"}
 LOCAL_USER=$(whoami)
+LOCAL_ENV_PATH=/home/$LOCAL_USER/.env_conf
 
 if [[ "$CHANNEL" == "--stable" ]] && [[ "$BUILD_TARGET" == "--release" ]]; then
-  cp /home/$LOCAL_USER/stable_release.env /home/$LOCAL_USER/.bash_env_settings
+  cp $LOCAL_ENV_PATH/stable_release.env /home/$LOCAL_USER/.bash_env_settings
 fi
 
 if [[ "$CHANNEL" == "--stable" ]] && [[ "$BUILD_TARGET" == "--debug" ]]; then
-  cp /home/$LOCAL_USER/stable_debug.env /home/$LOCAL_USER/.bash_env_settings
+  cp $LOCAL_ENV_PATH/stable_debug.env /home/$LOCAL_USER/.bash_env_settings
 fi
 
 if [[ "$CHANNEL" == "--dev" ]] && [[ "$BUILD_TARGET" == "--release" ]]; then
-  cp /home/$LOCAL_USER/dev_release.env /home/$LOCAL_USER/.bash_env_settings
+  cp $LOCAL_ENV_PATH/dev_release.env /home/$LOCAL_USER/.bash_env_settings
 fi
 
 if [[ "$CHANNEL" == "--dev" ]] && [[ "$BUILD_TARGET" == "--debug" ]]; then
-  cp /home/$LOCAL_USER/dev_debug.env /home/$LOCAL_USER/.bash_env_settings
+  cp $LOCAL_ENV_PATH/dev_debug.env /home/$LOCAL_USER/.bash_env_settings
 fi
 
 source /home/$LOCAL_USER/.bash_env_settings

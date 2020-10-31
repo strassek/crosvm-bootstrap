@@ -1,3 +1,5 @@
+LOCAL_USER=$(whoami)
+LOCAL_CONTAINER_NAME=game-fast-container
 sudo mkdir -p /mnt/shared-host
 sudo mount -t 9p shared-host /mnt/shared-host
 
@@ -7,6 +9,9 @@ fi
 
 sudo ln -s /mnt/shared-host /intel/
 
+mkdir -p /home/$LOCAL_USER/.env_conf
+cp /etc/skel/*.env /home/$LOCAL_USER/.env_conf/
+
 cd /intel/bin
 sudo chmod +x *.sh
 cd -
@@ -15,8 +20,11 @@ sudo chmod +x *.sh
 cd -
 
 echo "Setting up environment........."
-LOCAL_USER=$(whoami)
-cp /home/$LOCAL_USER/stable_release.env /home/$LOCAL_USER/.bash_env_settings
+cp /home/$LOCAL_USER/.env_conf/stable_release.env /home/$LOCAL_USER/.bash_env_settings
 source /home/test/.bashrc
-update-containers
-launch &
+
+if [[ $(docker ps -a -f "name=$LOCAL_CONTAINER_NAME" --format '{{.Names}}') != $LOCAL_CONTAINER_NAME ]]; then
+	echo "Launching Container...."
+	update-containers
+	launch
+fi
