@@ -70,7 +70,8 @@ function exit_handler ()
     fi
 
     if [ ! -e $LOCAL_ROOTFS_GUEST.lock ] && [ -e $LOCAL_ROOTFS_GUEST.ext4 ]; then
-      rm $MOUNT_DIR/images/$LOCAL_ROOTFS_GUEST.ext4
+     # rm $MOUNT_DIR/images/$LOCAL_ROOTFS_GUEST.ext4
+     echo "temp"
     fi
   fi
 

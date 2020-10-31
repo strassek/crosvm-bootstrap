@@ -117,10 +117,10 @@ fi
 
 sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/$COMPONENT_TARGET/system_packages_internal.sh
 
-
 if [[ "$COMPONENT_TARGET" == "guest" ]]; then
   sudo cp -rpvf $LOCAL_PWD/config/default-config/guest/* $LOCAL_ROOTFS_MOUNT_DIR/
   sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/$COMPONENT_TARGET/container_settings.sh
+  sudo cp $BASE_PWD/guest/serial-getty@.service $LOCAL_ROOTFS_MOUNT_DIR/lib/systemd/system/
 fi
 
 if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
