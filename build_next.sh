@@ -231,7 +231,6 @@ cd $BASE_DIR/
 ##########################Build Gamefast Image############################## 
 if bash $BASE_DIR/rootfs/create_rootfs.sh $BASE_DIR 'game-fast' '--really-clean' ; then
 	echo “Rootfs: Operation $BUILD_TYPE/$COMPONENT_TARGET Success.”    
-	LOCAL_REGENERATE='--rebuild-all'
 	LOCAL_BUILD_TYPE='--clean'
 	echo “Built rootfs for game fast container with default usersetup.”                                                           
 else                                                                                                         
@@ -239,33 +238,18 @@ else
 	exit 1                                                                                                     
 fi
 
-if bash $BASE_DIR/common/common_components_internal.sh $BASE_DIR 'game-fast' $LOCAL_BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET ; then
-	echo “Built all drivers used by game-fast container.”
-	LOCAL_UPDATE_CONTAINER='--true' 
-else
-	echo “Failed to build drivers used by game-fast container. exit status: $?”
-	exit 1
-fi
-
-if bash $BASE_DIR/game_fast/build_game_fast.sh $BASE_DIR $LOCAL_REGENERATE $LOCAL_BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET ; then
-	echo “Built Game Fast.”
-	LOCAL_UPDATE_CONTAINER='--true'
-else
-	echo “Failed to build Game Fast Container, exit status: $?”
-	exit 1
-fi
-
 #########################Build Guest Image#####################################
 if bash $BASE_DIR/rootfs/create_rootfs.sh $BASE_DIR 'guest' '--really-clean' '30000' ; then
+	LOCAL_BUILD_TYPE="--clean"
 	echo “Built Guest with default setup..”
 else
 	echo “Failed to build guest rootfs. exit status: $?”
 	exit 1
 fi
 
-if bash $BASE_DIR/guest/build_guest_internal.sh $BASE_DIR $LOCAL_BUILD_TYPE $LOCAL_UPDATE_CONTAINER; then
-	echo “Updated containers in guest rootfs.”
+if bash common/common_components_internal.sh $BASE_DIR 'guest' $LOCAL_BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
+	echo “Built all common libraries to be used by Guest.”
 else
-	echo “Failed to build guest rootfs. exit status: $?”
+	echo “Failed to build common libraries to be used by Guest. exit status: $?”
 	exit 1
 fi

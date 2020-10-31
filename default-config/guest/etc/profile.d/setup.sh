@@ -15,6 +15,8 @@ sudo chmod +x *.sh
 cd -
 
 echo "Setting up environment........."
+LOCAL_USER=$(whoami)
+cp /home/$LOCAL_USER/stable_release.env /home/$LOCAL_USER/.bash_env_settings
 source /home/test/.bashrc
 update-containers
-launch
+launch &
