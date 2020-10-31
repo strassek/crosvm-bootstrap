@@ -16,14 +16,14 @@ TARGET=${6:-"--release"}
 ACTION=${7:-"--run"}
 
 BASE_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-LOCAL_KERNEL_CMD_OPTIONS=""
 LOCAL_BUILD_TARGET=release
 LOCAL_CHANNEL=stable
+LOCAL_PCI_CACHE=$(lspci -v | perl -anE '/VGA/i && $F[0] =~ /^[0-9a-f:.]+$/i && say $F[0]')
+LOCAL_SERIAL_ID=" "
 
 if [ $TARGET == "--release" ]; then
-  LOCAL_KERNEL_CMD_OPTIONS="intel_iommu=on drm.debug=255 debug loglevel=8 initcall_debug"
+  LOCAL_BUILD_TARGET=release
 else
-  LOCAL_KERNEL_CMD_OPTIONS="intel_iommu=on drm.debug=255 debug loglevel=8 initcall_debug"
   LOCAL_BUILD_TARGET=debug
 fi
 
@@ -32,29 +32,89 @@ if [ $LOCAL_CHANNEL == "--dev" ]; then
 fi
 
 if [ $ACTION == "--run" ]; then
-	if [[ "$(sudo docker images -q intel-vm-start:latest 2> /dev/null)" == "" ]]; then
-		if [[ "$(docker images -q intel_host:latest 2> /dev/null)" == "" ]]; then
-			if mount | grep intel_host > /dev/null; then
-				sudo umount -l intel_host
-			fi
-	
-			echo "Preparing to create docker image...."
-			if [ ! -e $BASE_DIRECTORY/images/rootfs_host.ext4 ]; then
-				echo "Cannot find rootfs_host.ext4 file. Please check the build...."
-				exit 1
-			fi
 
-			rm -rf intel_host
-			mkdir intel_host
-			sudo mount $BASE_DIRECTORY/images/rootfs_host.ext4 intel_host
-			sudo tar -C intel_host -c . | sudo docker import - intel_host
+is_discrete() {
+DEVICE_ID=${1}
+if [[ "$DEVICE_ID" -eq "4905" ]] || [[ "$DEVICE_ID" -eq "4906" ]] || [[ "$DEVICE_ID" -eq "4907" ]] || [[ "$DEVICE_ID" -eq "4908" ]]; then
+	echo "Discrete"
+else
+	echo "Integrated"
+fi
+}
+
+get_device_id() {
+SERIAL_NO=${1}
+echo $(lspci -k -s $SERIAL_NO | perl -anE '/VGA/i && $F[0] =~ /^[0-9a-f:.]+$/i && say $F[7]')
+}
+
+get_vendor() {
+SERIAL_NO=${1}
+echo $(lspci -k -s $SERIAL_NO | perl -anE '/VGA/i && $F[0] =~ /^[0-9a-f:.]+$/i && say $F[4]')
+}
+
+is_bound() {
+SERIAL_NO=${1}
+if lspci -k -s $SERIAL_NO | grep "Kernel" > /dev/null
+then
+  echo true
+else
+  echo false
+fi
+}
+
+enable_gpu_acceleration() {
+local DEVICE_NO=0
+local serial_no=0
+echo "Supported Options on this platform:"
+for g in $LOCAL_PCI_CACHE; do
+  PCI_ID=$(get_device_id ${g})
+  DEVICE_TYPE=$(is_discrete $PCI_ID)
+  is_busy=$(is_bound ${g})
+  vendor=$(get_vendor ${g})
+  echo $vendor
+  echo $DEVICE_TYPE
+  if [[ "$vendor" == "Intel" ]] && [[ "$DEVICE_TYPE" == "Discrete" ]]; then
+  	  DEVICE_NO=$((DEVICE_NO+1))
+	  if [ ${g:0:5} == "0000:" ]; then
+		serial_no=${g:5}
+	  else
+		serial_no=$g
+	  fi
+	  LOCAL_SERIAL_ID=0000:$serial_no
+	  echo "$DEVICE_NO) PCI ID: $PCI_ID Device Type: $DEVICE_TYPE Vendor: $vendor Used by Host: $is_busy"
+	  sudo $BASE_DIRECTORY/launch/scripts/setup_gpu_passthrough.sh bind $LOCAL_SERIAL_ID
+  fi
+done;	
+}
+
+# Handle PCI Passthrough checks.
+if [[ "$GPU_PASSTHROUGH" == "--true" ]]; then
+	enable_gpu_acceleration
+fi
+
+if [[ "$(sudo docker images -q intel-vm-start:latest 2> /dev/null)" == "" ]]; then
+	if [[ "$(docker images -q intel_host:latest 2> /dev/null)" == "" ]]; then
+		if mount | grep intel_host > /dev/null; then
 			sudo umount -l intel_host
-			rm -rf intel_host
+		fi
+	
+		echo "Preparing to create docker image...."
+		if [ ! -e $BASE_DIRECTORY/images/rootfs_host.ext4 ]; then
+			echo "Cannot find rootfs_host.ext4 file. Please check the build...."
+			exit 1
 		fi
 
-		cd $BASE_DIRECTORY/docker/
-		sudo docker build -t intel-vm-launch:latest -f Dockerfile-start .
+		rm -rf intel_host
+		mkdir intel_host
+		sudo mount $BASE_DIRECTORY/images/rootfs_host.ext4 intel_host
+		sudo tar -C intel_host -c . | sudo docker import - intel_host
+		sudo umount -l intel_host
+		rm -rf intel_host
 	fi
+
+	cd $BASE_DIRECTORY/docker/
+	sudo docker build -t intel-vm-launch:latest -f Dockerfile-start .
+fi
 
 exec sudo docker run -it --rm --privileged \
     --ipc=host \
@@ -68,7 +128,7 @@ exec sudo docker run -it --rm --privileged \
     --mount type=bind,source=$BASE_DIRECTORY/launch/scripts,target=/scripts \
     --mount type=bind,source=$BASE_DIRECTORY/shared,target=/shared-host \
     intel-vm-launch:latest \
-    $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $GPU_PASSTHROUGH $LOCAL_KERNEL_CMD_OPTIONS
+    $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $GPU_PASSTHROUGH $LOCAL_SERIAL_ID
 
 sudo docker rmi -f intel-vm-launch:latest
 else
@@ -90,8 +150,11 @@ if [ $ACTION == "--stop" ]; then
       --mount type=bind,source=$BASE_DIRECTORY/launch/scripts,target=/scripts \
       --mount type=bind,source=$BASE_DIRECTORY/shared,target=/shared-host \
       intel-vm-stop:latest \
-      $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $GPU_PASSTHROUGH $LOCAL_KERNEL_CMD_OPTIONS
+      $LOCAL_CHANNEL $LOCAL_BUILD_TARGET
 
   sudo docker rmi -f intel-vm-stop:latest
+  if [[ -z $LOCAL_SERIAL_ID ]]; then
+  	sudo $BASE_DIRECTORY/launch/scripts/setup_gpu_passthrough.sh unbind $LOCAL_SERIAL_ID
+  fi
 fi
 fi
