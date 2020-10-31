@@ -87,7 +87,7 @@ mkfs.ext4 $LOCAL_ROOTFS_BASE.ext4
 mkdir $LOCAL_ROOTFS_MOUNT_DIR/
 
 sudo mount $LOCAL_ROOTFS_BASE.ext4 $LOCAL_ROOTFS_MOUNT_DIR/
-if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
+if [[ "$COMPONENT_TARGET" != "host" ]]; then
   sudo $LOCAL_PWD/rootfs/debootstrap-ubuntu --arch=amd64 --unpack-tarball=$LOCAL_PWD/rootfs/rootfs_container.tar focal $LOCAL_ROOTFS_MOUNT_DIR/
 else
   sudo $LOCAL_PWD/rootfs/debootstrap-debian --arch=amd64 --unpack-tarball=$LOCAL_PWD/rootfs/rootfs_base.tar buster $LOCAL_ROOTFS_MOUNT_DIR/
@@ -102,7 +102,7 @@ sudo mkdir -p $LOCAL_ROOTFS_MOUNT_DIR/scripts/rootfs
 sudo cp -rpvf $LOCAL_PWD/scripts/$COMPONENT_TARGET/*.sh $LOCAL_ROOTFS_MOUNT_DIR/scripts/$COMPONENT_TARGET/
 sudo cp -rpvf $BASE_PWD/rootfs/*.sh $LOCAL_ROOTFS_MOUNT_DIR/scripts/rootfs/
 
-if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
+if [[ "$COMPONENT_TARGET" != "host" ]]; then
   sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/rootfs/basic_setup.sh 'ubuntu'
 else
   sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/rootfs/basic_setup.sh 'debian'
@@ -110,10 +110,8 @@ fi
 
 sudo cp -rpvf $LOCAL_PWD/config/default-config/common/* $LOCAL_ROOTFS_MOUNT_DIR/
 
-if [[ "$COMPONENT_TARGET" != "guest" ]]; then
 echo "Installing needed system packages...."
 sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/rootfs/common_system_packages.sh"
-fi
 
 sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/$COMPONENT_TARGET/system_packages_internal.sh
 

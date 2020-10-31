@@ -16,7 +16,7 @@ BUILD_CHANNEL=${3:-"--stable"}
 LOCAL_BUILD_TARGET=release
 LOCAL_CHANNEL=stable
 
-if /scripts/game_fast/common_build_internal.sh $BUILD_TYPE $BUILD_TARGET $BUILD_CHANNEL
+if /scripts/common/common_build_internal.sh $BUILD_TYPE $BUILD_TARGET $BUILD_CHANNEL x86_64
 then
   echo "Starting Build...."
 else

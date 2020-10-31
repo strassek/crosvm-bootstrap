@@ -12,7 +12,7 @@ cd /intel/shared-host/containers
 
 if [[ -e game-fast-container.gz ]]; then
   zcat game-fast-container.gz | docker import - game-fast-container
-  exec docker run -t -i -d -e BASH_ENV=/etc/profile --name game-fast-container -e container=docker --privileged -h game-fast --storage-opt size=120G -u $(whoami) -v /dev:/dev -e XDG_RUNTIME_DIR=/run/user/${UID} -v /tmp/.X11-unix:/tmp/.X11-unix:rw --mount type=bind,source=/intel/shared-host/guest,target=/shared -e DISPLAY=:0 -e PATH=/intel/bin:$PATH game-fast:latest bash --login
+  exec docker run -t -i -d -e BASH_ENV=/etc/profile --name game-fast-container -e container=docker --privileged -h game-fast --storage-opt size=120G -u $(whoami) -v /dev:/dev -v /opt:/opt -e XDG_RUNTIME_DIR=/run/user/${UID} -v /tmp/.X11-unix:/tmp/.X11-unix:rw --mount type=bind,source=/intel/shared-host/guest,target=/shared -e DISPLAY=:0 -e PATH=/intel/bin:$PATH game-fast:latest bash --login
   exit 0;
 fi
 
@@ -38,7 +38,7 @@ if [[ ! -e rootfs_common.ext4 ]] && [[ ! -e rootfs_game_fast.ext4 ]]; then
   fi
 
   echo "You are running the latest Game-Fast release."
-  exec docker run -t -i -d -e BASH_ENV=/etc/profile --name game-fast-container -e container=docker --privileged -h game-fast --storage-opt size=120G -u $(whoami) -v /dev:/dev -e XDG_RUNTIME_DIR=/run/user/${UID} -v /tmp/.X11-unix:/tmp/.X11-unix:rw --mount type=bind,source=/intel/shared-host/guest,target=/shared -e DISPLAY=:0 -e PATH=/intel/bin:$PATH game-fast:latest bash --login
+  exec docker run -t -i -d -e BASH_ENV=/etc/profile --name game-fast-container -e container=docker --privileged -h game-fast --storage-opt size=120G -u $(whoami) -v /dev:/dev -v /opt:/opt -e XDG_RUNTIME_DIR=/run/user/${UID} -v /tmp/.X11-unix:/tmp/.X11-unix:rw --mount type=bind,source=/intel/shared-host/guest,target=/shared -e DISPLAY=:0 -e PATH=/intel/bin:$PATH game-fast:latest bash --login
 else
 if [[ "$(docker images -q game-fast 2> /dev/null)" != "" ]]; then
   docker rmi -f game-fast:latest
@@ -59,7 +59,7 @@ sudo tar -C game_fast -c . | docker import - game-fast:latest
 sudo umount -l game_fast
 sudo rm -rf game_fast
 
-exec docker run -t -i -d -e BASH_ENV=/etc/profile --name game-fast-container -e container=docker --privileged -h game-fast --storage-opt size=120G -u $(whoami) -v /dev:/dev -e XDG_RUNTIME_DIR=/run/user/${UID} -v /tmp/.X11-unix:/tmp/.X11-unix:rw --mount type=bind,source=/intel/shared-host/guest,target=/shared -e DISPLAY=:0 -e PATH=/intel/bin:$PATH game-fast:latest bash --login
+exec docker run -t -i -d -e BASH_ENV=/etc/profile --name game-fast-container -e container=docker --privileged -h game-fast --storage-opt size=120G -u $(whoami) -v /dev:/dev -v /opt:/opt -e XDG_RUNTIME_DIR=/run/user/${UID} -v /tmp/.X11-unix:/tmp/.X11-unix:rw --mount type=bind,source=/intel/shared-host/guest,target=/shared -e DISPLAY=:0 -e PATH=/intel/bin:$PATH game-fast:latest bash --login
 fi
 
 if [[ "$(docker images -q game-fast:previous-tag 2> /dev/null)" != "" ]]; then

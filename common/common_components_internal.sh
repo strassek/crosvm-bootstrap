@@ -31,8 +31,8 @@ LOCAL_ROOTFS_COMMON=rootfs_host
 LOCAL_ROOTFS_COMMON_MOUNT_DIR=rootfs_host-temp
 
 
-if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
-  LOCAL_ROOTFS_COMMON=rootfs_game_fast
+if [[ "$COMPONENT_TARGET" == "guest" ]]; then
+  LOCAL_ROOTFS_COMMON=rootfs_guest
   LOCAL_ROOTFS_COMMON_MOUNT_DIR=$LOCAL_ROOTFS_COMMON-temp
 fi
 
@@ -106,7 +106,11 @@ else
 fi
 }
 
-cd $LOCAL_PWD/containers/
+if [[ "$COMPONENT_TARGET" == "guest" ]]; then
+  cd $LOCAL_PWD/images/
+else
+  cd $LOCAL_PWD/containers/
+fi
 setup_build_env
 
 echo "Building components."
@@ -120,6 +124,22 @@ echo "Building components."
 
 if [[ "$LOCAL_COMPONENT_ONLY_BUILDS" == "--all" ]] || [[ "$LOCAL_COMPONENT_ONLY_BUILDS" == "--drivers" ]]; then
   building_component "--drivers"
+fi
+
+if [[ "$COMPONENT_TARGET" == "guest" ]]; then
+  if sudo chroot $LOCAL_ROOTFS_COMMON_MOUNT_DIR/ /bin/bash /scripts/common/build_demos.sh $BUILD_TARGET $LOCAL_BUILD_TYPE $BUILD_CHANNEL; then
+    echo "Build Demos.."
+  else
+    echo "Failed to build demos.."
+    exit 1
+  fi
+
+  if sudo chroot $LOCAL_ROOTFS_COMMON_MOUNT_DIR/ /bin/bash /scripts/common/guest_packages.sh $BUILD_TARGET $LOCAL_BUILD_TYPE $BUILD_CHANNEL; then
+    echo "Build Window system for guest.."
+  else
+    echo "Failed to build Window system for guest.."
+    exit 1
+  fi
 fi
 
 cleanup_build_env

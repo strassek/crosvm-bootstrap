@@ -28,9 +28,9 @@ fi
 LOCAL_ROOTFS_COMMON=rootfs_host
 LOCAL_ROOTFS_COMMON_MOUNT_DIR=$MOUNT_DIR/containers/rootfs_host-temp
 
-if [[ "$TARGET_COMPONENT" == "game-fast" ]]; then
-  LOCAL_ROOTFS_COMMON=rootfs_game_fast
-  LOCAL_ROOTFS_COMMON_MOUNT_DIR=$MOUNT_DIR/containers/$LOCAL_ROOTFS_COMMON-temp
+if [[ "$TARGET_COMPONENT" == "guest" ]]; then
+  LOCAL_ROOTFS_COMMON=rootfs_guest
+  LOCAL_ROOTFS_COMMON_MOUNT_DIR=$MOUNT_DIR/images/$LOCAL_ROOTFS_COMMON-temp
 fi
 
 echo "error_handler_internal: Using Arguments...."
@@ -50,6 +50,12 @@ exec 2>"$stderr_log"
 function exit_handler ()
 {
   if [ $MOUNT_DIR != "--none" ]; then
+    if [[ "$TARGET_COMPONENT" == "guest" ]]; then
+      cd $MOUNT_DIR/images/
+    else
+      cd $MOUNT_DIR/containers/
+    fi
+
     if [ -e $LOCAL_ROOTFS_COMMON ]; then
       if mount | grep $LOCAL_ROOTFS_COMMON/build > /dev/null; then
         sudo umount -l $LOCAL_ROOTFS_COMMON/build
@@ -97,13 +103,8 @@ function exit_handler ()
       rm -rf $LOCAL_ROOTFS_COMMON_MOUNT_DIR
     fi
 
-    if [ -e $MOUNT_DIR/images/rootfs_temp.tar ]; then
-      rm $MOUNT_DIR/images/rootfs_temp.tar
-    fi
-
-    cd $MOUNT_DIR/containers/
     if [ ! -e $LOCAL_ROOTFS_COMMON.lock ] && [ -e $LOCAL_ROOTFS_COMMON.ext4 ]; then
-      rm $MOUNT_DIR/containers/$LOCAL_ROOTFS_COMMON.ext4
+      rm $LOCAL_ROOTFS_COMMON.ext4
       echo "destroying rootfs image----- \n";
     fi
   fi

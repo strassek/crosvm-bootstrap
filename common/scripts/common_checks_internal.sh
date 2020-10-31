@@ -17,7 +17,7 @@ COMPONENT_ONLY_BUILDS=${5:-"--all"}
 BUILD_CHANNEL=${6:-"--stable"} # Possible values: --dev, --stable, --all
 BUILD_TARGET=${7:-"--release"} # Possible values: --release, --debug, --all
 
-if [[ "$COMPONENT_TARGET" != "common-libraries" ]] && [[ "$COMPONENT_TARGET" != "game-fast" ]]; then
+if [[ "$COMPONENT_TARGET" != "common-libraries" ]] && [[ "$COMPONENT_TARGET" != "guest" ]]; then
   echo "Invalid COMPONENT_TARGET. Please check build_options.txt file for supported combinations."
   exit 1
 fi

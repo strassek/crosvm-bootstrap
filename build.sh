@@ -125,22 +125,6 @@ if [[ "$COMPONENT_TARGET" == "--game-fast" ]] || [[ "$COMPONENT_TARGET" == "--re
       exit 1
     fi
   fi
-  echo "LOCAL_BUILD_TYPE" $LOCAL_BUILD_TYPE
-    if bash common/common_components_internal.sh $BASE_DIR 'game-fast' $LOCAL_BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
-       echo “Built all common libraries to be used by game-fast container.”
-    else
-      echo “Failed to build common libraries to be used by game-fast container. exit status: $?”
-      exit 1
-    fi
-
-  # Create Base image. This will be used for Host and cloning source code.
-  if bash game_fast/build_game_fast.sh $BASE_DIR $LOCAL_REGENERATE $LOCAL_BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
-    echo “Built Game Fast.”
-    UPDATE_CONTAINER='--true'
-  else
-    echo “Failed to build Game Fast Container. exit status: $?”
-    exit 1
-  fi
 fi
 
 LOCAL_BUILD_GUEST="false"
@@ -164,15 +148,25 @@ if [[ "$UPDATE_CONTAINER" == "--true" ]] || [[ "$COMPONENT_TARGET" == "--guest" 
   if [[ "$BUILD_TYPE" == "--really-clean" ]] && [[ "$COMPONENT_TARGET" == "--guest" ]]; then
     RECREATE_GUEST_ROOTFS=1
   fi
+  
+  LOCAL_BUILD_TYPE=$BUILD_TYPE
 
   if [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]] || [[ $RECREATE_GUEST_ROOTFS == "1" ]] || [[ ! -e $BASE_DIR/build/images/rootfs_guest.ext4 ]]; then
     if bash rootfs/create_rootfs.sh $BASE_DIR 'guest' '--really-clean' '10000'; then
+      LOCAL_BUILD_TYPE="--clean"
       echo “Built guest with default usersetup.”
     else
       echo “Failed to built rootfs with default usersetup, exit status: $?”
       exit 1
     fi
   fi
+  
+  if bash common/common_components_internal.sh $BASE_DIR 'guest' $LOCAL_BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
+    echo “Built all common libraries to be used by Guest.”
+  else
+    echo “Failed to build common libraries to be used by Guest. exit status: $?”
+    exit 1
+  fi  
 fi
 
 if [[ "$COMPONENT_TARGET" == "--kernel" ]] || [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] ; then
