@@ -169,6 +169,7 @@ install_package xfonts-cyrillic
 install_package xfonts-100dpi
 install_package xfonts-75dpi
 install_package xfonts-base
+install_package net-tools
 
 echo "Installing needed i386 system packages..."
 install_package_i386 libxkbfile1
