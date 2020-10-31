@@ -131,6 +131,9 @@ exec sudo docker run -it --rm --privileged \
     $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $GPU_PASSTHROUGH $LOCAL_SERIAL_ID
 
 sudo docker rmi -f intel-vm-launch:latest
+if [[ "$LOCAL_SERIAL_ID" != "0000" ]]; then
+	sudo $BASE_DIRECTORY/launch/scripts/setup_gpu_passthrough.sh unbind $LOCAL_SERIAL_ID
+fi
 else
 if [ $ACTION == "--stop" ]; then
   if [[ "$(sudo docker images -q intel-vm-stop 2> /dev/null)" != "" ]]; then
@@ -153,8 +156,5 @@ if [ $ACTION == "--stop" ]; then
       $LOCAL_CHANNEL $LOCAL_BUILD_TARGET
 
   sudo docker rmi -f intel-vm-stop:latest
-  if [[ -z $LOCAL_SERIAL_ID ]]; then
-  	sudo $BASE_DIRECTORY/launch/scripts/setup_gpu_passthrough.sh unbind $LOCAL_SERIAL_ID
-  fi
 fi
 fi

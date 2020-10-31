@@ -10,7 +10,8 @@ fi
 sudo ln -s /mnt/shared-host /intel/
 
 mkdir -p /home/$LOCAL_USER/.env_conf
-cp /etc/skel/*.env /home/$LOCAL_USER/.env_conf/
+cp /intel/env/*.env /home/$LOCAL_USER/.env_conf/
+cp /intel/env/weston.ini /home/$LOCAL_USER/
 
 cd /intel/bin
 sudo chmod +x *.sh

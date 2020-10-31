@@ -17,7 +17,7 @@ echo "commiting game-fast"
 docker commit game-fast-container game-fast:latest
 
 if [[ -e game-fast-container.gz ]]; then
-  rm game-fast-container.gz
+  sudo rm game-fast-container.gz
 fi
 
 docker export game-fast-container | gzip > game-fast-container.gz

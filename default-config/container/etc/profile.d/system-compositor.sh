@@ -17,6 +17,11 @@ export SOMMELIER_DRM_DEVICE=/dev/dri/renderD128
 export SOMMELIER_VIRTWL_DEVICE=/dev/wl0
 else
 LOCAL_USER=$(whoami)
+
+mkdir -p /home/$LOCAL_USER/.env_conf
+cp /intel/env/*.env /home/$LOCAL_USER/.env_conf/
+cp /intel/env/weston.ini /home/$LOCAL_USER/
+
 cp /home/$LOCAL_USER/stable_release.env /home/$LOCAL_USER/.bash_env_settings
 source /home/$LOCAL_USER/.bash_env_settings
 
