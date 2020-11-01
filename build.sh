@@ -67,9 +67,6 @@ if [[ "$COMPONENT_TARGET" == "--host" ]] || [[ "$COMPONENT_TARGET" == "--rebuild
 	docker rmi -f intel_host:latest
   fi
 
-  mkdir -p $BASE_DIR/build/scripts/host
-  cp -rf $BASE_DIR/host/scripts/*.* $BASE_DIR/build/scripts/host
-
   if [ $COMPONENT_TARGET == "--rebuild-all" ] || [[ "$BUILD_TYPE" == "--really-clean" ]]; then
     # Create Base image. This will be used for Host and cloning source code.
     if bash rootfs/create_rootfs.sh $BASE_DIR 'host' '--really-clean'; then
