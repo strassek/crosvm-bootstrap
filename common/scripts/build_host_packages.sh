@@ -159,3 +159,5 @@ cp esif_cmp.so /usr/share/dptf/ufx64
 cd  $WORKING_DIR/dptf/ESIF/Products/ESIF_WS/Linux
 make
 cp esif_ws.so /usr/share/dptf/ufx64
+
+echo "Built needed Host packages..."

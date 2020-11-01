@@ -42,7 +42,7 @@ fi
 
 mkdir -p $LOG_DIR
 
-source $SCRIPTS_DIR/common/error_handler_internal.sh $LOG_DIR $COMPONENT_TARGET.log $LOCAL_PWD $COMPONENT_TARGET
+source $SCRIPTS_DIR/common/error_handler_internal.sh $LOG_DIR $COMPONENT_TARGET-component-build.log $LOCAL_PWD $COMPONENT_TARGET
 
 if bash common/scripts/common_checks_internal.sh $LOCAL_PWD $SOURCE_PWD $COMPONENT_TARGET $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
   echo “Preparing to build dependencies for $COMPONENT_TARGET...”
@@ -122,9 +122,9 @@ echo "Building components."
     building_component "--wayland"
   fi
 
-if [[ "$LOCAL_COMPONENT_ONLY_BUILDS" == "--all" ]] || [[ "$LOCAL_COMPONENT_ONLY_BUILDS" == "--drivers" ]]; then
-  building_component "--drivers"
-fi
+  if [[ "$LOCAL_COMPONENT_ONLY_BUILDS" == "--all" ]] || [[ "$LOCAL_COMPONENT_ONLY_BUILDS" == "--drivers" ]]; then
+    building_component "--drivers"
+  fi
 
 if [[ "$COMPONENT_TARGET" == "guest" ]]; then
   if sudo chroot $LOCAL_ROOTFS_COMMON_MOUNT_DIR/ /bin/bash /scripts/common/build_demos.sh $BUILD_TARGET $LOCAL_BUILD_TYPE $BUILD_CHANNEL; then

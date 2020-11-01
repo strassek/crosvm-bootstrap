@@ -53,7 +53,32 @@ install_package gnome-session-wayland
 install_package qtcreator
 install_package gdb
 
+LOCAL_USER=$(whoami)
+
 sudo ln -s /usr/lib/x86_64-linux-gnu/libprocps.so.8 /usr/lib/x86_64-linux-gnu/libprocps.so.6
 
 sudo apt autoremove -y
+
+sudo mkdir -p /etc/xdg/xdg-fast-game
+sudo mkdir -p /usr/share/fast-game-wayland
+
+if [[ ! -e /usr/share/X11/xkb/rules/evdev ]]; then
+  sudo mkdir -p /usr/share/X11/xkb/rules/evdev
+  sudo ln -s /opt/stable/release/x86_64/share/X11/xkb/rules /usr/share/X11/xkb/rules/evdev
+fi
+
+if [[ ! -e /usr/bin/xkbcomp ]]; then
+  sudo mkdir -p /usr/bin/xkbcomp
+  sudo ln -s /opt/stable/release/x86_64/bin/ /usr/bin/xkbcomp
+fi
+
+if [[ ! -e /run/user/${UID} ]]; then
+  sudo mkdir -p /run/user/${UID}
+fi
+
+sudo chown -R $LOCAL_USER:$LOCAL_USER /run/user/${UID}
+
+if [[ ! -e /run/user/${UID}/.Xauthority ]]; then
+  touch /run/user/$UID/.Xauthority
+fi
 

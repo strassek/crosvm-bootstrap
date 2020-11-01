@@ -2,6 +2,13 @@
 
 # main.sh. Builds x11, wayland and drivers.
 
+# exit on any script line that fails
+set -o errexit
+# bail on any unitialized variable reads
+set -o nounset
+# bail on failing commands before last pipe
+set -o pipefail
+
 BUILD_TYPE=$1
 COMPONENT_TARGET=$2
 COMPONENT_ONLY_BUILDS=$3
@@ -12,10 +19,8 @@ LOCAL_DIRECTORY_PREFIX=/build
 LOCAL_BUILD_CHANNEL="--dev"
 LOCAL_BUILD_TARGET="--release"
 LOCAL_BUILD_TYPE=$BUILD_TYPE
-LOG_DIR=$BASE_PWD/build/log/$COMPONENT_TARGET
+LOG_DIR=/build/log/$COMPONENT_TARGET
 SCRIPTS_DIR=/scripts/common/
-
-source $SCRIPTS_DIR/error_handler_internal.sh $LOG_DIR $COMPONENT_TARGET.log '--none' $COMPONENT_TARGET
 
 echo "main: Recieved Arguments...."$COMPONENT_TARGET $COMPONENT_ONLY_BUILDS
 if bash $SCRIPTS_DIR/common_checks_internal.sh $LOCAL_DIRECTORY_PREFIX /build $COMPONENT_TARGET $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then

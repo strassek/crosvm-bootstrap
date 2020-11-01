@@ -193,3 +193,5 @@ mesonclean_asneeded
 
 generate_compiler_settings
 meson setup $LOCAL_MESON_BUILD_DIR -Dprefix=$LOCAL_CURRENT_WLD_PATH -Denable-x11=true -Denable-wayland=true -Denable-docs=false -Dscanner=false $LOCAL_MESON_COMPILER_OPTIONS && ninja -C $LOCAL_MESON_BUILD_DIR install
+
+echo "Built Wayland packages..."

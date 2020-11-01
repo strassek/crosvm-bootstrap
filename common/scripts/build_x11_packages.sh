@@ -185,3 +185,5 @@ autogen_build
 echo "Building xkeyboard-config............"
 cd $WORKING_DIR/xkeyboard-config
 autogen_build
+
+echo "Built X11 packages..."
