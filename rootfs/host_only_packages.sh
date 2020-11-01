@@ -18,13 +18,13 @@ export RUSTFLAGS='--cfg hermetic'
 
 curl -LO "https://static.rust-lang.org/rustup/archive/1.22.1/x86_64-unknown-linux-gnu/rustup-init" \
     && echo "49c96f3f74be82f4752b8bffcf81961dea5e6e94ce1ccba94435f12e871c3bdb *rustup-init" | sha256sum -c - \
-sudo chmod +x rustup-init
-sudo ./rustup-init -y --no-modify-path --default-toolchain $RUST_VERSION
-sudo rm rustup-init
-sudo chmod -R a+w $RUSTUP_HOME $CARGO_HOME \
-rustup --version \
-cargo --version \
-rustc --version
+    && chmod +x rustup-init \
+    && ./rustup-init -y --no-modify-path --default-toolchain $RUST_VERSION \
+    && rm rustup-init \
+    && chmod -R a+w $RUSTUP_HOME $CARGO_HOME \
+    && rustup --version \
+    && cargo --version \
+    && rustc --version
 
 rustup default stable
 cargo install thisiznotarealpackage -q || true

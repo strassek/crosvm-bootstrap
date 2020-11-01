@@ -1,15 +1,18 @@
 #! /bin/bash
 
-# create_rootfs.sh
-# Generates base rootfs image which is used to create host containers and guest
-# rootfs images.
+###################################################################
+#Generates base rootfs image which is used to create host and guest
+###################################################################
 
-# exit on any script line that fails
+
+###### exit on any script line that fails ########################
 set -o errexit
-# bail on any unitialized variable reads
+###### bail on any unitialized variable reads ####################
 set -o nounset
-# bail on failing commands before last pipe
+###### bail on failing commands before last pipe #################
 set -o pipefail
+###### Use this to ignore Errors for certian commands ###########
+EXIT_CODE=0
 
 BASE_PWD=${1}
 COMPONENT_TARGET=${2:-"host"}
@@ -43,112 +46,132 @@ mkdir -p $LOG_DIR
 
 source $SCRIPTS_DIR/common/error_handler_internal.sh $LOG_DIR rootfs.log $LOCAL_PWD $COMPONENT_TARGET
 
-destroy_base_rootfs_as_needed() {
-if [ -e $LOCAL_ROOTFS_MOUNT_DIR ]; then
-  if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/build > /dev/null; then
-    sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/build
-  fi
+###############################################################################
+##cleanup_build()
+###############################################################################
 
-  if mount | grep $LOCAL_ROOTFS_MOUNT_DIR > /dev/null; then
-    sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR
-  fi
+cleanup_build() {
 
-  rm -rf $LOCAL_ROOTFS_MOUNT_DIR
-fi
+	echo "Cleaningup build env..."
+	if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/proc > /dev/null; then
+		sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/proc
+	fi
+	
+	if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/dev/shm > /dev/null; then
+		sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
+	fi
+	
+	if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/dev/pts > /dev/null; then
+		sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/pts
+	fi
+	
+	if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/build > /dev/null; then
+		sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/build
+	fi
 
-if [ $BUILD_TYPE == "--really-clean" ]; then
-  if [ -e $LOCAL_ROOTFS_BASE.lock ]; then
-    rm $LOCAL_ROOTFS_BASE.lock
-  fi
+	if mount | grep $LOCAL_ROOTFS_MOUNT_DIR > /dev/null; then
+		sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR
+	fi
 
-  if [ -e $LOCAL_ROOTFS_BASE.ext4 ]; then
-  echo "destroying rootfs image----- \n";
-    rm  $LOCAL_ROOTFS_BASE.ext4
-  fi
-fi
+	rm -rf $LOCAL_ROOTFS_MOUNT_DIR
+
 }
 
+###############################################################################
+##cleanup_base_rootfs()
+###############################################################################
+cleanup_base_rootfs() {
+	cleanup_build || EXIT_CODE=$?
+	
+	if [ $BUILD_TYPE == "--really-clean" ]; then
+		if [ -e $LOCAL_ROOTFS_BASE.lock ]; then
+			rm $LOCAL_ROOTFS_BASE.lock || EXIT_CODE=$?
+		fi
+
+		if [ -e $LOCAL_ROOTFS_BASE.ext4 ]; then
+			echo "destroying rootfs image----- \n";
+			rm  $LOCAL_ROOTFS_BASE.ext4 || EXIT_CODE=$?
+		fi
+	fi
+}
+
+###############################################################################
+##generate_base_rootfs()
+###############################################################################
 generate_base_rootfs() {
-if [ -e $LOCAL_ROOTFS_BASE.ext4 ]; then
-  echo "Base rootfs image already exists. Reusing it."
-  return 0;
-fi
+	if [ -e $LOCAL_ROOTFS_BASE.ext4 ]; then
+		echo "Base rootfs image already exists. Reusing it."
+		return 0;
+	fi
 
-if [ -e $LOCAL_ROOTFS_MOUNT_DIR ]; then
-  rm -rf $LOCAL_ROOTFS_MOUNT_DIR
-fi
+	if [ -e $LOCAL_ROOTFS_MOUNT_DIR ]; then
+		rm -rf $LOCAL_ROOTFS_MOUNT_DIR
+	fi
 
-if [ -e $LOCAL_ROOTFS_BASE.lock ]; then
-  rm $LOCAL_ROOTFS_BASE.lock
-fi
+	if [ -e $LOCAL_ROOTFS_BASE.lock ]; then
+		rm $LOCAL_ROOTFS_BASE.lock
+	fi
 
-echo "Generating rootfs...."
-dd if=/dev/zero of=$LOCAL_ROOTFS_BASE.ext4 bs=$SIZE count=1M
-mkfs.ext4 $LOCAL_ROOTFS_BASE.ext4
-mkdir $LOCAL_ROOTFS_MOUNT_DIR/
+	echo "Generating rootfs...."
+	dd if=/dev/zero of=$LOCAL_ROOTFS_BASE.ext4 bs=$SIZE count=1M
+	mkfs.ext4 $LOCAL_ROOTFS_BASE.ext4
+	mkdir $LOCAL_ROOTFS_MOUNT_DIR/
 
-sudo mount $LOCAL_ROOTFS_BASE.ext4 $LOCAL_ROOTFS_MOUNT_DIR/
-sudo $LOCAL_PWD/rootfs/debootstrap --arch=amd64 --unpack-tarball=$LOCAL_PWD/rootfs/rootfs_container.tar focal $LOCAL_ROOTFS_MOUNT_DIR/
+	sudo mount $LOCAL_ROOTFS_BASE.ext4 $LOCAL_ROOTFS_MOUNT_DIR/
+	sudo $LOCAL_PWD/rootfs/debootstrap --arch=amd64 --unpack-tarball=$LOCAL_PWD/rootfs/rootfs_container.tar focal $LOCAL_ROOTFS_MOUNT_DIR/
 
-sudo mount -t proc /proc $LOCAL_ROOTFS_MOUNT_DIR/proc
-sudo mount -o bind /dev/shm $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
-sudo mount -o bind /dev/pts $LOCAL_ROOTFS_MOUNT_DIR/dev/pts
+	sudo mount -t proc /proc $LOCAL_ROOTFS_MOUNT_DIR/proc
+	sudo mount -o bind /dev/shm $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
+	sudo mount -o bind /dev/pts $LOCAL_ROOTFS_MOUNT_DIR/dev/pts
 
-sudo mkdir -p $LOCAL_ROOTFS_MOUNT_DIR/scripts/rootfs
-sudo cp -rpvf $BASE_PWD/rootfs/*.sh $LOCAL_ROOTFS_MOUNT_DIR/scripts/rootfs/
+	sudo mkdir -p $LOCAL_ROOTFS_MOUNT_DIR/scripts/rootfs
+	sudo cp -rpvf $BASE_PWD/rootfs/*.sh $LOCAL_ROOTFS_MOUNT_DIR/scripts/rootfs/
 
-sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/rootfs/basic_setup.sh
+	sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/rootfs/basic_setup.sh
 
-sudo cp -rpvf $LOCAL_PWD/config/default-config/common/* $LOCAL_ROOTFS_MOUNT_DIR/
+	sudo cp -rpvf $LOCAL_PWD/config/default-config/common/* $LOCAL_ROOTFS_MOUNT_DIR/
 
-echo "Installing needed system packages...."
-sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/rootfs/common_system_packages.sh"
+	echo "Installing needed system packages...."
+	sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/rootfs/common_system_packages.sh"
 
-if [[ "$COMPONENT_TARGET" != "host" ]]; then
-    echo "Installing needed applications...."
-    sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/rootfs/common_application_packages.sh"
-else
-    sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/rootfs/host_only_packages.sh"
-fi
+	if [[ "$COMPONENT_TARGET" != "host" ]]; then
+		echo "Installing needed applications...."
+		sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/rootfs/common_application_packages.sh"
+	else
+		sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/rootfs/host_only_packages.sh
+	fi
 
-if [[ "$COMPONENT_TARGET" == "guest" ]]; then
-  sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/rootfs/guest_only_packages.sh"
-  sudo cp -rpvf $LOCAL_PWD/config/default-config/guest/* $LOCAL_ROOTFS_MOUNT_DIR/
-  sudo cp $BASE_PWD/guest/serial-getty@.service $LOCAL_ROOTFS_MOUNT_DIR/lib/systemd/system/
-fi
+	if [[ "$COMPONENT_TARGET" == "guest" ]]; then
+		sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/rootfs/guest_only_packages.sh"
+		sudo cp -rpvf $LOCAL_PWD/config/default-config/guest/* $LOCAL_ROOTFS_MOUNT_DIR/
+		sudo cp $BASE_PWD/guest/serial-getty@.service $LOCAL_ROOTFS_MOUNT_DIR/lib/systemd/system/
+	fi
 
-if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
-  sudo cp -rpvf $LOCAL_PWD/config/default-config/container/* $LOCAL_ROOTFS_MOUNT_DIR/
-  sudo rm $LOCAL_ROOTFS_MOUNT_DIR/etc/profile.d/system-compositor.sh
+	if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
+		sudo cp -rpvf $LOCAL_PWD/config/default-config/container/* $LOCAL_ROOTFS_MOUNT_DIR/
+		sudo rm $LOCAL_ROOTFS_MOUNT_DIR/etc/profile.d/system-compositor.sh
 
-  sudo cp -rpvf $LOCAL_PWD/config/default-config/container/etc/profile.d/system-compositor.sh $LOCAL_ROOTFS_MOUNT_DIR/etc/profile.d/
-fi
+		sudo cp -rpvf $LOCAL_PWD/config/default-config/container/etc/profile.d/system-compositor.sh $LOCAL_ROOTFS_MOUNT_DIR/etc/profile.d/
+	fi
 
-sudo cp $LOCAL_PWD/config/default-config/common/etc/resolv.conf $LOCAL_ROOTFS_MOUNT_DIR/etc/
+	sudo cp $LOCAL_PWD/config/default-config/common/etc/resolv.conf $LOCAL_ROOTFS_MOUNT_DIR/etc/
 
-echo "Rootfs ready..."
-echo "rootfs generated" > $LOCAL_ROOTFS_BASE.lock
-echo "Cleaningup build env..."
-if mount | grep $LOCAL_ROOTFS_MOUNT_DIR/build > /dev/null; then
-  sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/build
-fi
-
-sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/proc
-sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
-sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR/dev/pts
-
-if mount | grep $LOCAL_ROOTFS_MOUNT_DIR > /dev/null; then
-  sudo umount -l $LOCAL_ROOTFS_MOUNT_DIR
-fi
-
-rm -rf $LOCAL_ROOTFS_MOUNT_DIR
+	echo "Rootfs ready..."
+	echo "rootfs generated" > $LOCAL_ROOTFS_BASE.lock
 }
+
+###############################################################################
+##main() 
+###############################################################################
 
 if [[ "$COMPONENT_TARGET" == "game-fast" ]] || [[ "$COMPONENT_TARGET" == "host" ]]; then
-  cd $LOCAL_PWD/containers/
+	cd $LOCAL_PWD/containers/
 else
-  cd $LOCAL_PWD/images/
+	cd $LOCAL_PWD/images/
 fi
 
-destroy_base_rootfs_as_needed
+cleanup_base_rootfs
 generate_base_rootfs
+
+echo "Cleaningup build env..."
+cleanup_build

@@ -77,19 +77,11 @@ if [[ "$COMPONENT_TARGET" == "--host" ]] || [[ "$COMPONENT_TARGET" == "--rebuild
     fi
   fi
 
-  if bash common/common_components_internal.sh $BASE_DIR 'common-libraries' $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
+  if bash common/common_components_internal.sh $BASE_DIR 'host' $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
     echo “Built all common libraries to be used by host and guest”
     LOCAL_REGENERATE='--rebuild-all'
   else
     echo “Failed to build common libraries to be used by host and guest. exit status: $?”
-    exit 1
-  fi
-
-  # Create Base image. This will be used for Host and cloning source code.
-  if bash host/build_host_internal.sh $BASE_DIR $LOCAL_REGENERATE $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET; then
-    echo “Built host rootfs.”
-  else
-    echo “Failed to build host rootfs. exit status: $?”
     exit 1
   fi
 fi

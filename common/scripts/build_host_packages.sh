@@ -16,7 +16,7 @@ BUILD_CHANNEL=${3:-"--stable"}
 LOCAL_BUILD_TARGET=release
 LOCAL_CHANNEL=stable
 
-if /scripts/host/common_build_internal.sh $BUILD_TYPE $BUILD_TARGET $BUILD_CHANNEL
+if /scripts/common/common_build_internal.sh $BUILD_TYPE $BUILD_TARGET $BUILD_CHANNEL x86_64
 then
   echo "Starting Build...."
 else
@@ -57,7 +57,7 @@ export CARGO_HOME=/usr/local/cargo
 export C_INCLUDE_PATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm
 export CPLUS_INCLUDE_PATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm
 export CPATH=$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm
-export PATH=/usr/local/cargo/bin:"$PATH:$CARGO_HOME:$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm:$LOCAL_CURRENT_WLD_PATH/bin:$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu"
+export PATH=$HOME/.cargo/bin:/usr/local/cargo/bin:"$PATH:$CARGO_HOME:$LOCAL_CURRENT_WLD_PATH/include:$LOCAL_CURRENT_WLD_PATH/include/libdrm:$LOCAL_CURRENT_WLD_PATH/bin:$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu"
 export ACLOCAL_PATH=$LOCAL_CURRENT_WLD_PATH/share/aclocal
 export ACLOCAL="aclocal -I $ACLOCAL_PATH"
 export PKG_CONFIG_PATH=$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu/pkgconfig:$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu/pkgconfig:$LOCAL_CURRENT_WLD_PATH/lib/pkgconfig:$LOCAL_CURRENT_WLD_PATH/share/pkgconfig:/lib/x86_64-linux-gnu/pkgconfig
