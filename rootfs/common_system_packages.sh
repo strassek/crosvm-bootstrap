@@ -222,6 +222,7 @@ install_package_i386 libasound2
 install_package_i386 libasound2-dev
 install_package_i386 libbz2-dev
 install_package_i386 libvdpau-dev
+install_package_i386 libopenal1
 
 sudo apt autoremove -y
 

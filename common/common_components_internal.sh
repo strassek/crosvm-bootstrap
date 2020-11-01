@@ -147,7 +147,8 @@ if [[ "$COMPONENT_TARGET" == "host" ]]; then
         echo "Built host packages.."
     else
         echo "Failed to build host packages.."
-    exit 1
+    	exit 1
+    fi
 fi
 
 
