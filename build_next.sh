@@ -219,12 +219,7 @@ fi
 
 ##########################Local Build State For Container##############################
 LOCAL_REGENERATE=$COMPONENT_TARGET
-LOCAL_UPDATE_CONTAINER='--false'
 LOCAL_BUILD_TYPE=$BUILD_TYPE
-
-if [[ "$COMPONENT_TARGET" == "--guest" ]]; then
-	LOCAL_UPDATE_CONTAINER='--true'
-fi
 
 cd $BASE_DIR/
 

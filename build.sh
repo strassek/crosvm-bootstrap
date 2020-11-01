@@ -104,7 +104,7 @@ if [[ "$COMPONENT_TARGET" == "--game-fast" ]] && [[ "$BUILD_TYPE" == "--really-c
   LOCAL_BUILD_GAME_FAST="true"
 fi
 
-if [[ "$COMPONENT_TARGET" == "--game-fast" ]] || [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]] || [[ "$LOCAL_BUILD_GAME_FAST" == "true" ]]; then
+if [[ "$COMPONENT_TARGET" == "--game-fast" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]] || [[ "$LOCAL_BUILD_GAME_FAST" == "true" ]] ||  [[ ! -e  "$BASE_DIR/build/containers/rootfs_game_fast.ext4" ]]; then
   if [ -e $BASE_DIR/build/scripts/game_fast ]; then
     rm -rf $BASE_DIR/build/scripts/game_fast
   fi
@@ -113,17 +113,13 @@ if [[ "$COMPONENT_TARGET" == "--game-fast" ]] || [[ "$COMPONENT_TARGET" == "--re
 
   mkdir -p $BASE_DIR/build/scripts/game-fast
   cp -rf $BASE_DIR/game_fast/scripts/*.* $BASE_DIR/build/scripts/game-fast
-
-  if [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$BUILD_TYPE" == "--really-clean" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]] ||  [[ ! -e  "$BASE_DIR/build/containers/rootfs_game_fast.ext4" ]]; then
-    LOCAL_REGENERATE="--rebuild-all"
-    LOCAL_BUILD_TYPE="--clean"
-    # Create Base image. This will be used for Host and cloning source code.
-    if bash rootfs/create_rootfs.sh $BASE_DIR 'game-fast' '--really-clean'; then
-      echo “Built rootfs with default usersetup.”
-    else
-      echo “Failed to built rootfs with default usersetup, exit status: $?”
-      exit 1
-    fi
+  
+  # Create Base image. This will be used for Host and cloning source code.
+  if bash rootfs/create_rootfs.sh $BASE_DIR 'game-fast' '--really-clean'; then
+    echo “Built rootfs with default usersetup.”
+  else
+    echo “Failed to built rootfs with default usersetup, exit status: $?”
+    exit 1
   fi
 fi
 
