@@ -11,7 +11,9 @@ sudo ln -s /mnt/shared-host /intel/
 
 mkdir -p /home/$LOCAL_USER/.env_conf
 cp /intel/env/*.env /home/$LOCAL_USER/.env_conf/
-cp /intel/env/weston.ini /home/$LOCAL_USER/
+
+mkdir -p /home/$LOCAL_USER/.config
+cp /intel/env/weston.ini /home/$LOCAL_USER/.config/
 
 cd /intel/bin
 sudo chmod +x *.sh

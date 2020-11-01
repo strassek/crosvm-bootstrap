@@ -20,7 +20,8 @@ LOCAL_USER=$(whoami)
 
 mkdir -p /home/$LOCAL_USER/.env_conf
 cp /intel/env/*.env /home/$LOCAL_USER/.env_conf/
-cp /intel/env/weston.ini /home/$LOCAL_USER/
+mkdir -p /home/$LOCAL_USER/.config
+cp /intel/env/weston.ini /home/$LOCAL_USER/.config/
 
 cp /home/$LOCAL_USER/stable_release.env /home/$LOCAL_USER/.bash_env_settings
 source /home/$LOCAL_USER/.bash_env_settings

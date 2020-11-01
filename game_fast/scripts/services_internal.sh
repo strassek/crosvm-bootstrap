@@ -19,9 +19,6 @@ if [ -e /etc/skel/ ]; then
   sudo cp -RvT /etc/skel/ /home/$USER/
 fi
 
-mkdir /home/$USER/.config
-mv /home/$USER/weston.ini /home/$USER/.config/
-
 if [[ ! -e /usr/share/X11/xkb/rules/evdev ]]; then
   sudo mkdir -p /usr/share/X11/xkb/rules/evdev
   sudo ln -s /opt/stable/release/x86_64/share/X11/xkb/rules /usr/share/X11/xkb/rules/evdev
