@@ -13,7 +13,7 @@ set -o nounset
 set -o pipefail
 
 BASE_PWD=${1}
-COMPONENT_TARGET=${2:-"none"}
+COMPONENT_TARGET=${2}
 BUILD_TYPE=${3:-"--clean"} # Possible values: --clean, --incremental --really-clean
 COMPONENT_ONLY_BUILDS=${4:-"--all"}
 BUILD_CHANNEL=${5:-"--stable"} # Possible values: --dev, --stable, --all
@@ -141,5 +141,14 @@ if [[ "$COMPONENT_TARGET" == "guest" ]]; then
     exit 1
   fi
 fi
+
+if [[ "$COMPONENT_TARGET" == "host" ]]; then
+    if sudo chroot $LOCAL_ROOTFS_COMMON_MOUNT_DIR/ /bin/bash /scripts/common/build_host_packages.sh $BUILD_TARGET $LOCAL_BUILD_TYPE $BUILD_CHANNEL; then
+        echo "Built host packages.."
+    else
+        echo "Failed to build host packages.."
+    exit 1
+fi
+
 
 cleanup_build_env
