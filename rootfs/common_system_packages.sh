@@ -170,6 +170,7 @@ install_package xfonts-100dpi
 install_package xfonts-75dpi
 install_package xfonts-base
 install_package net-tools
+install_package libasound2-dev
 
 echo "Installing needed i386 system packages..."
 install_package_i386 libxkbfile1
@@ -218,6 +219,7 @@ install_package_i386 libgtk2.0-0
 install_package_i386 libgdk-pixbuf2.0
 install_package_i386 libpulse-dev
 install_package_i386 libasound2
+install_package_i386 libasound2-dev
 install_package_i386 libbz2-dev
 install_package_i386 libvdpau-dev
 

@@ -77,14 +77,14 @@ echo "---------------------------------"
 cd /build
 
 function mesonclean_asneeded() {
-if [ $BUILD_TYPE == "--clean" ]; then
+if [[ "$BUILD_TYPE" == "--clean" ]]; then
   if [ -d $LOCAL_MESON_BUILD_DIR ]; then
     rm -rf $LOCAL_MESON_BUILD_DIR
   fi
 fi
 }
 
-if [ $BUILD_ARCH == "i386" ]; then
+if [[ "$BUILD_ARCH" == "i386" ]]; then
   # Create settings for cross compiling
   if [ $BUILD_TYPE == "--clean" ]; then
     if [ -f $CROSS_SETTINGS ]; then
@@ -155,11 +155,13 @@ generate_compiler_settings
 meson setup $LOCAL_MESON_BUILD_DIR  --buildtype $LOCAL_BUILD_TARGET -Dprefix=$LOCAL_CURRENT_WLD_PATH  -Dglx=yes -Dx11=true -Degl=yes $LOCAL_MESON_COMPILER_OPTIONS && ninja -C $LOCAL_MESON_BUILD_DIR install
 
 # Build libva
+echo "Building libva............"
 cd $WORKING_DIR/libva
 mesonclean_asneeded
+generate_compiler_settings
 meson setup $LOCAL_MESON_BUILD_DIR  --buildtype $LOCAL_BUILD_TARGET -Dprefix=$LOCAL_CURRENT_WLD_PATH -Ddisable_drm=false -Dwith_x11=yes -Dwith_glx=yes -Dwith_wayland=yes $LOCAL_MESON_COMPILER_OPTIONS && ninja -C $LOCAL_MESON_BUILD_DIR install
 
-if [ $BUILD_ARCH != "i386" ]; then
+if [[ "$BUILD_ARCH" != "i386" ]]; then
   # Build gmmlib
   cd $WORKING_DIR/gmmlib
   mesonclean_asneeded

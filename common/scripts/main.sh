@@ -95,8 +95,13 @@ if [ $COMPONENT_ONLY_BUILDS == "--x11" ] || [ $COMPONENT_ONLY_BUILDS == "--all" 
   if [ $LOCAL_BUILD_TARGET != $build_target ] && [ $LOCAL_BUILD_TARGET != "--all" ]; then
     return 0;
   fi
-
-  bash $SCRIPTS_DIR/build_x11_packages.sh $build_target $build_type $channel $arch
+  
+  	if bash $SCRIPTS_DIR/build_x11_packages.sh $build_target $build_type $channel $arch; then
+		echo “Finished building X11 Packages $build_target $build_type $channel $arch...”
+	else
+  		echo “Failed to build X11. $build_target $build_type $channel $arch, exit status: $?”
+  		exit 1
+	fi
 fi
 }
 
@@ -114,8 +119,13 @@ if [ $COMPONENT_ONLY_BUILDS == "--wayland" ] || [ $COMPONENT_ONLY_BUILDS == "--a
   if [ $LOCAL_BUILD_TARGET != $build_target ] && [ $LOCAL_BUILD_TARGET != "--all" ]; then
     return 0;
   fi
-
-  bash $SCRIPTS_DIR/build_wayland_packages.sh $build_target $build_type $channel $arch
+  
+	if bash $SCRIPTS_DIR/build_wayland_packages.sh $build_target $build_type $channel $arch; then
+		echo “Finished building Wayland Packages $build_target $build_type $channel $arch...”
+	else
+  		echo “Failed to build Wayland. $build_target $build_type $channel $arch, exit status: $?”
+  		exit 1
+	fi
 fi
 }
 
@@ -134,7 +144,12 @@ if [ $COMPONENT_ONLY_BUILDS == "--drivers" ] || [ $COMPONENT_ONLY_BUILDS == "--a
     return 0;
   fi
 
-  bash $SCRIPTS_DIR/build_driver_packages.sh $build_target $build_type $channel $arch
+	if bash $SCRIPTS_DIR/build_driver_packages.sh $build_target $build_type $channel $arch; then
+		echo “Finished building Drivers $build_target $build_type $channel $arch...”
+	else
+  		echo “Failed to build Drivers. $build_target $build_type $channel $arch, exit status: $?”
+  		exit 1
+	fi
 fi
 }
 
@@ -143,19 +158,19 @@ fi
 echo "Building User Mode Graphics Drivers..."
 #Debug
 build_x11 --debug $LOCAL_BUILD_TYPE --dev x86_64
-#build_x11 --debug $LOCAL_BUILD_TYPE --dev i386
+build_x11 --debug $LOCAL_BUILD_TYPE --dev i386
 build_wayland --debug $LOCAL_BUILD_TYPE --dev x86_64
-#build_wayland --debug $LOCAL_BUILD_TYPE --dev i386
+build_wayland --debug $LOCAL_BUILD_TYPE --dev i386
 build_drivers --debug $LOCAL_BUILD_TYPE --dev x86_64
-#build_drivers --debug $LOCAL_BUILD_TYPE --dev i386
+build_drivers --debug $LOCAL_BUILD_TYPE --dev i386
 
 # Release Builds.
 build_x11 --release $LOCAL_BUILD_TYPE --dev x86_64
-#build_x11 --release $LOCAL_BUILD_TYPE --dev i386
+build_x11 --release $LOCAL_BUILD_TYPE --dev i386
 build_wayland --release $LOCAL_BUILD_TYPE --dev x86_64
-#build_wayland --release $LOCAL_BUILD_TYPE --dev i386
+build_wayland --release $LOCAL_BUILD_TYPE --dev i386
 build_drivers --release $LOCAL_BUILD_TYPE --dev x86_64
-#build_drivers --release $LOCAL_BUILD_TYPE --dev i386
+build_drivers --release $LOCAL_BUILD_TYPE --dev i386
 #----------------------------Dev Channel ends-----------------
 
 #------------------------------------Stable Channel-----------"
