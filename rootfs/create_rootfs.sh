@@ -87,7 +87,7 @@ mkfs.ext4 $LOCAL_ROOTFS_BASE.ext4
 mkdir $LOCAL_ROOTFS_MOUNT_DIR/
 
 sudo mount $LOCAL_ROOTFS_BASE.ext4 $LOCAL_ROOTFS_MOUNT_DIR/
-sudo $LOCAL_PWD/rootfs/debootstrap-ubuntu --arch=amd64 --unpack-tarball=$LOCAL_PWD/rootfs/rootfs_container.tar focal $LOCAL_ROOTFS_MOUNT_DIR/
+sudo $LOCAL_PWD/rootfs/debootstrap --arch=amd64 --unpack-tarball=$LOCAL_PWD/rootfs/rootfs_container.tar focal $LOCAL_ROOTFS_MOUNT_DIR/
 
 sudo mount -t proc /proc $LOCAL_ROOTFS_MOUNT_DIR/proc
 sudo mount -o bind /dev/shm $LOCAL_ROOTFS_MOUNT_DIR/dev/shm

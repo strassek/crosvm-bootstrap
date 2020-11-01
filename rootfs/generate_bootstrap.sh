@@ -12,11 +12,11 @@ set -o pipefail
 
 mkdir temp
 cd temp
-../debootstrap-ubuntu --arch=amd64 --make-tarball=rootfs_container.tar focal . http://archive.ubuntu.com/ubuntu/ || true
+../debootstrap --arch=amd64 --make-tarball=rootfs_container.tar focal . http://archive.ubuntu.com/ubuntu/ || true
 echo "created host bootstrap"
 rm -rf ../rootfs_container.tar || true
 mv rootfs_container.tar ../
-rm -rf ../debootstrap-ubuntu
-mv debootstrap/debootstrap ../debootstrap-ubuntu
+rm -rf ../debootstrap
+mv debootstrap/debootstrap ../debootstrap
 cd ..
 rm -rf temp
