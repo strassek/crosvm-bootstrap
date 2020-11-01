@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# common.sh
-# Generates base rootfs image which is used to create host and guest
+# create_rootfs.sh
+# Generates base rootfs image which is used to create host containers and guest
 # rootfs images.
 
 # exit on any script line that fails
@@ -12,7 +12,7 @@ set -o nounset
 set -o pipefail
 
 BASE_PWD=${1}
-COMPONENT_TARGET=${2:-"common"}
+COMPONENT_TARGET=${2:-"host"}
 BUILD_TYPE=${3:-"--clean"} # Possible values: --clean, --incremental --really-clean
 SIZE=${4:-"5000"}
 
@@ -39,8 +39,9 @@ fi
 
 mkdir -p $BASE_PWD/build/images
 mkdir -p $BASE_PWD/build/log/$COMPONENT_TARGET
+mkdir -p $LOG_DIR
 
-source $SCRIPTS_DIR/$COMPONENT_TARGET/error_handler_internal.sh $LOG_DIR rootfs.log $LOCAL_PWD
+source $SCRIPTS_DIR/common/error_handler_internal.sh $LOG_DIR rootfs.log $LOCAL_PWD $COMPONENT_TARGET
 
 destroy_base_rootfs_as_needed() {
 if [ -e $LOCAL_ROOTFS_MOUNT_DIR ]; then
@@ -93,9 +94,7 @@ sudo mount -t proc /proc $LOCAL_ROOTFS_MOUNT_DIR/proc
 sudo mount -o bind /dev/shm $LOCAL_ROOTFS_MOUNT_DIR/dev/shm
 sudo mount -o bind /dev/pts $LOCAL_ROOTFS_MOUNT_DIR/dev/pts
 
-sudo mkdir -p $LOCAL_ROOTFS_MOUNT_DIR/scripts/$COMPONENT_TARGET
 sudo mkdir -p $LOCAL_ROOTFS_MOUNT_DIR/scripts/rootfs
-sudo cp -rpvf $LOCAL_PWD/scripts/$COMPONENT_TARGET/*.sh $LOCAL_ROOTFS_MOUNT_DIR/scripts/$COMPONENT_TARGET/
 sudo cp -rpvf $BASE_PWD/rootfs/*.sh $LOCAL_ROOTFS_MOUNT_DIR/scripts/rootfs/
 
 sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/rootfs/basic_setup.sh
@@ -105,11 +104,16 @@ sudo cp -rpvf $LOCAL_PWD/config/default-config/common/* $LOCAL_ROOTFS_MOUNT_DIR/
 echo "Installing needed system packages...."
 sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/rootfs/common_system_packages.sh"
 
-sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/$COMPONENT_TARGET/system_packages_internal.sh
+if [[ "$COMPONENT_TARGET" != "host" ]]; then
+    echo "Installing needed applications...."
+    sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/rootfs/common_application_packages.sh"
+else
+    sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/rootfs/host_only_packages.sh"
+fi
 
 if [[ "$COMPONENT_TARGET" == "guest" ]]; then
+  sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/rootfs/guest_only_packages.sh"
   sudo cp -rpvf $LOCAL_PWD/config/default-config/guest/* $LOCAL_ROOTFS_MOUNT_DIR/
-  sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash /scripts/$COMPONENT_TARGET/container_settings.sh
   sudo cp $BASE_PWD/guest/serial-getty@.service $LOCAL_ROOTFS_MOUNT_DIR/lib/systemd/system/
 fi
 
@@ -117,11 +121,10 @@ if [[ "$COMPONENT_TARGET" == "game-fast" ]]; then
   sudo cp -rpvf $LOCAL_PWD/config/default-config/container/* $LOCAL_ROOTFS_MOUNT_DIR/
   sudo rm $LOCAL_ROOTFS_MOUNT_DIR/etc/profile.d/system-compositor.sh
 
-  echo "enabling needed services"
-  sudo chroot $LOCAL_ROOTFS_MOUNT_DIR/ /bin/bash -c "su - $LOCAL_USER -c /scripts/$COMPONENT_TARGET/services_internal.sh"
-
   sudo cp -rpvf $LOCAL_PWD/config/default-config/container/etc/profile.d/system-compositor.sh $LOCAL_ROOTFS_MOUNT_DIR/etc/profile.d/
 fi
+
+sudo cp $LOCAL_PWD/config/default-config/common/etc/resolv.conf $LOCAL_ROOTFS_MOUNT_DIR/etc/
 
 echo "Rootfs ready..."
 echo "rootfs generated" > $LOCAL_ROOTFS_BASE.lock

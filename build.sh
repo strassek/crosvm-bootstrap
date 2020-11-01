@@ -29,8 +29,8 @@ if [ ! -e $BASE_DIR/build ]; then
   mkdir $BASE_DIR/build
 fi
 
-if [ ! -e $BASE_DIR/build/rootfs ]; then
-  cp -rf $BASE_DIR/rootfs build/rootfs
+if [[ -e $BASE_DIR/build/rootfs ]]; then
+  rm -rf $BASE_DIR/build/rootfs
 fi
 
 if [ -e $BASE_DIR/build/config ]; then
@@ -43,6 +43,8 @@ fi
 
 mkdir -p $BASE_DIR/build/config
 cp -rf default-config $BASE_DIR/build/config
+
+cp -rf $BASE_DIR/rootfs $BASE_DIR/build/
 
 if [ -e $BASE_DIR/build/scripts/common ]; then
   rm -rf $BASE_DIR/build/scripts/common
@@ -112,7 +114,6 @@ if [[ "$COMPONENT_TARGET" == "--game-fast" ]] || [[ "$LOCAL_REGENERATE" == "--re
   LOCAL_BUILD_TYPE=$BUILD_TYPE
 
   mkdir -p $BASE_DIR/build/scripts/game-fast
-  cp -rf $BASE_DIR/game_fast/scripts/*.* $BASE_DIR/build/scripts/game-fast
   
   # Create Base image. This will be used for Host and cloning source code.
   if bash rootfs/create_rootfs.sh $BASE_DIR 'game-fast' '--really-clean'; then
@@ -138,7 +139,6 @@ if [[ "$UPDATE_CONTAINER" == "--true" ]] || [[ "$COMPONENT_TARGET" == "--guest" 
   fi
 
   mkdir -p $BASE_DIR/build/scripts/guest
-  cp -rf $BASE_DIR/guest/scripts/*.* $BASE_DIR/build/scripts/guest/
   RECREATE_GUEST_ROOTFS=0
   
   if [[ "$BUILD_TYPE" == "--really-clean" ]] && [[ "$COMPONENT_TARGET" == "--guest" ]]; then
@@ -148,7 +148,7 @@ if [[ "$UPDATE_CONTAINER" == "--true" ]] || [[ "$COMPONENT_TARGET" == "--guest" 
   LOCAL_BUILD_TYPE=$BUILD_TYPE
 
   if [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]] || [[ $RECREATE_GUEST_ROOTFS == "1" ]] || [[ ! -e $BASE_DIR/build/images/rootfs_guest.ext4 ]]; then
-    if bash rootfs/create_rootfs.sh $BASE_DIR 'guest' '--really-clean' '10000'; then
+    if bash rootfs/create_rootfs.sh $BASE_DIR 'guest' '--really-clean' '15000'; then
       LOCAL_BUILD_TYPE="--clean"
       echo “Built guest with default usersetup.”
     else

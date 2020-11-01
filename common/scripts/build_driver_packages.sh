@@ -154,12 +154,12 @@ mesonclean_asneeded
 generate_compiler_settings
 meson setup $LOCAL_MESON_BUILD_DIR  --buildtype $LOCAL_BUILD_TARGET -Dprefix=$LOCAL_CURRENT_WLD_PATH  -Dglx=yes -Dx11=true -Degl=yes $LOCAL_MESON_COMPILER_OPTIONS && ninja -C $LOCAL_MESON_BUILD_DIR install
 
+# Build libva
+cd $WORKING_DIR/libva
+mesonclean_asneeded
+meson setup $LOCAL_MESON_BUILD_DIR  --buildtype $LOCAL_BUILD_TARGET -Dprefix=$LOCAL_CURRENT_WLD_PATH -Ddisable_drm=false -Dwith_x11=yes -Dwith_glx=yes -Dwith_wayland=yes $LOCAL_MESON_COMPILER_OPTIONS && ninja -C $LOCAL_MESON_BUILD_DIR install
+
 if [ $BUILD_ARCH != "i386" ]; then
-  # Build libva
-  cd $WORKING_DIR/libva
-  mesonclean_asneeded
-  meson setup $LOCAL_MESON_BUILD_DIR  --buildtype $LOCAL_BUILD_TARGET -Dprefix=$LOCAL_CURRENT_WLD_PATH -Ddisable_drm=false -Dwith_x11=yes -Dwith_glx=yes -Dwith_wayland=yes && ninja -C $LOCAL_MESON_BUILD_DIR install
-  
   # Build gmmlib
   cd $WORKING_DIR/gmmlib
   mesonclean_asneeded

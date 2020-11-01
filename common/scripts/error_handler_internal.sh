@@ -11,26 +11,32 @@ lib_name='error_handler_internal'
 LOG_DIR=${1}
 ERR_LOG_NAME=${2}
 MOUNT_DIR=${3}
-TARGET_COMPONENT=${4:-"none"}
+TARGET_COMPONENT=${4}
 
 echo "error_handler_internal: Recieved Arguments...."
 echo "LOG_DIR:" $LOG_DIR
 echo "ERR_LOG_NAME:" $ERR_LOG_NAME
 echo "MOUNT_DIR:" $MOUNT_DIR
+echo "TARGET_COMPONENT:" $TARGET_COMPONENT
 echo "--------------------------"
 
 mkdir -p $LOG_DIR
 stderr_log=$LOG_DIR/$ERR_LOG_NAME
 if [ -e $stderr_log ]; then
-  rm $stderr_log
+	rm $stderr_log
 fi
 
 LOCAL_ROOTFS_COMMON=rootfs_host
-LOCAL_ROOTFS_COMMON_MOUNT_DIR=$MOUNT_DIR/containers/rootfs_host-temp
+
+if [[ "$TARGET_COMPONENT" == "game-fast" ]]; then
+	LOCAL_ROOTFS_COMMON=rootfs_game_fast
+fi
+
+LOCAL_ROOTFS_COMMON_MOUNT_DIR=$MOUNT_DIR/containers/$LOCAL_ROOTFS_COMMON-temp
 
 if [[ "$TARGET_COMPONENT" == "guest" ]]; then
-  LOCAL_ROOTFS_COMMON=rootfs_guest
-  LOCAL_ROOTFS_COMMON_MOUNT_DIR=$MOUNT_DIR/images/$LOCAL_ROOTFS_COMMON-temp
+	LOCAL_ROOTFS_COMMON=rootfs_guest
+	LOCAL_ROOTFS_COMMON_MOUNT_DIR=$MOUNT_DIR/images/$LOCAL_ROOTFS_COMMON-temp
 fi
 
 echo "error_handler_internal: Using Arguments...."
@@ -40,6 +46,75 @@ echo "--------------------------"
 
 exec 2>"$stderr_log"
 
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+#
+# Cleanup any mounted directories
+#
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+
+function cleanup_mount ()
+{
+if [[ "$MOUNT_DIR" != "--none" ]]; then
+	if [[ "$TARGET_COMPONENT" == "guest" ]]; then
+		cd $MOUNT_DIR/images/
+    	else
+      		cd $MOUNT_DIR/containers/
+    	fi
+
+    	if [[ -e $LOCAL_ROOTFS_COMMON ]]; then
+      		if mount | grep $LOCAL_ROOTFS_COMMON/build > /dev/null; then
+        		sudo umount -l $LOCAL_ROOTFS_COMMON/build
+      		fi
+
+      		if mount | grep $LOCAL_ROOTFS_COMMON/log/common > /dev/null; then
+        		sudo umount -l $LOCAL_ROOTFS_COMMON/log/common
+      		fi
+
+      		if mount | grep $LOCAL_ROOTFS_COMMON/proc > /dev/null; then
+        		echo "unmounting" $LOCAL_ROOTFS_COMMON/proc
+        		sudo umount -l $LOCAL_ROOTFS_COMMON/proc
+      		fi
+
+      		if mount | grep $LOCAL_ROOTFS_COMMON/dev/shm > /dev/null; then
+        		echo "unmounting" $LOCAL_ROOTFS_COMMON/dev/shm
+        		sudo umount -l $LOCAL_ROOTFS_COMMON/dev/shm
+      		fi
+
+      		if mount | grep $LOCAL_ROOTFS_COMMON/dev/pts > /dev/null; then
+        		echo "unmounting" $LOCAL_ROOTFS_COMMON/dev/pts
+        		sudo umount -l $LOCAL_ROOTFS_COMMON/dev/pts
+      		fi
+
+      		if mount | grep $LOCAL_ROOTFS_COMMON > /dev/null; then
+        		sudo umount -l $LOCAL_ROOTFS_COMMON
+      		fi
+
+      		rm -rf $LOCAL_ROOTFS_COMMON
+    	fi
+
+    	if [[ -e $LOCAL_ROOTFS_COMMON_MOUNT_DIR ]]; then
+      		if mount | grep $LOCAL_ROOTFS_COMMON_MOUNT_DIR/build > /dev/null; then
+        		sudo umount -l $LOCAL_ROOTFS_COMMON_MOUNT_DIR/build
+      		fi
+
+      		if mount | grep $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common > /dev/null; then
+        		sudo umount -l $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common
+      		fi
+
+      		if mount | grep $LOCAL_ROOTFS_COMMON_MOUNT_DIR > /dev/null; then
+        		sudo umount -l $LOCAL_ROOTFS_COMMON_MOUNT_DIR
+      		fi
+
+      		rm -rf $LOCAL_ROOTFS_COMMON_MOUNT_DIR
+	fi
+
+	if [[ ! -e $LOCAL_ROOTFS_COMMON.lock ]] && [[ -e $LOCAL_ROOTFS_COMMON.ext4 ]]; then
+		rm $LOCAL_ROOTFS_COMMON.ext4
+		echo "destroying rootfs image----- \n";
+	fi
+fi
+cd -
+}
 
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
 #
@@ -49,68 +124,9 @@ exec 2>"$stderr_log"
 
 function exit_handler ()
 {
-  if [ $MOUNT_DIR != "--none" ]; then
-    if [[ "$TARGET_COMPONENT" == "guest" ]]; then
-      cd $MOUNT_DIR/images/
-    else
-      cd $MOUNT_DIR/containers/
-    fi
-
-    if [ -e $LOCAL_ROOTFS_COMMON ]; then
-      if mount | grep $LOCAL_ROOTFS_COMMON/build > /dev/null; then
-        sudo umount -l $LOCAL_ROOTFS_COMMON/build
-      fi
-
-      if mount | grep $LOCAL_ROOTFS_COMMON/log/common > /dev/null; then
-        sudo umount -l $LOCAL_ROOTFS_COMMON/log/common
-      fi
-
-      if mount | grep $LOCAL_ROOTFS_COMMON/proc > /dev/null; then
-        echo "unmounting" $LOCAL_ROOTFS_COMMON/proc
-        sudo umount -l $LOCAL_ROOTFS_COMMON/proc
-      fi
-
-      if mount | grep $LOCAL_ROOTFS_COMMON/dev/shm > /dev/null; then
-        echo "unmounting" $LOCAL_ROOTFS_COMMON/dev/shm
-        sudo umount -l $LOCAL_ROOTFS_COMMON/dev/shm
-      fi
-
-      if mount | grep $LOCAL_ROOTFS_COMMON/dev/pts > /dev/null; then
-        echo "unmounting" $LOCAL_ROOTFS_COMMON/dev/pts
-        sudo umount -l $LOCAL_ROOTFS_COMMON/dev/pts
-      fi
-
-      if mount | grep $LOCAL_ROOTFS_COMMON > /dev/null; then
-        sudo umount -l $LOCAL_ROOTFS_COMMON
-      fi
-
-      rm -rf $LOCAL_ROOTFS_COMMON
-    fi
-
-    if [ -e $LOCAL_ROOTFS_COMMON_MOUNT_DIR ]; then
-      if mount | grep $LOCAL_ROOTFS_COMMON_MOUNT_DIR/build > /dev/null; then
-        sudo umount -l $LOCAL_ROOTFS_COMMON_MOUNT_DIR/build
-      fi
-
-      if mount | grep $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common > /dev/null; then
-        sudo umount -l $LOCAL_ROOTFS_COMMON_MOUNT_DIR/log/common
-      fi
-
-      if mount | grep $LOCAL_ROOTFS_COMMON_MOUNT_DIR > /dev/null; then
-        sudo umount -l $LOCAL_ROOTFS_COMMON_MOUNT_DIR
-      fi
-
-      rm -rf $LOCAL_ROOTFS_COMMON_MOUNT_DIR
-    fi
-
-    if [ ! -e $LOCAL_ROOTFS_COMMON.lock ] && [ -e $LOCAL_ROOTFS_COMMON.ext4 ]; then
-      rm $LOCAL_ROOTFS_COMMON.ext4
-      echo "destroying rootfs image----- \n";
-    fi
-  fi
-
-    local error_code="$?"
-  test $error_code == 0 && return;
+	cleanup_mount
+	local error_code="$?"
+	test $error_code == 0 && return;
 
     #
     # LOCAL VARIABLES:

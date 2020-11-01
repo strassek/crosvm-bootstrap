@@ -103,7 +103,6 @@ echo "env setup1" $buildtype $basedir
 	mkdir -p $basedir/build/scripts/guest
 	mkdir -p $basedir/build/scripts/host
 	mkdir -p $basedir/build/scripts/game-fast
-	mkdir -p $basedir/build/rootfs
 
 	cp -rf $basedir/rootfs build/
 	cp -rf $basedir/default-config $basedir/build/config

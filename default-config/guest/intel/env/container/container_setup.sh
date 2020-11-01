@@ -10,13 +10,14 @@ set -o nounset
 # bail on failing commands before last pipe
 set -o pipefail
 
-echo "services internal 2"
+echo "Setting up Container Environment..."
+LOCAL_USER=$(whoami)
 
 sudo mkdir -p /etc/xdg/xdg-fast-game
 sudo mkdir -p /usr/share/fast-game-wayland
 
 if [ -e /etc/skel/ ]; then
-  sudo cp -RvT /etc/skel/ /home/$USER/
+  sudo cp -RvT /etc/skel/ /home/$LOCAL_USER/
 fi
 
 if [[ ! -e /usr/share/X11/xkb/rules/evdev ]]; then
@@ -33,15 +34,12 @@ if [[ ! -e /run/user/${UID} ]]; then
   sudo mkdir -p /run/user/${UID}
 fi
 
-sudo chown -R $USER:$USER /run/user/${UID}
+sudo chown -R $LOCAL_USER:$LOCAL_USER /run/user/${UID}
 
 if [[ ! -e /run/user/${UID}/.Xauthority ]]; then
   touch /run/user/$UID/.Xauthority
 fi
 
-sudo chown -R $USER:$USER /home/$USER/..
-ls -all /home/$USER
-ls -all /run/user/${UID}
+sudo chown -R $LOCAL_USER:$LOCAL_USER /home/$LOCAL_USER/..
 
-
-echo "Done configuring the needed services and groups..."
+echo "Done setting up container environment."

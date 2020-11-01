@@ -106,15 +106,6 @@ export uid=$LOCAL_uid gid=$LOCAL_gid
 echo "adding groups"
 usermod -aG sudo,audio,video,input,render,lp $LOCAL_UNAME
 #loginctl enable-linger $UNAME
-echo "bash_aliases"
-
-echo "if [ -f /home/$LOCAL_UNAME/.bash_env_settings ]; then" > /home/$LOCAL_UNAME/.bash_aliases
-echo "  . /home/$LOCAL_UNAME/.bash_env_settings" >> /home/$LOCAL_UNAME/.bash_aliases
-echo "fi"  >> /home/$LOCAL_UNAME/.bash_aliases
-echo "export PATH=/intel/bin:/intel/bin/container:$PATH" >> /home/$LOCAL_UNAME/.bash_aliases
-
-chmod 0664 /home/$LOCAL_UNAME/.bash_aliases
-
 ls -a /etc/skel/ 
 
 if [ -e /etc/skel/ ]; then

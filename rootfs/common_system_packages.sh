@@ -212,6 +212,14 @@ install_package_i386 libxcb-xkb1
 install_package_i386 libxcb-xkb-dev
 install_package_i386 libcairo2
 install_package_i386 libcairo2-dev
+install_package_i386 libxtst-dev
+install_package_i386 libxtst6
+install_package_i386 libgtk2.0-0
+install_package_i386 libgdk-pixbuf2.0
+install_package_i386 libpulse-dev
+install_package_i386 libasound2
+install_package_i386 libbz2-dev
+install_package_i386 libvdpau-dev
 
 sudo apt autoremove -y
 

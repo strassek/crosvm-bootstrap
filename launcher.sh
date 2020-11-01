@@ -116,6 +116,11 @@ if [[ "$(sudo docker images -q intel-vm-start:latest 2> /dev/null)" == "" ]]; th
 	sudo docker build -t intel-vm-launch:latest -f Dockerfile-start .
 fi
 
+LOCAL_GPU_PASSTHROUGH=$GPU_PASSTHROUGH
+if [[ "$LOCAL_SERIAL_ID" == "0000" ]]; then
+	LOCAL_GPU_PASSTHROUGH=--false
+fi
+
 exec sudo docker run -it --rm --privileged \
     --ipc=host \
     -e DISPLAY=$DISPLAY -e XDG_RUNTIME_DIR=/tmp -e WAYLAND_DISPLAY=$WAYLAND_DISPLAY \
@@ -128,7 +133,7 @@ exec sudo docker run -it --rm --privileged \
     --mount type=bind,source=$BASE_DIRECTORY/launch/scripts,target=/scripts \
     --mount type=bind,source=$BASE_DIRECTORY/shared,target=/shared-host \
     intel-vm-launch:latest \
-    $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $GPU_PASSTHROUGH $LOCAL_SERIAL_ID
+    $LOCAL_CHANNEL $LOCAL_BUILD_TARGET $LOCAL_GPU_PASSTHROUGH $LOCAL_SERIAL_ID
 
 sudo docker rmi -f intel-vm-launch:latest
 if [[ "$LOCAL_SERIAL_ID" != "0000" ]]; then

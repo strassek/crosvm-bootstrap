@@ -25,7 +25,7 @@ if [[ "$CHANNEL" == "--dev" ]] && [[ "$BUILD_TARGET" == "--debug" ]]; then
   cp $LOCAL_ENV_PATH/dev_debug.env /home/$LOCAL_USER/.bash_env_settings
 fi
 
-source /home/$LOCAL_USER/.bash_env_settings
+source /home/$LOCAL_USER/.bash_aliases
 
 if [[ "$DEBUG" == "--true" ]]; then
   export MESA_DEBUG=1
