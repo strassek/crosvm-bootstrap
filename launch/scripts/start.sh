@@ -1,9 +1,19 @@
 #! /bin/bash
 
-set -o pipefail  # trace ERR through pipes
-set -o errtrace  # trace ERR through 'time command' and other functions
-set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
-set -o errexit   ## set -e : exit the script if any statement returns a non-true return value
+###################################################################
+#Launch VM.
+###################################################################
+
+###### exit on any script line that fails #########################
+set -o errexit
+###### bail on any unitialized variable reads #####################
+set -o nounset
+###### bail on failing commands before last pipe #################
+set -o pipefail
+###### Use this to ignore Errors for certian commands ###########
+EXIT_CODE=0
+
+######Globals ####################################################
 
 CHANNEL=${1}
 TARGET=${2}
@@ -15,13 +25,13 @@ LOCAL_KERNEL_CMD_OPTIONS=""
 LOCAL_ACCELERATION_OPTION="--gpu egl=true,glx=true,gles=true"
 
 if [[ "$TARGET" != "debug" ]]; then
-  LOCAL_KERNEL_CMD_OPTIONS="intel_iommu=on drm.debug=255 debug loglevel=2"
+	LOCAL_KERNEL_CMD_OPTIONS="intel_iommu=on drm.debug=255 debug loglevel=2"
 else
-  LOCAL_KERNEL_CMD_OPTIONS="intel_iommu=on drm.debug=255 debug loglevel=8 initcall_debug"
+	LOCAL_KERNEL_CMD_OPTIONS="intel_iommu=on drm.debug=255 debug loglevel=8 initcall_debug"
 fi
 
 if [[ "$GPU_PASS_THROUGH" == "--true" ]]; then
-  LOCAL_ACCELERATION_OPTION="--vfio /sys/bus/pci/devices/$SERIAL_ID"
+	LOCAL_ACCELERATION_OPTION="--vfio /sys/bus/pci/devices/$SERIAL_ID"
 fi
 
 pwd="${PWD}"
@@ -37,13 +47,19 @@ echo "ACCELERATION_OPTION" $LOCAL_ACCELERATION_OPTION
 LOCAL_INTEL_LIB_BASELINE=/opt/$CHANNEL/$TARGET/x86_64
 LOCAL_LIBRARY_PATH=$LOCAL_INTEL_LIB_BASELINE/lib:$LOCAL_INTEL_LIB_BASELINE/lib/x86_64-linux-gnu:/lib:/lib/x86_64-linux-gnu
 
+###############################################################################
+##genMAC()
+###############################################################################
 # Generate random MAC address
 genMAC () {
-  hexchars="0123456789ABCDEF"
-  end=$( for i in {1..8} ; do echo -n ${hexchars:$(( $RANDOM % 16 )):1} ; done | sed -e 's/\(..\)/:\1/g' )
-  echo "FE:05$end"
+	hexchars="0123456789ABCDEF"
+	end=$( for i in {1..8} ; do echo -n ${hexchars:$(( $RANDOM % 16 )):1} ; done | sed -e 's/\(..\)/:\1/g' )
+	echo "FE:05$end"
 }
 
+###############################################################################
+##main()
+###############################################################################
 /bin/bash /scripts/ip_tables.sh eth0 vmtap0
 systemctl start dptf.service
 echo "DPTF Service started"

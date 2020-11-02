@@ -1,13 +1,26 @@
 #! /bin/bash
 
-set -o pipefail  # trace ERR through pipes
-set -o errtrace  # trace ERR through 'time command' and other functions
-set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
-set -o errexit   ## set -e : exit the script if any statement returns a non-true return value
+###################################################################
+#Stop running VM
+###################################################################
+
+###### exit on any script line that fails #########################
+set -o errexit
+###### bail on any unitialized variable reads #####################
+set -o nounset
+###### bail on failing commands before last pipe #################
+set -o pipefail
+###### Use this to ignore Errors for certian commands ###########
+EXIT_CODE=0
+
+######Globals ####################################################
 
 CHANNEL=${1}
 TARGET=${2}
 
+###############################################################################
+##main()
+###############################################################################
 LOCAL_EXEC_DIRECTORY=/opt/$CHANNEL/$TARGET/x86_64/bin
 LOCAL_INTEL_LIB_BASELINE=/opt/$CHANNEL/$TARGET/x86_64
 
