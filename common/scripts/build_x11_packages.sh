@@ -132,7 +132,7 @@ function make_clean_asneeded() {
 	if [ $CLEAN_BUILD == "--clean" ]; then
   		if [ "$(find . | grep -i '.*[.]o' | wc -c)" == 0 ]; then
     			echo "make -j0  clean called"
-    			make clean || true
+    			make clean || EXIT_CODE=$?
     			FORCE_CONFIGURE=1
   		else
     			echo "Skipped make -j0  clean as this is incremental build or project has not been configured."
@@ -165,7 +165,7 @@ function configure_asneeded() {
 function autogen_build() {
 	#make -j0 clean_asneeded
 	#configure_asneeded
-	make clean || true
+	make clean || EXIT_CODE=$?
 	./autogen.sh --prefix=$LOCAL_CURRENT_WLD_PATH $LOCAL_COMPILER_OPTIONS
 	make install
 }

@@ -1,18 +1,57 @@
 #! /bin/bash
 
-# system-packages_internal.sh
-# Install support packages and configure system.
+###################################################################
+#Common packages installed in all rootfs.
+###################################################################
 
-# exit on any script line that fails
+###### exit on any script line that fails #########################
 set -o errexit
-# bail on any unitialized variable reads
+###### bail on any unitialized variable reads #####################
 set -o nounset
-# bail on failing commands before last pipe
+###### bail on failing commands before last pipe #################
 set -o pipefail
+###### Use this to ignore Errors for certian commands ###########
+EXIT_CODE=0
+
+######Globals ####################################################
 
 #apt-get install -y software-properties-common
 #add-apt-repository -y ppa:intel-opencl/intel-opencl
 
+###############################################################################
+##install_package()
+###############################################################################
+function install_package() {
+	package_name="${1}"
+	if [[ ! "$(dpkg -s $package_name)" ]]; then
+  		echo "installing:" $package_name "----------------"
+  		sudo apt-get install -y  --no-install-recommends --no-install-suggests $package_name
+  		sudo apt-mark hold $package_name
+  		echo "---------------------"
+	else
+  		echo $package_name "is already installed."
+	fi
+}
+
+###############################################################################
+##install_package_i386()
+###############################################################################
+function install_package_i386() {
+	package_name="${1}"
+	if [[ ! "$(dpkg -s $package_name:i386)" ]]; then
+  		echo "installing:" $package_name:i386 "----------------"
+  		sudo apt-mark unhold $package_name
+  		sudo apt-get install -y  --no-install-recommends --no-install-suggests $package_name:i386
+  		sudo apt-mark hold $package_name:i386
+  		echo "---------------------"
+	else
+  		echo $package_name:i386 "is already installed."
+	fi
+}
+
+###############################################################################
+##main()
+###############################################################################
 echo "Checking if 32 bit and 64 bit architecture is supported ..."
 
 if [ "x$(dpkg --print-foreign-architectures)" != "xi386" ]; then
@@ -21,31 +60,6 @@ if [ "x$(dpkg --print-foreign-architectures)" != "xi386" ]; then
 fi
 
 echo "Installing needed system packages..."
-function install_package() {
-package_name="${1}"
-if [ ! "$(dpkg -s $package_name)" ]; then
-  echo "installing:" $package_name "----------------"
-  sudo apt-get install -y  --no-install-recommends --no-install-suggests $package_name
-  sudo apt-mark hold $package_name
-  echo "---------------------"
-else
-  echo $package_name "is already installed."
-fi
-}
-
-function install_package_i386() {
-package_name="${1}"
-if [ ! "$(dpkg -s $package_name:i386)" ]; then
-  echo "installing:" $package_name:i386 "----------------"
-  sudo apt-mark unhold $package_name
-  sudo apt-get install -y  --no-install-recommends --no-install-suggests $package_name:i386
-  sudo apt-mark hold $package_name:i386
-  echo "---------------------"
-else
-  echo $package_name:i386 "is already installed."
-fi
-}
-
 install_package libxkbfile1
 install_package libxkbfile-dev
 install_package kmod
@@ -171,6 +185,7 @@ install_package xfonts-75dpi
 install_package xfonts-base
 install_package net-tools
 install_package libasound2-dev
+install_package resolvconf
 
 echo "Installing needed i386 system packages..."
 install_package_i386 libxkbfile1

@@ -1,13 +1,19 @@
 #! /bin/bash
 
-# common_checks_internal.sh
-# Checks that all inputs recieved can be handled by the build system.
-# Copies scripts, config files at start of every build.
+###################################################################
+#Sanity checks the options passed from build.sh.
+###################################################################
 
-set -o pipefail  # trace ERR through pipes
-set -o errtrace  # trace ERR through 'time command' and other functions
-set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
-set -o errexit   ## set -e : exit the script if any statement returns a non-true return value
+###### exit on any script line that fails #########################
+set -o errexit
+###### bail on any unitialized variable reads #####################
+set -o nounset
+###### bail on failing commands before last pipe #################
+set -o pipefail
+###### Use this to ignore Errors for certian commands ###########
+EXIT_CODE=0
+
+######Globals ####################################################
 
 DIRECTORY_PREFIX=${1}
 SOURCE_PWD=${2}
@@ -17,6 +23,10 @@ COMPONENT_ONLY_BUILDS=${5:-"--all"}
 BUILD_CHANNEL=${6:-"--stable"} # Possible values: --dev, --stable, --all
 BUILD_TARGET=${7:-"--release"} # Possible values: --release, --debug, --all
 
+###############################################################################
+##main()
+###############################################################################
+
 if [[ "$COMPONENT_TARGET" != "host" ]] && [[ "$COMPONENT_TARGET" != "guest" ]]; then
   echo "Invalid COMPONENT_TARGET. Please check build_options.txt file for supported combinations."
   exit 1
@@ -24,6 +34,7 @@ fi
 
 if [[ "$BUILD_TYPE" != "--clean" ]] && [[ "$BUILD_TYPE" != "--incremental" ]] && [[ "$BUILD_TYPE" != "--really-clean" ]]; then
   echo "Invalid Build Type. Valid Values:--clean, --incremental, --really-clean"
+  exit 1
 fi
 
 if [[ "$COMPONENT_ONLY_BUILDS" != "--x11" ]] && [[ "$COMPONENT_ONLY_BUILDS" != "--wayland" ]]  && [[ "$COMPONENT_ONLY_BUILDS" != "--drivers" ]] && [[ "$COMPONENT_ONLY_BUILDS" != "--all" ]]; then

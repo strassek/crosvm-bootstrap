@@ -1,21 +1,44 @@
 #! /bin/bash
 
-# system-packages_internal.sh
-# Install support packages and configure system.
+###################################################################
+#Basic setup for any rootfs.
+###################################################################
 
-# exit on any script line that fails
+###### exit on any script line that fails #########################
 set -o errexit
-# bail on any unitialized variable reads
+###### bail on any unitialized variable reads #####################
 set -o nounset
-# bail on failing commands before last pipe
+###### bail on failing commands before last pipe #################
 set -o pipefail
+###### Use this to ignore Errors for certian commands ###########
+EXIT_CODE=0
+
+######Globals ####################################################
 
 LOCAL_UNAME=test
 LOCAL_PASSWORD=test0000
 LOCAL_uid=1000
 LOCAL_gid=1000
 
+###############################################################################
+##install_package()
+###############################################################################
+echo "Installing needed system packages..."
+function install_package() {
+	package_name="${1}"
+	if [[ ! "$(dpkg -s $package_name)" ]]; then
+  		echo "installing:" $package_name "----------------"
+  		apt-get install -y  --no-install-recommends --no-install-suggests $package_name
+  		apt-mark hold $package_name
+  		echo "---------------------"
+	else
+  		echo $package_name "is already installed."
+	fi
+}
 
+###############################################################################
+##main()
+###############################################################################
 echo "Checking if 32 bit and 64 bit architecture is supported ..."
 dpkg --add-architecture i386
 dpkg --configure -a
@@ -48,19 +71,6 @@ if [ "x$(dpkg --print-foreign-architectures)" != "xi386" ]; then
   echo "Failed to add 32 bit architecture."
   exit 2
 fi
-
-echo "Installing needed system packages..."
-function install_package() {
-package_name="${1}"
-if [ ! "$(dpkg -s $package_name)" ]; then
-  echo "installing:" $package_name "----------------"
-  apt-get install -y  --no-install-recommends --no-install-suggests $package_name
-  apt-mark hold $package_name
-  echo "---------------------"
-else
-  echo $package_name "is already installed."
-fi
-}
 
 install_package sudo
 install_package ssh
@@ -120,8 +130,8 @@ mkdir -p /etc/sudoers.d
 
 echo "127.0.1.1  game-fast" >> /etc/hosts
 
-echo "Default user setup.."
-
 install_package libdbus-1-dev
 install_package dbus
 install_package dbus-user-session
+
+echo "Default user setup.."

@@ -18,16 +18,12 @@ export SOMMELIER_VIRTWL_DEVICE=/dev/wl0
 else
 LOCAL_USER=$(whoami)
 
-source /intel/env/container/container_setup.sh
-
 mkdir -p /home/$LOCAL_USER/.env_conf
 cp /intel/env/*.env /home/$LOCAL_USER/.env_conf/
 mkdir -p /home/$LOCAL_USER/.config
 cp /intel/env/weston.ini /home/$LOCAL_USER/.config/
 
-sudo cp /intel/env/resolv.conf /etc/
 cp /intel/env/.bash_aliases /home/$LOCAL_USER/
-cp /intel/env/.bashrc /home/$LOCAL_USER/
 
 cp /home/$LOCAL_USER/stable_release.env /home/$LOCAL_USER/.bash_env_settings
 source /home/$LOCAL_USER/.bash_aliases

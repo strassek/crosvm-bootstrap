@@ -19,9 +19,6 @@ mkdir -p /home/$LOCAL_USER/.config
 cp /intel/env/weston.ini /home/$LOCAL_USER/.config/
 
 cp /intel/env/.bash_aliases /home/$LOCAL_USER/
-cp /intel/env/.bashrc /home/$LOCAL_USER/
-
-sudo cp /intel/env/resolv.conf /etc/
 
 cd /intel/bin
 sudo chmod +x *.sh

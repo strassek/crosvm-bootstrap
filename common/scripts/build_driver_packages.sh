@@ -85,11 +85,11 @@ cd /build
 ##mesonclean_asneeded()
 ###############################################################################
 function mesonclean_asneeded() {
-if [[ "$BUILD_TYPE" == "--clean" ]]; then
-  if [[ -d $LOCAL_MESON_BUILD_DIR ]]; then
-    rm -rf $LOCAL_MESON_BUILD_DIR
-  fi
-fi
+	if [[ "$BUILD_TYPE" == "--clean" ]]; then
+  		if [[ -d $LOCAL_MESON_BUILD_DIR ]]; then
+    			rm -rf $LOCAL_MESON_BUILD_DIR
+  		fi
+	fi
 }
 
 if [[ "$BUILD_ARCH" == "i386" ]]; then
@@ -128,7 +128,7 @@ fi
 }
 else
 generate_compiler_settings() {
-echo "64bit build"
+	echo "64bit build"
 }
 fi
 

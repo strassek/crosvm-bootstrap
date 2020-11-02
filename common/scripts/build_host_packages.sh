@@ -1,14 +1,19 @@
 #! /bin/bash
 
-# package-builder.sh
-# Builds all needed drivers, cros_vm and other needed packages.
+###################################################################
+#Build Host Specific Packages.
+###################################################################
 
-# exit on any script line that fails
+###### exit on any script line that fails #########################
 set -o errexit
-# bail on any unitialized variable reads
+###### bail on any unitialized variable reads #####################
 set -o nounset
-# bail on failing commands before last pipe
+###### bail on failing commands before last pipe #################
 set -o pipefail
+###### Use this to ignore Errors for certian commands ###########
+EXIT_CODE=0
+
+######Globals ####################################################
 
 BUILD_TARGET=${1:-"--release"}
 BUILD_TYPE=${2:-"--incremental"}
@@ -16,34 +21,33 @@ BUILD_CHANNEL=${3:-"--stable"}
 LOCAL_BUILD_TARGET=release
 LOCAL_CHANNEL=stable
 
-if /scripts/common/common_build_internal.sh $BUILD_TYPE $BUILD_TARGET $BUILD_CHANNEL x86_64
-then
-  echo "Starting Build...."
+if /scripts/common/common_build_internal.sh $BUILD_TYPE $BUILD_TARGET $BUILD_CHANNEL x86_64; then
+	echo "Starting Build...."
 else
-  echo "Unable to setup proper build environment. Quitting..."
-  exit 1
+	echo "Unable to setup proper build environment. Quitting..."
+	exit 1
 fi
 
-if [ $BUILD_CHANNEL == "--dev" ]; then
-LOCAL_CHANNEL=dev
+if [[ "$BUILD_CHANNEL" == "--dev" ]]; then
+	LOCAL_CHANNEL=dev
 fi
 
-if [ $BUILD_CHANNEL == "--dev" ]; then
-  if [ $BUILD_TARGET == "--debug" ]; then
-    export RUSTFLAGS='--cfg hermetic -L /opt/dev/debug/x86_64/lib/x86_64-linux-gnu -L /opt/dev/debug/x86_64/lib/x86_64-linux-gnu -L /opt/dev/debug/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
-  else
-    export RUSTFLAGS='--cfg hermetic -L /opt/dev/release/x86_64/lib/x86_64-linux-gnu -L /opt/dev/release/x86_64/lib/x86_64-linux-gnu -L /opt/dev/release/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
-  fi
+if [[ $BUILD_CHANNEL == "--dev" ]]; then
+	if [[ $BUILD_TARGET == "--debug" ]]; then
+    		export RUSTFLAGS='--cfg hermetic -L /opt/dev/debug/x86_64/lib/x86_64-linux-gnu -L /opt/dev/debug/x86_64/lib/x86_64-linux-gnu -L /opt/dev/debug/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
+  	else
+    		export RUSTFLAGS='--cfg hermetic -L /opt/dev/release/x86_64/lib/x86_64-linux-gnu -L /opt/dev/release/x86_64/lib/x86_64-linux-gnu -L /opt/dev/release/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
+  	fi
 else
-  if [ $BUILD_TARGET == "--debug" ]; then
-    export RUSTFLAGS='--cfg hermetic -L /opt/stable/debug/x86_64/lib/x86_64-linux-gnu -L /opt/stable/debug/x86_64/lib/x86_64-linux-gnu -L /opt/stable/debug/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
-  else
-    export RUSTFLAGS='--cfg hermetic -L /opt/stable/release/x86_64/lib/x86_64-linux-gnu  -L /opt/stable/release/x86_64/lib/x86_64-linux-gnu -L /opt/stable/release/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
-  fi
+	if [[ $BUILD_TARGET == "--debug" ]]; then
+    		export RUSTFLAGS='--cfg hermetic -L /opt/stable/debug/x86_64/lib/x86_64-linux-gnu -L /opt/stable/debug/x86_64/lib/x86_64-linux-gnu -L /opt/stable/debug/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
+  	else
+    		export RUSTFLAGS='--cfg hermetic -L /opt/stable/release/x86_64/lib/x86_64-linux-gnu  -L /opt/stable/release/x86_64/lib/x86_64-linux-gnu -L /opt/stable/release/x86_64/lib -L /usr/lib/x86_64-linux-gnu'
+  	fi
 fi
 
-if [ $BUILD_TARGET == "--debug" ]; then
-LOCAL_BUILD_TARGET=debug
+if [[ "$BUILD_TARGET" == "--debug" ]]; then
+	LOCAL_BUILD_TARGET=debug
 fi
 
 LOCAL_CURRENT_WLD_PATH=/opt/$LOCAL_CHANNEL/$LOCAL_BUILD_TARGET/x86_64
@@ -79,10 +83,13 @@ echo "---------------------------------"
 
 cd /build
 
+###############################################################################
+##mesonclean_asneeded()
+###############################################################################
 function mesonclean_asneeded() {
-if [[ ($BUILD_TYPE == "--clean" && -d $LOCAL_MESON_BUILD_DIR) ]]; then
-  rm -rf $LOCAL_MESON_BUILD_DIR
-fi
+	if [[ ($BUILD_TYPE == "--clean" && -d $LOCAL_MESON_BUILD_DIR) ]]; then
+  		rm -rf $LOCAL_MESON_BUILD_DIR
+	fi
 }
 
 cat > $LOCAL_MINI_GBM_PC <<EOF
@@ -97,6 +104,9 @@ Cflags: -I$LOCAL_CURRENT_WLD_PATH/include
 Libs: -L$LOCAL_CURRENT_WLD_PATH/lib/x86_64-linux-gnu -lgbm
 EOF
 
+###############################################################################
+##main()
+###############################################################################
 # Build minigbm
 echo "Building Minigbm............"
 cd $WORKING_DIR/minigbm
@@ -114,25 +124,23 @@ meson setup $LOCAL_MESON_BUILD_DIR -Dplatforms=auto -Dminigbm_allocation=true  -
 echo "Building 64 bit CrosVM............"
 cd $WORKING_DIR/cros_vm/src/platform/crosvm
 if [[ ($BUILD_TYPE == "--clean" && -d $LOCAL_MESON_BUILD_DIR) ]]; then
-  cargo clean --target-dir $LOCAL_MESON_BUILD_DIR
-  rm -rf $LOCAL_MESON_BUILD_DIR
+	cargo clean --target-dir $LOCAL_MESON_BUILD_DIR
+	rm -rf $LOCAL_MESON_BUILD_DIR
 fi
 
 FEATURES='default-no-sandbox wl-dmabuf gpu x audio'
-if [ $BUILD_TARGET == "--debug" ]; then
-  cargo build --target-dir $LOCAL_MESON_BUILD_DIR --features "$FEATURES"
+if [[ "$BUILD_TARGET" == "--debug" ]]; then
+	cargo build --target-dir $LOCAL_MESON_BUILD_DIR --features "$FEATURES"
 else
-  cargo build --target-dir $LOCAL_MESON_BUILD_DIR --release --features "$FEATURES"
+	cargo build --target-dir $LOCAL_MESON_BUILD_DIR --release --features "$FEATURES"
 fi
 
-if [ -f $LOCAL_MESON_BUILD_DIR/$LOCAL_BUILD_TARGET/crosvm ]; then
-  echo "Copying vm binary..."
-  cp $LOCAL_MESON_BUILD_DIR/$LOCAL_BUILD_TARGET/crosvm $LOCAL_CURRENT_WLD_PATH/bin/
+if [[ -f $LOCAL_MESON_BUILD_DIR/$LOCAL_BUILD_TARGET/crosvm ]]; then
+	echo "Copying vm binary..."
+	cp $LOCAL_MESON_BUILD_DIR/$LOCAL_BUILD_TARGET/crosvm $LOCAL_CURRENT_WLD_PATH/bin/
 else
-  echo "Unable to find vm binary..."
-  ls -a $LOCAL_MESON_BUILD_DIR
-  ls -a $LOCAL_MESON_BUILD_DIR/$LOCAL_BUILD_TARGET
-  exit 1
+	echo "Unable to find vm binary..."
+  	exit 1
 fi
 
 # Build DPTF
