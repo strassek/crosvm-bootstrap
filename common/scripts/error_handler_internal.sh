@@ -1,11 +1,8 @@
-# error_handler_internal.sh
-# Used for unmounting and cleaning up failed builds.
-#Original source https://stackoverflow.com/questions/64786/error-handling-in-bash and modified for our use.
-
 #! /bin/bash
 
 ###################################################################
 #Sanity checks the options passed from build.sh.
+#Original source https://stackoverflow.com/questions/64786/error-handling-in-bash and modified for our use.
 ###################################################################
 
 ###### exit on any script line that fails #########################
