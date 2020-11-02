@@ -25,7 +25,7 @@ cp /intel/env/weston.ini /home/$LOCAL_USER/.config/
 
 cp /intel/env/.bash_aliases /home/$LOCAL_USER/
 
-cp /home/$LOCAL_USER/stable_release.env /home/$LOCAL_USER/.bash_env_settings
+cp /home/$LOCAL_USER/.env_conf/stable_release.env /home/$LOCAL_USER/.bash_env_settings
 source /home/$LOCAL_USER/.bash_aliases
 
 sommelier --glamor --drm-device=/dev/dri/renderD128 --master --no-exit-with-child &
