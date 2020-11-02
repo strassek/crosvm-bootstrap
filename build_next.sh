@@ -180,39 +180,10 @@ else
 	exit 1                                                                                                     
 fi
 
-if bash $BASE_DIR/common/common_components_internal.sh $BASE_DIR 'common-libraries' $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET ; then
+if bash $BASE_DIR/common/common_components_internal.sh $BASE_DIR 'host' $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET ; then
 	echo “Common Rootfs: Operation $BUILD_TYPE/$COMPONENT_TARGET Success.”
-	LOCAL_REGENERATE='--rebuild-all' 
 else
-	echo “Failed to build common rootfs to be used by host and guest. exit status: $?”
-	exit 1
-fi
-
-if bash $BASE_DIR/host/build_host_internal.sh $BASE_DIR $LOCAL_REGENERATE $BUILD_TYPE $COMPONENT_ONLY_BUILDS $BUILD_CHANNEL $BUILD_TARGET ; then
-	echo “Host Rootfs: Operation $BUILD_TYPE/$COMPONENT_TARGET Success.”
-	echo "Preparing to create docker image...."
-	cd $BASE_DIR/build/containers
-	if [ ! -e rootfs_host.ext4 ]; then
-		echo "Cannot find rootfs_host.ext4 file. Please check the build...."
-		exit 1
-	fi
-
-	if [[ "$(docker images -q intel_host 2> /dev/null)" != "" ]]; then
-		docker rmi -f intel_host:latest
-	fi
-  
-	if mount | grep intel_host > /dev/null; then
-		sudo umount -l intel_host
-	fi
-	
-	rm -rf intel_host
-	mkdir intel_host
-	sudo mount rootfs_host.ext4 intel_host
-	sudo tar -C intel_host -c . | sudo docker import - intel_host
-	sudo umount -l intel_host
-	rm -rf intel_host 
-else
-	echo “Failed to build Host rootfs, exit status: $?”
+	echo “Failed to build packages to be used by host. exit status: $?”
 	exit 1
 fi
 

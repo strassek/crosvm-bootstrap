@@ -110,14 +110,12 @@ function cleanup_mount ()
 			fi
 
       			rm -rf $MU_LOCAL_ROOTFS_COMMON_MOUNT_DIR
-      			echo "unmounted ALEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE inside"
 		fi
 
 		if [[ ! -e $MU_LOCAL_ROOTFS_COMMON.lock ]] && [[ -e $MU_LOCAL_ROOTFS_COMMON.ext4 ]] && [[ "$MU_IGNORE_LOCK" != "--true" ]]; then
 			rm $MU_LOCAL_ROOTFS_COMMON.ext4
 			echo "destroying rootfs image----- \n";
 		fi
-		echo "unmounted ALEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
 		cd $MU_CURRENT_DIR
 	fi
 }
