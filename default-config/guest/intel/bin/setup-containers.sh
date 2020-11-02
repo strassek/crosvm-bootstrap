@@ -61,7 +61,7 @@ else
 fi
 
 echo "Container image ready."
-exec docker run -t -i -d -e BASH_ENV=/etc/profile --name game-fast-container -e container=docker --privileged -h game-fast --storage-opt size=120G -u $C_LOCAL_USER -v /dev:/dev -v /opt:/opt -v /intel/bin/container:/intel/bin -v /intel/env:/intel/env -e XDG_RUNTIME_DIR=/run/user/${UID} -v /tmp/.X11-unix:/tmp/.X11-unix:rw --mount type=bind,source=/intel/shared-host/guest,target=/shared -e DISPLAY=:0 -e PATH=/intel/bin:$PATH game-fast:latest bash --login
+exec docker run -t -i -d -e BASH_ENV=/etc/profile --name game-fast-container -e container=docker --privileged -h game-fast --storage-opt size=120G -u $C_LOCAL_USER -v /dev:/dev -v /opt:/opt -v /intel/bin/container:/intel/bin -v /intel/env:/intel/env -e XDG_RUNTIME_DIR=/run/user/${UID} -v /tmp/.X11-unix:/tmp/.X11-unix:rw --mount type=bind,source=/intel/shared-host/guest,target=/shared -e XDG_CONFIG_DIRS=/etc/xdg/xdg-ubuntu-wayland:/etc/xdg -e DESKTOP_SESSION=ubuntu-wayland -e XDG_DATA_DIRS=/usr/share/ubuntu-wayland:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop -e DISPLAY=:0 -e PATH=/intel/bin:$PATH game-fast:latest bash --login
 
 if [[ "$(docker images -q game-fast:previous-tag 2> /dev/null)" != "" ]]; then
 	docker rmi -f game-fast:previous-tag || true
