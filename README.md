@@ -7,9 +7,9 @@ once booted to desktop, make sure "echo $WAYLAND_DISPLAY" = wayland-0.
 ## Quickstart
 To build your system, you will need to follow these instructions:
 
-1. Install all system dependencies:
+1. Install all system dependencies and setup Docker:
 ```bash
-./tools/install_system_dependencies.sh
+./check-environment.sh 
 ```
 2. Fetch the code:
 ```bash
