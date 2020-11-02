@@ -137,7 +137,7 @@ if [[ "$UPDATE_CONTAINER" == "--true" ]] || [[ "$COMPONENT_TARGET" == "--guest" 
   LOCAL_BUILD_TYPE=$BUILD_TYPE
 
   if [[ "$COMPONENT_TARGET" == "--rebuild-all" ]] || [[ "$LOCAL_REGENERATE" == "--rebuild-all" ]] || [[ $RECREATE_GUEST_ROOTFS == "1" ]] || [[ ! -e $BASE_DIR/build/images/rootfs_guest.ext4 ]]; then
-    if bash rootfs/create_rootfs.sh $BASE_DIR 'guest' '--really-clean' '15000'; then
+    if bash rootfs/create_rootfs.sh $BASE_DIR 'guest' '--really-clean' '20000'; then
       LOCAL_BUILD_TYPE="--clean"
       echo “Built guest with default usersetup.”
     else

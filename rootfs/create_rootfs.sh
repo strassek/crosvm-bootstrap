@@ -4,7 +4,6 @@
 #Generates base rootfs image which is used to create host and guest
 ###################################################################
 
-s
 ###### exit on any script line that fails ########################
 set -o errexit
 ###### bail on any unitialized variable reads ####################
