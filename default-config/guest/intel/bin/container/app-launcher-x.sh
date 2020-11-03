@@ -38,10 +38,4 @@ export SOMMELIER_GLAMOR=1
 export SOMMELIER_DRM_DEVICE=/dev/dri/renderD128
 export SOMMELIER_VIRTWL_DEVICE=/dev/wl0
 
-if [[ "$TARGET" == "steam" ]]; then
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib32:/usr/lib:/usr/lib/x86_64-linux-gnu
-  export PATH=$PATH:/usr/lib32:/usr/lib:/usr/lib/x86_64-linux-gnu
-  STEAM_RUNTIME=0 sommelier --glamor --drm-device=/dev/dri/renderD128 -X $1
-else
-  sommelier --glamor --drm-device=/dev/dri/renderD128 -X $1
-fi
+sommelier --glamor --drm-device=/dev/dri/renderD128 -X $1

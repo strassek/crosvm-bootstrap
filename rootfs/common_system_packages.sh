@@ -186,6 +186,7 @@ install_package xfonts-base
 install_package net-tools
 install_package libasound2-dev
 install_package resolvconf
+install_package libc6-dev-i386
 
 echo "Installing needed i386 system packages..."
 install_package_i386 libxkbfile1
