@@ -16,7 +16,6 @@ EXIT_CODE=0
 BASE_PWD=${1}
 COMPONENT_TARGET=${2:-"--host"}
 BUILD_TYPE=${3:-"--clean"} # Possible values: --all/clean/update
-SIZE=${4:-"5000"}
 
 LOCAL_PWD=$BASE_PWD/build
 SOURCE_PWD=$BASE_PWD/source
@@ -24,6 +23,15 @@ LOCAL_BUILD_TYPE=$BUILD_TYPE
 LOG_DIR=$BASE_PWD/build/log/${COMPONENT_TARGET:2}
 SCRIPTS_DIR=$LOCAL_PWD/scripts
 LOCAL_USER=test
+LOCAL_SIZE=5000
+
+if [[ "$COMPONENT_TARGET" == "--guest" ]]; then
+	LOCAL_SIZE=40000
+fi
+
+if [[ "$COMPONENT_TARGET" == "--container" ]]; then
+	LOCAL_SIZE=30000
+fi	
 
 mkdir -p $BASE_PWD/build/images
 mkdir -p $LOG_DIR
@@ -45,13 +53,13 @@ cleanup_build() {
 cleanup_base_rootfs() {
 	cleanup_build
 	
-	if [ $BUILD_TYPE == "--really-clean" ]; then
+	if [ $BUILD_TYPE == "--clean" ]; then
 		if [ -e $ROOTFS_COMMON.lock ]; then
 			rm $ROOTFS_COMMON.lock || EXIT_CODE=$?
 		fi
 
 		if [ -e $ROOTFS_COMMON.ext4 ]; then
-			echo "destroying rootfs image----- \n";
+			echo "destroying rootfs image-----";
 			rm  $ROOTFS_COMMON.ext4 || EXIT_CODE=$?
 		fi
 	fi
@@ -69,7 +77,7 @@ generate_base_rootfs() {
 	fi
 
 	echo "Generating rootfs...."
-	dd if=/dev/zero of=$ROOTFS_COMMON.ext4 bs=$SIZE count=1M
+	dd if=/dev/zero of=$ROOTFS_COMMON.ext4 bs=$LOCAL_SIZE count=1M
 	mkfs.ext4 $ROOTFS_COMMON.ext4
 	echo "Gar check $PWD"
 	ls -la

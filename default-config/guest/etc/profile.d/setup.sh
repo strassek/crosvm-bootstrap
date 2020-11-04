@@ -58,8 +58,8 @@ sudo chown -R $LOCAL_USER:$LOCAL_USER /intel
 cp /home/$LOCAL_USER/.env_conf/stable_release.env /home/$LOCAL_USER/.bash_env_settings
 source /home/$LOCAL_USER/.bash_aliases
 
-#if [[ $(docker ps -a -f "name=$LOCAL_CONTAINER_NAME" --format '{{.Names}}') != $LOCAL_CONTAINER_NAME ]]; then
-#	echo "Launching Container...."
-#	update-containers
-#	launch-container
-#fi
+if [[ $(docker ps -a -f "name=$LOCAL_CONTAINER_NAME" --format '{{.Names}}') != $LOCAL_CONTAINER_NAME ]]; then
+	echo "Launching Container...."
+	update-containers
+	launch-container
+fi
