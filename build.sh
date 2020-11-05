@@ -182,7 +182,7 @@ Parseoptions $BUILD_TYPE $COMPONENT_TARGET $SUB_COMPONENT_TARGET
 Envsetup $BUILD_TYPE $COMPONENT_TARGET $BASE_DIR
 
 ##########################Build Host Image#####################################
-if [ "$BUILD_TYPE" != "--clean" ] ||  [ $COMPONENT_TARGET == "--host" ]; then
+if [ "$BUILD_TYPE" == "--all" ] ||  [ $COMPONENT_TARGET == "--host" ]; then
 	COMPONENT_TARGET="--host"
 
 	if [[ "$(docker images -q intel_host 2> /dev/null)" != "" ]]; then
@@ -198,7 +198,7 @@ if [ "$BUILD_TYPE" != "--clean" ] ||  [ $COMPONENT_TARGET == "--host" ]; then
 fi
 
 ##########################Build Container Image#####################################
-if [ "$BUILD_TYPE" != "--clean" ] ||  [ $COMPONENT_TARGET == "--container" ]; then
+if [ "$BUILD_TYPE" == "--all" ] ||  [ $COMPONENT_TARGET == "--container" ]; then
 	COMPONENT_TARGET="--container"
 
 	if bash common/common_components_internal.sh $BASE_DIR $BUILD_TYPE $COMPONENT_TARGET $SUB_COMPONENT_TARGET $BUILD_CHANNEL $BUILD_TARGET; then
@@ -210,7 +210,7 @@ if [ "$BUILD_TYPE" != "--clean" ] ||  [ $COMPONENT_TARGET == "--container" ]; th
 fi
 
 ##########################Build Guest Image#########################################
-if [ "$BUILD_TYPE" != "--clean" ] ||  [ $COMPONENT_TARGET == "--guest" ]; then
+if [ "$BUILD_TYPE" == "--all" ] ||  [ $COMPONENT_TARGET == "--guest" ]; then
         COMPONENT_TARGET="--guest"
 
         if bash common/common_components_internal.sh $BASE_DIR $BUILD_TYPE $COMPONENT_TARGET $SUB_COMPONENT_TARGET $BUILD_CHANNEL $BUILD_TARGET; then
@@ -222,7 +222,7 @@ if [ "$BUILD_TYPE" != "--clean" ] ||  [ $COMPONENT_TARGET == "--guest" ]; then
 fi
 
 ##########################Build Kernel Image#########################################
-if [ "$BUILD_TYPE" != "--clean" ] ||  [ $COMPONENT_TARGET == "--kernel" ]; then
+if [ "$BUILD_TYPE" == "--all" ] ||  [ $COMPONENT_TARGET == "--kernel" ]; then
 	COMPONENT_TARGET="--kernel"
 
         if bash common/common_components_internal.sh $BASE_DIR $BUILD_TYPE $COMPONENT_TARGET $SUB_COMPONENT_TARGET $BUILD_CHANNEL $BUILD_TARGET; then
@@ -235,6 +235,10 @@ fi
 
 #############################INSTALL BUILD IMAGES###################################
 if [[ -e "$BASE_DIR/build/containers/rootfs_host.ext4" ]] && [[ -e "$BASE_DIR/build/containers/rootfs_game_fast.ext4" ]] && [[ -e "$BASE_DIR/build/images/rootfs_guest.ext4" ]] && [[ -e "$BASE_DIR/build/images/vmlinux" ]]; then
+	if [[ -e $BASE_DIR/build/launch ]]; then
+		rm -rf $BASE_DIR/build/launch
+	fi
+	
         mkdir -p $BASE_DIR/build/launch
         mkdir -p $BASE_DIR/build/launch/images
         mkdir -p $BASE_DIR/build/launch/docker/
