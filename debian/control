@@ -1,0 +1,13 @@
+Source: game-fast
+Section: games
+Priority: optional
+Maintainer: Kevin Strasser <kevin.strasser@intel.com>
+Build-Depends:
+ debhelper (>=10),
+Rules-Requires-Root: no
+Standards-Version: 4.5.0
+
+Package: game-fast
+Architecture: amd64
+Multi-Arch: foreign
+Description: Long description

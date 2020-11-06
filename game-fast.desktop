@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=0.1
+Name=Game Fast
+Comment=Game Fast
+Exec=/opt/game-fast/launcher.sh
+Path=/opt/game-fast/
+Icon=game-fast
+Terminal=true
+Type=Application
+Categories=Application

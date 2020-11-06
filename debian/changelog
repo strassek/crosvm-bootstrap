@@ -1,0 +1,5 @@
+game-fast (1.0.0-1) experimental; urgency=low
+
+  * Initial game-fast release
+
+ -- Kevin Strasser <kevin.strasser@intel.com>  Fri, 06 Nov 2020 20:28:51 +0000

@@ -1,0 +1,28 @@
+game-fast.desktop usr/share/applications
+
+icons/16/game-fast.png usr/share/icons/hicolor/16x16/apps
+icons/24/game-fast.png usr/share/icons/hicolor/24x24/apps
+icons/32/game-fast.png usr/share/icons/hicolor/32x32/apps
+icons/48/game-fast.png usr/share/icons/hicolor/48x48/apps
+icons/48/game-fast_tray_mono.png usr/share/icons/hicolor/48x48/apps
+icons/256/game-fast.png usr/share/icons/hicolor/256x256/apps
+
+build/launch/launcher.sh opt/game-fast
+
+build/launch/images/rootfs_guest.ext4 opt/game-fast/images
+build/launch/images/rootfs_host.ext4 opt/game-fast/images
+build/launch/images/vmlinux opt/game-fast/images
+
+build/launch/docker/Dockerfile-start opt/game-fast/docker
+build/launch/docker/Dockerfile-stop opt/game-fast/docker
+
+build/launch/launch/docker/start.dockerfile opt/game-fast/launch/docker
+build/launch/launch/docker/stop.dockerfile opt/game-fast/launch/docker
+build/launch/launch/scripts/gpu_passthrough_checks.sh opt/game-fast/launch/scripts
+build/launch/launch/scripts/ip_tables.sh opt/game-fast/launch/scripts
+build/launch/launch/scripts/start.sh opt/game-fast/launch/scripts
+build/launch/launch/scripts/install_system_dependencies.sh opt/game-fast/launch/scripts
+build/launch/launch/scripts/setup_gpu_passthrough.sh opt/game-fast/launch/scripts
+build/launch/launch/scripts/stop.sh opt/game-fast/launch/scripts
+
+build/launch/shared/containers/rootfs_game_fast.ext4 opt/game-fast/shared/containers
